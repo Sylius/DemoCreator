@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\DemoCreator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Process\Process;
 
 #[Route('/create-demo', name: 'demo_create', methods: ['POST'])]
 final class CreateDemoController extends AbstractController
 {
+    public function __construct(private readonly DemoCreator $demoCreator)
+    {
+    }
+
     public function __invoke(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -40,30 +45,15 @@ final class CreateDemoController extends AbstractController
             json_encode($boosterContent, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT)
         );
 
-        $console = $this->getParameter('kernel.project_dir') . '/bin/console';
-        $process = Process::fromShellCommandline(sprintf(
-            'php %s demo:create %s %s',
-            escapeshellarg($console),
-            escapeshellarg($slug),
-            escapeshellarg($tmpFile)
-        ));
-        $process->run();
+        try {
+            $result = $this->demoCreator->create($slug, $plugins);
 
-        if (!$process->isSuccessful()) {
-            return new JsonResponse([
-                'status' => 'error',
-                'message' => $process->getErrorOutput(),
-            ], 500);
+            return new JsonResponse($result);
+        } catch (\Throwable $e) {
+            return new JsonResponse(
+                ['status' => 'error', 'message' => $e->getMessage()],
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+            );
         }
-
-        $result = json_decode($process->getOutput(), true);
-        if (null === $result) {
-            return new JsonResponse([
-                'status' => 'error',
-                'message' => 'Invalid JSON from demo:create command',
-            ], 500);
-        }
-
-        return new JsonResponse($result);
     }
 }
