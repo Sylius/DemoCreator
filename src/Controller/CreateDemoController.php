@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\DemoCreator;
+use App\Service\DemoDeployer\DemoDeployerInterface;
+use App\Service\DemoDeployer\PlatformShDeployer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/create-demo', name: 'demo_create', methods: ['POST'])]
 final class CreateDemoController extends AbstractController
 {
-    public function __construct(private readonly DemoCreator $demoCreator)
+    public function __construct(private readonly PlatformShDeployer $demoDeployer)
     {
     }
 
@@ -46,7 +47,7 @@ final class CreateDemoController extends AbstractController
         );
 
         try {
-            $result = $this->demoCreator->create($slug, $plugins);
+            $result = $this->demoDeployer->deploy($slug, $plugins);
 
             return new JsonResponse($result);
         } catch (\Throwable $e) {

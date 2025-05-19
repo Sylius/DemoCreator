@@ -1,21 +1,14 @@
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    sylius.repo: '%env(SYLIUS_REPO)%'
-    sylius.branch: '%env(SYLIUS_BRANCH)%'
-    platform.project: '%env(PLATFORM_PROJECT_ID)%'
+    platform.project_id: '%env(PLATFORM_PROJECT_ID)%'
+    platform.sylius_branch: '%env(SYLIUS_BRANCH)%'
+    platform.api_token:   '%env(PLATFORMSH_API_TOKEN)%'
+    platform.ssh_key_path: '%env(PLATFORMSH_SSH_KEY_PATH)%'
 
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
         exclude:
@@ -23,11 +16,23 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
 
-    App\Service\DemoCreator:
+    Platformsh\Client\Connection\Connector:
         arguments:
-            $syliusRepo: '%sylius.repo%'
-            $syliusBranch: '%sylius.branch%'
-            $platformProjectId: '%platform.project%'
+            $config:
+                api_url: 'https://api.platform.sh'
+                accounts: 'https://api.platform.sh/'
+                centralized_permissions_enabled: true
+
+    Platformsh\Client\PlatformClient:
+        arguments:
+            $connector: '@Platformsh\Client\Connection\Connector'
+
+    App\Service\DemoDeployer\PlatformShDeployer:
+        arguments:
+            $projectId:    '%platform.project_id%'
+            $syliusBranch: '%platform.sylius_branch%'
+            $apiToken:     '%platform.api_token%'
+            $sshKeyPath:   '%platform.ssh_key_path%'
+        tags:
+            - { name: 'app.demo_deployer', alias: 'platformsh' }
