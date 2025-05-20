@@ -31,5 +31,6 @@ services:
         arguments:
             $projectId:    '%platform.project_id%'
             $platformCliToken:   '%platform.cli_token%'
+            $projectDir: '%kernel.project_dir%'
         tags:
             - { name: 'app.demo_deployer', alias: 'platformsh' }

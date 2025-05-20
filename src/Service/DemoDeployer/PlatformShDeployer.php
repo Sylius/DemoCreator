@@ -13,7 +13,9 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
     public function __construct(
         private string $projectId,
         private string $platformCliToken,
-    ) {}
+        private string $projectDir,
+    ) {
+    }
 
     public function getProviderKey(): string
     {
@@ -22,6 +24,10 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
 
     public function deploy(string $environment, array $plugins): array
     {
+        $syliusDir = $this->projectDir
+            . DIRECTORY_SEPARATOR . 'sylius'
+            . DIRECTORY_SEPARATOR . $environment;
+
         try {
             // 0. Authenticate if needed
             try {
@@ -34,31 +40,31 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
             }
 
             Process::fromShellCommandline(
-                'rm -fr sylius'
-            )->mustRun();
-
-            Process::fromShellCommandline(
-                'mkdir -p sylius'
+                sprintf('rm -fr %s', escapeshellarg($syliusDir))
             )->mustRun();
 
             // 1. Clone Sylius-Standard (branch 'booster') into sylius/<env>
             Process::fromShellCommandline(sprintf(
                 'git clone --branch booster %s %s',
                 escapeshellarg('https://github.com/Sylius/Sylius-Standard.git'),
-                escapeshellarg('sylius')
+                escapeshellarg($syliusDir)
             ))->mustRun();
 
-            file_put_contents('sylius/sylius-plugins.json', json_encode($plugins, JSON_PRETTY_PRINT));
+            file_put_contents(
+                sprintf('%s/sylius-plugins.json', $syliusDir),
+                json_encode($plugins, JSON_PRETTY_PRINT));
 
             // 3. Commit the new config
             Process::fromShellCommandline(sprintf(
-                'cd sylius && git add sylius-plugins.json && git commit -m %s',
+                'cd %s && git add sylius-plugins.json && git commit -m %s',
+                escapeshellarg($syliusDir),
                 escapeshellarg("Add plugin config")
             ))->mustRun();
 
             // 4. Push to Platform.sh, triggering build + deploy
             Process::fromShellCommandline(sprintf(
-                'cd sylius && platform push --project=%s --environment=%s --force --no-wait',
+                'cd %s && platform push --project=%s --environment=%s --force --no-wait',
+                escapeshellarg($syliusDir),
                 escapeshellarg($this->projectId),
                 escapeshellarg($environment)
             ))->mustRun();
