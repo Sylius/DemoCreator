@@ -27,31 +27,22 @@ class DeployCommand extends Command
     {
         $this
             ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
-        ;
+            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
-
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
-        }
-
-        if ($input->getOption('option1')) {
-            // ...
-        }
-
-        $this->deployer->deploy(
-            'z_komendy',
-            [
-                "plugins" => [
-                    "sylius/cms-plugin" => "dev-booster"
-                ]
+        $result = $this->deployer->deploy(
+            environment: 'booster',
+            plugins: [
+                "sylius/invoicing-plugin" => "2.0.x-dev",
             ]
         );
+
+        $io = new SymfonyStyle($input, $output);
+        $io->title('Deploying to Platform.sh');
+        $io->info('Status: ' . $result['status']);
+        $io->success('Deployed to ' . $result['url']);
 
         return Command::SUCCESS;
     }
