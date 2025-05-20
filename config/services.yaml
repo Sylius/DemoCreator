@@ -30,7 +30,6 @@ services:
     App\Service\DemoDeployer\PlatformShDeployer:
         arguments:
             $projectId:    '%platform.project_id%'
-            $syliusBranch: '%platform.sylius_branch%'
             $platformCliToken:   '%platform.cli_token%'
         tags:
             - { name: 'app.demo_deployer', alias: 'platformsh' }
