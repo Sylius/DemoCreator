@@ -23,13 +23,13 @@ final class CreateDemoController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        if (empty($data['slug']) || !is_string($data['slug'])) {
+        if (empty($data['environment']) || !is_string($data['environment'])) {
             return new JsonResponse([
                 'status' => 'error',
-                'message' => 'Missing or invalid "slug"'
+                'message' => 'Missing or invalid "environment"'
             ], 400);
         }
-        $slug = $data['slug'];
+        $environment = $data['environment'];
 
         if (empty($data['plugins']) || !is_array($data['plugins'])) {
             return new JsonResponse([
@@ -39,15 +39,8 @@ final class CreateDemoController extends AbstractController
         }
         $plugins = $data['plugins'];
 
-        $tmpFile = sys_get_temp_dir() . '/booster_' . uniqid('', true) . '.json';
-        $boosterContent = ['plugins' => $plugins];
-        file_put_contents(
-            $tmpFile,
-            json_encode($boosterContent, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT)
-        );
-
         try {
-            $result = $this->demoDeployer->deploy($slug, $plugins);
+            $result = $this->demoDeployer->deploy($environment, $plugins);
 
             return new JsonResponse($result);
         } catch (\Throwable $e) {
