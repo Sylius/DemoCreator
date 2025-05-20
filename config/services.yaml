@@ -1,8 +1,7 @@
 parameters:
     platform.project_id: '%env(PLATFORM_PROJECT_ID)%'
     platform.sylius_branch: '%env(SYLIUS_BRANCH)%'
-    platform.api_token:   '%env(PLATFORMSH_API_TOKEN)%'
-    platform.ssh_key_path: '%env(PLATFORMSH_SSH_KEY_PATH)%'
+    platform.cli_token:   '%env(PLATFORMSH_CLI_TOKEN)%'
 
 services:
     _defaults:
@@ -32,7 +31,6 @@ services:
         arguments:
             $projectId:    '%platform.project_id%'
             $syliusBranch: '%platform.sylius_branch%'
-            $apiToken:     '%platform.api_token%'
-            $sshKeyPath:   '%platform.ssh_key_path%'
+            $platformCliToken:   '%platform.cli_token%'
         tags:
             - { name: 'app.demo_deployer', alias: 'platformsh' }
