@@ -13,14 +13,17 @@ declare(strict_types=1);
 
 namespace App\Service\DemoDeployer;
 
+use App\Exception\DemoDeploymentException;
+
 interface DemoDeployerInterface
 {
     /**
-     * @param array<string,string> $plugins
-     *
+     * @param string $environment slug for the new demo environment
+     * @param string[] $plugins [package => version]
      * @return array{status:string, url:string}
+     * @throws DemoDeploymentException
      */
-    public function deploy(string $slug, array $plugins): array;
+    public function deploy(string $environment, array $plugins): array;
 
     public function getProviderKey(): string;
 }

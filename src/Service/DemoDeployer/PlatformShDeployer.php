@@ -6,12 +6,12 @@ namespace App\Service\DemoDeployer;
 
 use App\Exception\DemoDeploymentException;
 use Symfony\Component\Process\Process;
+use Throwable;
 
 final readonly class PlatformShDeployer implements DemoDeployerInterface
 {
     public function __construct(
         private string $projectId,
-        private string $syliusBranch,
         private string $platformCliToken,
     ) {}
 
@@ -20,78 +20,73 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
         return 'platformsh';
     }
 
-    /**
-     * @param string   $slug    A safe, URL-friendly name for the new environment
-     * @param string[] $plugins A list of Composer package names to install
-     *
-     * @return array{environment: string, url: string}
-     *
-     * @throws DemoDeploymentException
-     */
-    public function deploy(string $slug, array $plugins): array
+    public function deploy(string $environment, array $plugins): array
     {
         try {
-            // 0. Authenticate using API token, no browser interaction
-            Process::fromShellCommandline(sprintf(
-                'platform auth:api-token-login --token %s --no-interaction',
-                escapeshellarg($this->platformCliToken)
-            ))->mustRun();
-
-            // 1. Initialize a new child environment by cloning the Sylius-Standard repo
-            Process::fromShellCommandline(sprintf(
-                'platform environment:init --project=%s --environment=%s --no-interaction %s',
-                escapeshellarg($this->projectId),
-                escapeshellarg($slug),
-                escapeshellarg("https://github.com/Sylius/Sylius-Standard.git#{$this->syliusBranch}")
-            ))->mustRun();
-
-            // 2. If plugins are specified, install them via Composer and push the changes
-            if (!empty($plugins)) {
-                // Install plugins
-                $packages = implode(' ', array_map('escapeshellarg', $plugins));
+            // 0. Authenticate if needed
+            try {
+                Process::fromShellCommandline('platform auth:info')->mustRun();
+            } catch (\Throwable) {
                 Process::fromShellCommandline(sprintf(
-                    'cd %s && composer require %s',
-                    escapeshellarg($slug),
-                    $packages
-                ))->mustRun();
-
-                // Commit the new dependencies
-                Process::fromShellCommandline(sprintf(
-                    'cd %s && git add composer.json composer.lock && ' .
-                    'git commit -m %s',
-                    escapeshellarg($slug),
-                    escapeshellarg("Add plugins to demo {$slug}")
-                ))->mustRun();
-
-                // Push the updated code to the environment
-                Process::fromShellCommandline(sprintf(
-                    'platform push --project=%s --environment=%s --no-interaction',
-                    escapeshellarg($this->projectId),
-                    escapeshellarg($slug)
+                    'platform auth:api-token-login --token %s --no-interaction',
+                    escapeshellarg($this->platformCliToken)
                 ))->mustRun();
             }
 
-            // 3. Retrieve the primary public URL of the new environment
-            $urlProcess = Process::fromShellCommandline(sprintf(
-                'platform environment:url --project=%s --environment=%s ' .
-                '--primary --pipe',
-                escapeshellarg($this->projectId),
-                escapeshellarg($slug)
+            Process::fromShellCommandline(
+                'rm -fr sylius'
+            )->mustRun();
+
+            Process::fromShellCommandline(
+                'mkdir -p sylius'
+            )->mustRun();
+
+            // 1. Clone Sylius-Standard (branch 'booster') into sylius/<env>
+            Process::fromShellCommandline(sprintf(
+                'git clone --branch booster %s %s',
+                escapeshellarg('https://github.com/Sylius/Sylius-Standard.git'),
+                escapeshellarg('sylius')
             ))->mustRun();
 
-            $url = trim($urlProcess->getOutput());
+            file_put_contents('sylius/sylius-plugins.json', json_encode($plugins, JSON_PRETTY_PRINT));
+
+            // 3. Commit the new config
+            Process::fromShellCommandline(sprintf(
+                'cd sylius && git add sylius-plugins.json && git commit -m %s',
+                escapeshellarg("Add plugin config")
+            ))->mustRun();
+
+            // 4. Push to Platform.sh, triggering build + deploy
+            Process::fromShellCommandline(sprintf(
+                'cd sylius && platform push --project=%s --environment=%s --force --no-wait',
+                escapeshellarg($this->projectId),
+                escapeshellarg($environment)
+            ))->mustRun();
+
+            $url = trim(Process::fromShellCommandline(sprintf(
+                'platform environment:url --project=%s --environment=%s --primary --pipe',
+                escapeshellarg($this->projectId),
+                escapeshellarg($environment)
+            ))->mustRun()->getOutput());
+
+            $status = Process::fromShellCommandline(sprintf(
+                'platform environment:info --project=%s --environment=%s --format=plain',
+                escapeshellarg($this->projectId),
+                escapeshellarg($environment)
+            ))->mustRun()->getOutput();
 
             return [
-                'environment' => $slug,
+                'status' => $status,
                 'url'         => $url,
             ];
-        } catch (DemoDeploymentException $e) {
-            throw $e;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
+            Process::fromShellCommandline(
+                'rm -fr sylius'
+            )->mustRun();
+
             throw new DemoDeploymentException(
                 'Deploy failed: ' . $e->getMessage(),
                 '',
-                $e
             );
         }
     }
