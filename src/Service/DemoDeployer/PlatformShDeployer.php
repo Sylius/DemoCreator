@@ -107,4 +107,9 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
 
         return ['status' => trim(Process::fromShellCommandline($command)->mustRun()->getOutput())];
     }
+
+    public function revertDemo(string $environment): void
+    {
+        $this->deploy($environment, []);
+    }
 }

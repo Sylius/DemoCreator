@@ -28,5 +28,7 @@ interface DemoDeployerInterface
     /** @return array{status:string} */
     public function getDeployState(string $environment, string $activityId): array;
 
+    public function revertDemo(string $environment): void;
+
     public function getProviderKey(): string;
 }
