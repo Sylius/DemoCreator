@@ -25,5 +25,7 @@ interface DemoDeployerInterface
      */
     public function deploy(string $environment, array $plugins): array;
 
+    public function getDeployState(string $environment, string $activityId): string;
+
     public function getProviderKey(): string;
 }
