@@ -8,11 +8,6 @@ const stepVariants = {
     exit: {opacity: 0, x: -50},
 };
 
-const defaultLogos = [
-    {id: 'sylius', name: 'Sylius', url: '/uploads/logo_sylius.png'},
-    // dodaj inne domyślne loga jeśli potrzeba
-];
-
 export default function DemoWizard({
                                        apiUrl,
                                        pluginsUrl,
@@ -30,14 +25,14 @@ export default function DemoWizard({
     const [selectedPlugins, setSelectedPlugins] = useState([]);
     const [selectedFixtures, setSelectedFixtures] = useState([]);
 
-    const [selectedLogo, setSelectedLogo] = useState(defaultLogos[0].id);
     const [logoFile, setLogoFile] = useState(null);
-    const [logoUrl, setLogoUrl] = useState(defaultLogos[0].url);
+    const [logoUrl, setLogoUrl] = useState(null);
 
     const [target, setTarget] = useState('');
     const [envOptions, setEnvOptions] = useState([]);
     const [env, setEnv] = useState('');
 
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [result, setResult] = useState(null);
 
@@ -55,7 +50,6 @@ export default function DemoWizard({
             .catch(() => setError('Nie udało się załadować konfiguracji'));
     }, [pluginsUrl, fixturesUrl, targetsUrl]);
 
-    // fetch environments when reaching deploy step and platform.sh selected
     useEffect(() => {
         if (step === 4 && target === 'platform.sh') {
             fetch(environmentsUrl)
@@ -78,17 +72,25 @@ export default function DemoWizard({
         setLogoUrl(data.logoUrl);
     };
 
-    const submit = async () => {
+    const buildPluginPayload = () => {
+        const map = {};
+        selectedPlugins.forEach(composer => {
+            const plugin = plugins.find(p => p.composer === composer);
+            if (plugin) map[composer] = plugin.version;
+        });
+        return map;
+    };
+
+    const handleDeploy = async () => {
+        setLoading(true);
         try {
-            if (logoFile && logoUrl === defaultLogos.find(l => l.id === selectedLogo).url) {
-                await uploadLogo();
-            }
+            if (logoFile) await uploadLogo();
             const payload = {
-                plugins: selectedPlugins,
+                environment: target === 'platform.sh' ? env : undefined,
+                plugins: buildPluginPayload(),
                 fixtures: selectedFixtures,
                 logoUrl,
                 target,
-                environment: target === 'platform.sh' ? env : undefined,
             };
             const res = await fetch(apiUrl, {
                 method: 'POST',
@@ -98,202 +100,128 @@ export default function DemoWizard({
             const data = await res.json();
             if (!res.ok) throw new Error(data.message);
             setResult(data);
-            next();
+            setStep(5);
         } catch (e) {
             setError(e.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-indigo-50 p-4">
-            <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
-                <div className="bg-indigo-600 text-white py-4 px-6">
-                    <h1 className="text-2xl font-bold">Kreator demo</h1>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 font-sans">
+            <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                <div className="bg-teal-600 text-white py-4 px-6">
+                    <h1 className="text-2xl font-semibold">Kreator Demo</h1>
                 </div>
-                <div className="p-6 min-h-[380px]">
-                    {error && (
-                        <div className="mb-4 text-red-600 bg-red-100 p-3 rounded-lg">
-                            {error}
-                        </div>
-                    )}
+                <div className="p-6 min-h-[400px]">
+                    {error && <div className="mb-4 text-teal-700 bg-teal-100 p-3 rounded">{error}</div>}
 
                     <AnimatePresence exitBeforeEnter>
                         {/* Step 1: Plugins */}
                         {step === 1 && (
-                            <motion.div
-                                key="step1"
-                                variants={stepVariants}
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                transition={{duration: 0.3}}
-                            >
-                                <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    1. Wybierz pluginy
-                                </h2>
-                                <div className="grid grid-cols-2 gap-3 mb-6 max-h-44 overflow-y-auto">
+                            <motion.div key="1" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
+                                        transition={{duration: 0.3}}>
+                                <h2 className="text-lg font-medium mb-4 text-teal-700">1. Pluginy</h2>
+                                <div className="grid grid-cols-1 gap-2 mb-6 max-h-40 overflow-y-auto">
                                     {plugins.map(p => (
-                                        <label key={p} className="flex items-center space-x-2">
+                                        <label key={p.composer} className="flex items-center space-x-2">
                                             <input
                                                 type="checkbox"
-                                                value={p}
+                                                value={p.composer}
+                                                checked={selectedPlugins.includes(p.composer)}
                                                 onChange={e => {
-                                                    const v = e.target.value;
-                                                    setSelectedPlugins(sel =>
-                                                        e.target.checked ? [...sel, v] : sel.filter(x => x !== v)
-                                                    );
+                                                    const c = e.target.value;
+                                                    setSelectedPlugins(sel => sel.includes(c) ? sel.filter(x => x !== c) : [...sel, c]);
                                                 }}
-                                                className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                                className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
                                             />
-                                            <span className="text-gray-700">{p}</span>
+                                            <span className="text-gray-800 text-sm">{p.name} ({p.version})</span>
                                         </label>
                                     ))}
                                 </div>
                                 <button
                                     onClick={next}
                                     disabled={!selectedPlugins.length}
-                                    className={`w-full py-2 rounded-lg font-medium transition ${
-                                        selectedPlugins.length
-                                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow'
-                                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                    className={`w-full py-2 rounded-md text-white font-medium transition ${
+                                        selectedPlugins.length ? 'bg-teal-600 hover:bg-teal-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                     }`}
-                                >
-                                    Dalej →
+                                >Dalej →
                                 </button>
                             </motion.div>
                         )}
 
                         {/* Step 2: Fixtures */}
                         {step === 2 && (
-                            <motion.div
-                                key="step2"
-                                variants={stepVariants}
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                transition={{duration: 0.3}}
-                            >
-                                <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    2. Wybierz fixtures
-                                </h2>
-                                <div className="grid grid-cols-2 gap-3 mb-6 max-h-44 overflow-y-auto">
+                            <motion.div key="2" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
+                                        transition={{duration: 0.3}}>
+                                <h2 className="text-lg font-medium mb-4 text-teal-700">2. Fixtures</h2>
+                                <div className="grid grid-cols-1 gap-2 mb-6 max-h-32 overflow-y-auto">
                                     {fixtures.map(f => (
                                         <label key={f} className="flex items-center space-x-2">
                                             <input
                                                 type="checkbox"
                                                 value={f}
+                                                checked={selectedFixtures.includes(f)}
                                                 onChange={e => {
                                                     const v = e.target.value;
-                                                    setSelectedFixtures(sel =>
-                                                        e.target.checked ? [...sel, v] : sel.filter(x => x !== v)
-                                                    );
+                                                    setSelectedFixtures(sel => sel.includes(v) ? sel.filter(x => x !== v) : [...sel, v]);
                                                 }}
-                                                className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                                className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
                                             />
-                                            <span className="text-gray-700">{f}</span>
+                                            <span className="text-gray-800 text-sm">{f}</span>
                                         </label>
                                     ))}
                                 </div>
                                 <div className="flex justify-between">
-                                    <button onClick={back} className="text-indigo-600 hover:underline">
-                                        ← Wstecz
-                                    </button>
+                                    <button onClick={back} className="text-teal-600 hover:underline">← Wstecz</button>
                                     <button
                                         onClick={next}
                                         disabled={!selectedFixtures.length}
-                                        className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            selectedFixtures.length
-                                                ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow'
-                                                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                        className={`py-2 px-4 rounded-md font-medium transition ${
+                                            selectedFixtures.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         }`}
-                                    >
-                                        Dalej →
+                                    >Dalej →
                                     </button>
                                 </div>
                             </motion.div>
                         )}
 
-                        {/* Step 3: Logo */}
+                        {/* Step 3: Logo Upload */}
                         {step === 3 && (
-                            <motion.div
-                                key="step3"
-                                variants={stepVariants}
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                transition={{duration: 0.3}}
-                            >
-                                <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    3. Wybierz lub wgraj logo
-                                </h2>
-                                <div className="grid grid-cols-2 gap-3 mb-4">
-                                    {defaultLogos.map(l => (
-                                        <label key={l.id} className="flex items-center space-x-2">
-                                            <input
-                                                type="radio"
-                                                name="logo"
-                                                value={l.id}
-                                                checked={selectedLogo === l.id}
-                                                onChange={() => {
-                                                    setSelectedLogo(l.id);
-                                                    setLogoUrl(l.url);
-                                                    setLogoFile(null);
-                                                }}
-                                                className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                                            />
-                                            <img src={l.url} alt={l.name} className="h-8 w-8 object-contain"/>
-                                            <span className="text-gray-700">{l.name}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                                <div className="mb-4">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={e => {
-                                            const file = e.target.files[0];
-                                            setLogoFile(file);
-                                            setLogoUrl(file ? URL.createObjectURL(file) : logoUrl);
-                                        }}
-                                        className="w-full text-gray-700"
-                                    />
-                                </div>
-                                {logoUrl && (
-                                    <div className="mb-4">
-                                        <p className="text-gray-700 mb-2">Podgląd:</p>
-                                        <img src={logoUrl} alt="Logo podgląd" className="h-16 object-contain"/>
-                                    </div>
-                                )}
+                            <motion.div key="3" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
+                                        transition={{duration: 0.3}}>
+                                <h2 className="text-lg font-medium mb-4 text-teal-700">3. Logo</h2>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={e => {
+                                        const file = e.target.files[0];
+                                        setLogoFile(file);
+                                        setLogoUrl(file ? URL.createObjectURL(file) : null);
+                                    }}
+                                    className="w-full mb-4 text-sm text-gray-700"
+                                />
+                                {logoUrl &&
+                                    <img src={logoUrl} alt="Logo" className="h-16 object-contain mx-auto mb-4"/>}
                                 <div className="flex justify-between">
-                                    <button onClick={back} className="text-indigo-600 hover:underline">
-                                        ← Wstecz
-                                    </button>
-                                    <button
-                                        onClick={next}
-                                        className="py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow transition"
-                                    >
-                                        Dalej →
+                                    <button onClick={back} className="text-teal-600 hover:underline">← Wstecz</button>
+                                    <button onClick={next}
+                                            className="py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-md shadow transition">Dalej
+                                        →
                                     </button>
                                 </div>
                             </motion.div>
                         )}
 
-                        {/* Step 4: Deploy */}
+                        {/* Step 4: Deploy Target */}
                         {step === 4 && (
-                            <motion.div
-                                key="step4"
-                                variants={stepVariants}
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                transition={{duration: 0.3}}
-                            >
-                                <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    4. Gdzie deploy?
-                                </h2>
-                                <div className="mb-4">
+                            <motion.div key="4" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
+                                        transition={{duration: 0.3}}>
+                                <h2 className="text-lg font-medium mb-4 text-teal-700">4. Gdzie deploy?</h2>
+                                <div className="mb-4 space-y-2">
                                     {targets.map(t => (
-                                        <label key={t} className="flex items-center space-x-2 mb-2">
+                                        <label key={t} className="flex items-center space-x-2">
                                             <input
                                                 type="radio"
                                                 name="target"
@@ -303,69 +231,84 @@ export default function DemoWizard({
                                                     setTarget(t);
                                                     setEnv('');
                                                 }}
-                                                className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                                className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
                                             />
-                                            <span className="text-gray-700">{t}</span>
+                                            <span className="text-gray-800 text-sm">{t}</span>
                                         </label>
                                     ))}
                                 </div>
                                 {target === 'platform.sh' && (
-                                    <div className="mb-4">
-                                        <select
-                                            value={env}
-                                            onChange={e => setEnv(e.target.value)}
-                                            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                                        >
-                                            <option value="">— wybierz środowisko —</option>
-                                            {envOptions.map(e => (
-                                                <option key={e} value={e}>{e}</option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                    <select
+                                        value={env}
+                                        onChange={e => setEnv(e.target.value)}
+                                        className="w-full mb-4 border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                                    >
+                                        <option value="">— wybierz środowisko —</option>
+                                        {envOptions.map(e => (
+                                            <option key={e} value={e}>{e}</option>
+                                        ))}
+                                    </select>
                                 )}
-                                <div className="flex justify-between">
-                                    <button onClick={back} className="text-indigo-600 hover:underline">
-                                        ← Wstecz
-                                    </button>
+                                <div className="flex justify-between items-center">
+                                    <button onClick={back} className="text-teal-600 hover:underline">← Wstecz</button>
                                     <button
-                                        onClick={submit}
-                                        disabled={
-                                            !target ||
-                                            (target === 'platform.sh' && !env)
-                                        }
-                                        className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            target && (target !== 'platform.sh' || env)
-                                                ? 'bg-green-600 hover:bg-green-700 text-white shadow'
-                                                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                        onClick={handleDeploy}
+                                        disabled={loading || !target || (target === 'platform.sh' && !env)}
+                                        className={`py-2 px-4 rounded-md font-medium transition flex items-center space-x-2 ${
+                                            !loading && target && (target !== 'platform.sh' || env)
+                                                ? 'bg-green-600 hover:bg-green-700 text-white'
+                                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         }`}
                                     >
-                                        Utwórz demo
+                                        {loading ? (
+                                            <svg className="animate-spin h-5 w-5 text-white"
+                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10"
+                                                        stroke="currentColor" strokeWidth="4"/>
+                                                <path className="opacity-75" fill="currentColor"
+                                                      d="M4 12a8 8 0 018-8v8z"/>
+                                            </svg>
+                                        ) : 'Deploy'}
                                     </button>
                                 </div>
                             </motion.div>
                         )}
 
-                        {/* Step 5: Result */}
-                        {step === 5 && result && (
-                            <motion.div
-                                key="step5"
-                                variants={stepVariants}
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                transition={{duration: 0.3}}
-                            >
-                                <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    5. Wynik deploy’u
-                                </h2>
-                                <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto">
-                  {JSON.stringify(result, null, 2)}
-                </pre>
-                                <div className="mt-6 text-center">
-                                    <button
-                                        onClick={() => window.location.reload()}
-                                        className="py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow transition"
-                                    >
+                        {/* Step 5: Summary & Result */}
+                        {step === 5 && (
+                            <motion.div key="5" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
+                                        transition={{duration: 0.3}}>
+                                <h2 className="text-lg font-medium mb-4 text-teal-700">5. Podsumowanie</h2>
+                                <div className="mb-4">
+                                    <h3 className="font-semibold text-gray-800">Pluginy:</h3>
+                                    <ul className="list-disc list-inside text-sm text-gray-700">
+                                        {selectedPlugins.map(c => {
+                                            const p = plugins.find(x => x.composer === c);
+                                            return <li key={c}>{p?.name} ({p?.version})</li>;
+                                        })}
+                                    </ul>
+                                </div>
+                                <div className="mb-4">
+                                    <h3 className="font-semibold text-gray-800">Fixtures:</h3>
+                                    <ul className="list-disc list-inside text-sm text-gray-700">
+                                        {selectedFixtures.map(f => <li key={f}>{f}</li>)}
+                                    </ul>
+                                </div>
+                                <div className="mb-4">
+                                    <h3 className="font-semibold text-gray-800">Logo:</h3>
+                                    {logoUrl && <img src={logoUrl} alt="Logo" className="h-12 object-contain"/>}
+                                </div>
+                                <div className="mb-4">
+                                    <h3 className="font-semibold text-gray-800">Deploy:</h3>
+                                    <p className="text-sm text-gray-700">{target}{target === 'platform.sh' && env ? ` (${env})` : ''}</p>
+                                </div>
+                                <div className="bg-gray-100 p-3 rounded mb-4">
+                                    <pre className="text-xs overflow-x-auto">{JSON.stringify(result, null, 2)}</pre>
+                                </div>
+                                <div className="flex justify-between">
+                                    <button onClick={back} className="text-teal-600 hover:underline">← Wstecz</button>
+                                    <button onClick={() => window.location.reload()}
+                                            className="py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-md shadow transition">
                                         Utwórz kolejne demo
                                     </button>
                                 </div>
