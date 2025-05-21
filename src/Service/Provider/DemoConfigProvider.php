@@ -36,4 +36,14 @@ final class DemoConfigProvider
             'platform.sh',
         ];
     }
+
+    public function getEnvironments(): array
+    {
+        return [
+            'booster',
+            'main',
+            'demo-b2b',
+            'demo-cms',
+        ];
+    }
 }

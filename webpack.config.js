@@ -66,6 +66,7 @@ Encore
 
     // uncomment if you use TypeScript
     //.enableTypeScriptLoader()
+    .enablePostCssLoader()
 
     // uncomment if you use React
     //.enableReactPreset()

@@ -1,12 +1,17 @@
 // assets/react/controllers/DemoWizard.jsx
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, {useState, useEffect} from 'react';
+import {motion, AnimatePresence} from 'framer-motion';
 
 const stepVariants = {
-    hidden:  { opacity: 0, x: 50 },
-    visible: { opacity: 1, x: 0 },
-    exit:    { opacity: 0, x: -50 },
+    hidden: {opacity: 0, x: 50},
+    visible: {opacity: 1, x: 0},
+    exit: {opacity: 0, x: -50},
 };
+
+const defaultLogos = [
+    {id: 'sylius', name: 'Sylius', url: '/uploads/logo_sylius.png'},
+    // dodaj inne domyślne loga jeśli potrzeba
+];
 
 export default function DemoWizard({
                                        apiUrl,
@@ -14,19 +19,27 @@ export default function DemoWizard({
                                        fixturesUrl,
                                        logoUploadUrl,
                                        targetsUrl,
+                                       environmentsUrl,
                                    }) {
     const [step, setStep] = useState(1);
-    const [plugins, setPlugins]   = useState([]);
+
+    const [plugins, setPlugins] = useState([]);
     const [fixtures, setFixtures] = useState([]);
-    const [targets, setTargets]   = useState([]);
-    const [selectedPlugins, setSelectedPlugins]   = useState([]);
+    const [targets, setTargets] = useState([]);
+
+    const [selectedPlugins, setSelectedPlugins] = useState([]);
     const [selectedFixtures, setSelectedFixtures] = useState([]);
-    const [env, setEnv]         = useState('');
+
+    const [selectedLogo, setSelectedLogo] = useState(defaultLogos[0].id);
     const [logoFile, setLogoFile] = useState(null);
-    const [logoUrl, setLogoUrl]   = useState('');
-    const [target, setTarget]     = useState('');
-    const [error, setError]       = useState(null);
-    const [result, setResult]     = useState(null);
+    const [logoUrl, setLogoUrl] = useState(defaultLogos[0].url);
+
+    const [target, setTarget] = useState('');
+    const [envOptions, setEnvOptions] = useState([]);
+    const [env, setEnv] = useState('');
+
+    const [error, setError] = useState(null);
+    const [result, setResult] = useState(null);
 
     useEffect(() => {
         Promise.all([
@@ -42,13 +55,24 @@ export default function DemoWizard({
             .catch(() => setError('Nie udało się załadować konfiguracji'));
     }, [pluginsUrl, fixturesUrl, targetsUrl]);
 
+    // fetch environments when reaching deploy step and platform.sh selected
+    useEffect(() => {
+        if (step === 4 && target === 'platform.sh') {
+            fetch(environmentsUrl)
+                .then(r => r.json())
+                .then(data => setEnvOptions(data.environments || []))
+                .catch(() => setError('Błąd pobierania środowisk'));
+        }
+    }, [step, target, environmentsUrl]);
+
     const next = () => setStep(s => s + 1);
     const back = () => setStep(s => s - 1);
 
     const uploadLogo = async () => {
+        if (!logoFile) return;
         const form = new FormData();
         form.append('logo', logoFile);
-        const res = await fetch(logoUploadUrl, { method: 'POST', body: form });
+        const res = await fetch(logoUploadUrl, {method: 'POST', body: form});
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
         setLogoUrl(data.logoUrl);
@@ -56,18 +80,20 @@ export default function DemoWizard({
 
     const submit = async () => {
         try {
-            if (logoFile && !logoUrl) await uploadLogo();
+            if (logoFile && logoUrl === defaultLogos.find(l => l.id === selectedLogo).url) {
+                await uploadLogo();
+            }
             const payload = {
-                environment: env,
-                plugins:     selectedPlugins,
-                fixtures:    selectedFixtures,
+                plugins: selectedPlugins,
+                fixtures: selectedFixtures,
                 logoUrl,
                 target,
+                environment: target === 'platform.sh' ? env : undefined,
             };
             const res = await fetch(apiUrl, {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify(payload),
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.message);
@@ -84,7 +110,7 @@ export default function DemoWizard({
                 <div className="bg-indigo-600 text-white py-4 px-6">
                     <h1 className="text-2xl font-bold">Kreator demo</h1>
                 </div>
-                <div className="p-6">
+                <div className="p-6 min-h-[380px]">
                     {error && (
                         <div className="mb-4 text-red-600 bg-red-100 p-3 rounded-lg">
                             {error}
@@ -92,7 +118,7 @@ export default function DemoWizard({
                     )}
 
                     <AnimatePresence exitBeforeEnter>
-                        {/* Step 1: Environment */}
+                        {/* Step 1: Plugins */}
                         {step === 1 && (
                             <motion.div
                                 key="step1"
@@ -100,47 +126,12 @@ export default function DemoWizard({
                                 initial="hidden"
                                 animate="visible"
                                 exit="exit"
-                                transition={{ duration: 0.3 }}
+                                transition={{duration: 0.3}}
                             >
                                 <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    1. Wybierz środowisko
+                                    1. Wybierz pluginy
                                 </h2>
-                                <select
-                                    value={env}
-                                    onChange={e => setEnv(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg p-3 mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                                >
-                                    <option value="">— wybierz —</option>
-                                    <option value="booster">booster</option>
-                                </select>
-                                <button
-                                    onClick={next}
-                                    disabled={!env}
-                                    className={`w-full py-2 rounded-lg font-medium transition ${
-                                        env
-                                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow'
-                                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                    }`}
-                                >
-                                    Dalej
-                                </button>
-                            </motion.div>
-                        )}
-
-                        {/* Step 2: Plugins */}
-                        {step === 2 && (
-                            <motion.div
-                                key="step2"
-                                variants={stepVariants}
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                transition={{ duration: 0.3 }}
-                            >
-                                <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    2. Pluginy
-                                </h2>
-                                <div className="grid grid-cols-2 gap-3 mb-6">
+                                <div className="grid grid-cols-2 gap-3 mb-6 max-h-44 overflow-y-auto">
                                     {plugins.map(p => (
                                         <label key={p} className="flex items-center space-x-2">
                                             <input
@@ -158,39 +149,34 @@ export default function DemoWizard({
                                         </label>
                                     ))}
                                 </div>
-                                <div className="flex justify-between">
-                                    <button onClick={back} className="text-indigo-600 hover:underline">
-                                        ← Wstecz
-                                    </button>
-                                    <button
-                                        onClick={next}
-                                        disabled={!selectedPlugins.length}
-                                        className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            selectedPlugins.length
-                                                ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow'
-                                                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                        }`}
-                                    >
-                                        Dalej →
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={next}
+                                    disabled={!selectedPlugins.length}
+                                    className={`w-full py-2 rounded-lg font-medium transition ${
+                                        selectedPlugins.length
+                                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow'
+                                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                    }`}
+                                >
+                                    Dalej →
+                                </button>
                             </motion.div>
                         )}
 
-                        {/* Step 3: Fixtures */}
-                        {step === 3 && (
+                        {/* Step 2: Fixtures */}
+                        {step === 2 && (
                             <motion.div
-                                key="step3"
+                                key="step2"
                                 variants={stepVariants}
                                 initial="hidden"
                                 animate="visible"
                                 exit="exit"
-                                transition={{ duration: 0.3 }}
+                                transition={{duration: 0.3}}
                             >
                                 <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    3. Fixtures
+                                    2. Wybierz fixtures
                                 </h2>
-                                <div className="grid grid-cols-2 gap-3 mb-6">
+                                <div className="grid grid-cols-2 gap-3 mb-6 max-h-44 overflow-y-auto">
                                     {fixtures.map(f => (
                                         <label key={f} className="flex items-center space-x-2">
                                             <input
@@ -227,27 +213,56 @@ export default function DemoWizard({
                             </motion.div>
                         )}
 
-                        {/* Step 4: Logo Upload */}
-                        {step === 4 && (
+                        {/* Step 3: Logo */}
+                        {step === 3 && (
                             <motion.div
-                                key="step4"
+                                key="step3"
                                 variants={stepVariants}
                                 initial="hidden"
                                 animate="visible"
                                 exit="exit"
-                                transition={{ duration: 0.3 }}
+                                transition={{duration: 0.3}}
                             >
                                 <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    4. Wgraj logo
+                                    3. Wybierz lub wgraj logo
                                 </h2>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={e => setLogoFile(e.target.files[0])}
-                                    className="w-full text-gray-700 mb-4"
-                                />
-                                {logoFile && (
-                                    <p className="mb-4 text-gray-600">Wybrane: {logoFile.name}</p>
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    {defaultLogos.map(l => (
+                                        <label key={l.id} className="flex items-center space-x-2">
+                                            <input
+                                                type="radio"
+                                                name="logo"
+                                                value={l.id}
+                                                checked={selectedLogo === l.id}
+                                                onChange={() => {
+                                                    setSelectedLogo(l.id);
+                                                    setLogoUrl(l.url);
+                                                    setLogoFile(null);
+                                                }}
+                                                className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                            />
+                                            <img src={l.url} alt={l.name} className="h-8 w-8 object-contain"/>
+                                            <span className="text-gray-700">{l.name}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                                <div className="mb-4">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={e => {
+                                            const file = e.target.files[0];
+                                            setLogoFile(file);
+                                            setLogoUrl(file ? URL.createObjectURL(file) : logoUrl);
+                                        }}
+                                        className="w-full text-gray-700"
+                                    />
+                                </div>
+                                {logoUrl && (
+                                    <div className="mb-4">
+                                        <p className="text-gray-700 mb-2">Podgląd:</p>
+                                        <img src={logoUrl} alt="Logo podgląd" className="h-16 object-contain"/>
+                                    </div>
                                 )}
                                 <div className="flex justify-between">
                                     <button onClick={back} className="text-indigo-600 hover:underline">
@@ -255,12 +270,7 @@ export default function DemoWizard({
                                     </button>
                                     <button
                                         onClick={next}
-                                        disabled={!logoFile}
-                                        className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            logoFile
-                                                ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow'
-                                                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                        }`}
+                                        className="py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow transition"
                                     >
                                         Dalej →
                                     </button>
@@ -268,38 +278,63 @@ export default function DemoWizard({
                             </motion.div>
                         )}
 
-                        {/* Step 5: Deploy Target */}
-                        {step === 5 && (
+                        {/* Step 4: Deploy */}
+                        {step === 4 && (
                             <motion.div
-                                key="step5"
+                                key="step4"
                                 variants={stepVariants}
                                 initial="hidden"
                                 animate="visible"
                                 exit="exit"
-                                transition={{ duration: 0.3 }}
+                                transition={{duration: 0.3}}
                             >
                                 <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    5. Gdzie deploy?
+                                    4. Gdzie deploy?
                                 </h2>
-                                <select
-                                    value={target}
-                                    onChange={e => setTarget(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg p-3 mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                                >
-                                    <option value="">— wybierz —</option>
+                                <div className="mb-4">
                                     {targets.map(t => (
-                                        <option key={t} value={t}>{t}</option>
+                                        <label key={t} className="flex items-center space-x-2 mb-2">
+                                            <input
+                                                type="radio"
+                                                name="target"
+                                                value={t}
+                                                checked={target === t}
+                                                onChange={() => {
+                                                    setTarget(t);
+                                                    setEnv('');
+                                                }}
+                                                className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                            />
+                                            <span className="text-gray-700">{t}</span>
+                                        </label>
                                     ))}
-                                </select>
+                                </div>
+                                {target === 'platform.sh' && (
+                                    <div className="mb-4">
+                                        <select
+                                            value={env}
+                                            onChange={e => setEnv(e.target.value)}
+                                            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                                        >
+                                            <option value="">— wybierz środowisko —</option>
+                                            {envOptions.map(e => (
+                                                <option key={e} value={e}>{e}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                                 <div className="flex justify-between">
                                     <button onClick={back} className="text-indigo-600 hover:underline">
                                         ← Wstecz
                                     </button>
                                     <button
                                         onClick={submit}
-                                        disabled={!target}
+                                        disabled={
+                                            !target ||
+                                            (target === 'platform.sh' && !env)
+                                        }
                                         className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            target
+                                            target && (target !== 'platform.sh' || env)
                                                 ? 'bg-green-600 hover:bg-green-700 text-white shadow'
                                                 : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                         }`}
@@ -310,18 +345,18 @@ export default function DemoWizard({
                             </motion.div>
                         )}
 
-                        {/* Step 6: Result */}
-                        {step === 6 && result && (
+                        {/* Step 5: Result */}
+                        {step === 5 && result && (
                             <motion.div
-                                key="step6"
+                                key="step5"
                                 variants={stepVariants}
                                 initial="hidden"
                                 animate="visible"
                                 exit="exit"
-                                transition={{ duration: 0.3 }}
+                                transition={{duration: 0.3}}
                             >
                                 <h2 className="text-xl font-semibold mb-4 text-indigo-700">
-                                    6. Wynik deploy’u
+                                    5. Wynik deploy’u
                                 </h2>
                                 <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto">
                   {JSON.stringify(result, null, 2)}

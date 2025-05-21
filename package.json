@@ -4,13 +4,18 @@
         "@babel/preset-env": "^7.16.0",
         "@babel/preset-react": "^7.27.1",
         "@hotwired/stimulus": "^3.0.0",
+        "@hotwired/turbo": "^7.1.1 || ^8.0",
         "@symfony/stimulus-bridge": "^3.2.0 || ^4.0.0",
         "@symfony/ux-react": "file:vendor/symfony/ux-react/assets",
+        "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
         "@symfony/webpack-encore": "^5.0.0",
+        "autoprefixer": "^10.4.21",
         "core-js": "^3.38.0",
+        "postcss-loader": "^8.1.1",
         "react": "^18.0",
         "react-dom": "^18.0",
         "regenerator-runtime": "^0.13.9",
+        "tailwindcss": "^4.1.7",
         "webpack": "^5.74.0",
         "webpack-cli": "^5.1.0"
     },
@@ -23,6 +28,8 @@
         "build": "encore production --progress"
     },
     "dependencies": {
-        "framer-motion": "^12.12.1"
+        "@tailwindcss/postcss": "^4.1.7",
+        "framer-motion": "^12.12.1",
+        "postcss": "^8.5.3"
     }
 }
