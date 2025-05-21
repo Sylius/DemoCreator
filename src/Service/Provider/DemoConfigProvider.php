@@ -62,8 +62,8 @@ final class DemoConfigProvider
     {
         return [
             'booster',
+            'przemo',
             'main',
-            'demo-b2b',
             'demo-cms',
         ];
     }
