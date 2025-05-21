@@ -15,14 +15,19 @@ final class DemoConfigProvider
                 'version' => '2.0.x-dev',
             ],
             [
-                'name' => 'Return Plugin',
-                'composer' => 'sylius/return-plugin',
-                'version' => '2.0.x-dev'
-            ],
-            [
                 'name' => 'CMS Plugin',
                 'composer' => 'sylius/cms-plugin',
                 'version' => '1.0.x-dev'
+            ],
+            [
+                'name' => 'Customer Service Plugin',
+                'composer' => 'sylius/customer-service-plugin',
+                'version' => '2.0.x-dev'
+            ],
+            [
+                'name' => 'Return Plugin',
+                'composer' => 'sylius/return-plugin',
+                'version' => '2.0.x-dev'
             ],
             [
                 'name' => 'Invoicing Plugin',
