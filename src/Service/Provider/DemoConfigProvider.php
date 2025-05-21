@@ -25,6 +25,11 @@ final class DemoConfigProvider
                 'version' => '2.0.x-dev'
             ],
             [
+                'name' => 'Loyalty Plugin',
+                'composer' => 'sylius/loyalty-plugin',
+                'version' => '2.0.x-dev'
+            ],
+            [
                 'name' => 'Return Plugin',
                 'composer' => 'sylius/return-plugin',
                 'version' => '2.0.x-dev'
