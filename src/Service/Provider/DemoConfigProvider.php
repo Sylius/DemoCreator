@@ -9,10 +9,26 @@ final class DemoConfigProvider
     public function getPlugins(): array
     {
         return [
-            'sylius/b2b-kit',
-            'sylius/return-plugin',
-            'sylius/cms-plugin',
-            'sylius/invoicing-plugin',
+            [
+                'name' => 'B2B Kit',
+                'composer' => 'sylius/b2b-kit',
+                'version' => '2.0.x-dev',
+            ],
+            [
+                'name' => 'Return Plugin',
+                'composer' => 'sylius/return-plugin',
+                'version' => '2.0.x-dev'
+            ],
+            [
+                'name' => 'CMS Plugin',
+                'composer' => 'sylius/cms-plugin',
+                'version' => '1.0.x-dev'
+            ],
+            [
+                'name' => 'Invoicing Plugin',
+                'composer' => 'sylius/invoicing-plugin',
+                'version' => '2.0.x-dev'
+            ],
         ];
     }
 
