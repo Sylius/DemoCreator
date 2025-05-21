@@ -12,6 +12,7 @@
         "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2.5.1",
         "symfony/framework-bundle": "7.2.*",
+        "symfony/mime": "7.2.*",
         "symfony/runtime": "7.2.*",
         "symfony/twig-bundle": "7.2.*",
         "symfony/ux-react": "^2.25",

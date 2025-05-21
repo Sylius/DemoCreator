@@ -16,6 +16,7 @@ ssh_key
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 /public/build/
+/public/uploads/
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###

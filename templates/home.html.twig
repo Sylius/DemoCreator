@@ -1,0 +1,19 @@
+{# templates/home.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>EEE</h1>
+    <div {{ react_component('DemoWizard', {
+        pluginsUrl: path('demo_plugins'),
+        fixturesUrl: path('demo_fixtures'),
+        logoUploadUrl: path('demo_upload_logo'),
+        targetsUrl: path('demo_targets'),
+    }) }}>
+        Wczytywanie kreatora…
+    </div>
+    <div {{ react_component('Hello', {
+    fullName: 'Jan Kowalski',
+}) }}
+
+    <h1>EEE</h1>
+{% endblock %}
