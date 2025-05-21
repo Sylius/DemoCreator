@@ -75,15 +75,15 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
                 escapeshellarg($environment)
             ))->mustRun()->getOutput());
 
-            $buildStateId = Process::fromShellCommandline(sprintf(
+            $deployStateId = Process::fromShellCommandline(sprintf(
                 'platform activities --project=%s --environment=%s --limit 1 --no-header --columns=id --format=plain',
                 escapeshellarg($this->projectId),
                 escapeshellarg($environment)
             ))->mustRun()->getOutput();
 
             return [
-                'buildStateId' => $buildStateId,
-                'url'         => $url,
+                'deployStateId' => $deployStateId,
+                'url' => $url,
             ];
         } catch (Throwable $e) {
             Process::fromShellCommandline(
@@ -97,12 +97,14 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
         }
     }
 
-    public function getDeployState(string $environment, string $activityId): string
+    public function getDeployState(string $environment, string $activityId): array
     {
-        return trim(Process::fromShellCommandline(sprintf(
+        $command = sprintf(
             'platform activity:get %s --project=%s --property=state',
             escapeshellarg($activityId),
             escapeshellarg($this->projectId),
-        ))->mustRun()->getOutput());
+        );
+
+        return ['status' => trim(Process::fromShellCommandline($command)->mustRun()->getOutput())];
     }
 }

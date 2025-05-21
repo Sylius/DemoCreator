@@ -14,7 +14,7 @@ final class DeployStateController extends AbstractController
     {
     }
 
-    #[Route('/deploy-state/{environment}/{activityId}', name: 'app_get_deploy_state')]
+    #[Route('/deploy-state/{environment}/{activityId}', name: 'demo_deploy_state', methods: ['GET'])]
     public function index(string $environment, string $activityId): JsonResponse
     {
         $deployState = $this->deployer->getDeployState($environment, $activityId);
