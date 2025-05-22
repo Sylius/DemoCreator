@@ -144,7 +144,7 @@ export default function DemoWizard({
         <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 font-sans">
             <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
                 <div className="bg-teal-600 text-white py-4 px-6">
-                    <h1 className="text-2xl font-semibold">Kreator Demo</h1>
+                    <h1 className="text-2xl font-semibold">Demo Creator</h1>
                 </div>
                 <div className="p-6 min-h-[400px]">
                     {error && <div className="mb-4 text-teal-700 bg-teal-100 p-3 rounded">{error}</div>}
@@ -154,7 +154,7 @@ export default function DemoWizard({
                         {step === 1 && (
                             <motion.div key="1" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
                                         transition={{duration: 0.3}}>
-                                <h2 className="text-lg font-medium mb-4 text-teal-700">1. Pluginy</h2>
+                                <h2 className="text-lg font-medium mb-4 text-teal-700">1. Plugins</h2>
                                 <div className="grid grid-cols-1 gap-2 mb-6 max-h-40 overflow-y-auto">
                                     {plugins.map(p => (
                                         <label key={p.composer} className="flex items-center space-x-2">
@@ -178,7 +178,7 @@ export default function DemoWizard({
                                     className={`w-full py-2 rounded-md text-white font-medium transition ${
                                         selectedPlugins.length ? 'bg-teal-600 hover:bg-teal-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                     }`}
-                                >Dalej →
+                                >Next →
                                 </button>
                             </motion.div>
                         )}
@@ -206,14 +206,14 @@ export default function DemoWizard({
                                     ))}
                                 </div>
                                 <div className="flex justify-between">
-                                    <button onClick={back} className="text-teal-600 hover:underline">← Wstecz</button>
+                                    <button onClick={back} className="text-teal-600 hover:underline">← Back</button>
                                     <button
                                         onClick={next}
                                         disabled={!selectedFixtures.length}
                                         className={`py-2 px-4 rounded-md font-medium transition ${
                                             selectedFixtures.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         }`}
-                                    >Dalej →
+                                    >Next →
                                     </button>
                                 </div>
                             </motion.div>
@@ -237,9 +237,9 @@ export default function DemoWizard({
                                 {logoUrl &&
                                     <img src={logoUrl} alt="Logo" className="h-16 object-contain mx-auto mb-4"/>}
                                 <div className="flex justify-between">
-                                    <button onClick={back} className="text-teal-600 hover:underline">← Wstecz</button>
+                                    <button onClick={back} className="text-teal-600 hover:underline">← Back</button>
                                     <button onClick={next}
-                                            className="py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-md shadow transition">Dalej
+                                            className="py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-md shadow transition">Next
                                         →
                                     </button>
                                 </div>
@@ -250,7 +250,7 @@ export default function DemoWizard({
                         {step === 4 && (
                             <motion.div key="4" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
                                         transition={{duration: 0.3}}>
-                                <h2 className="text-lg font-medium mb-4 text-teal-700">4. Gdzie deploy?</h2>
+                                <h2 className="text-lg font-medium mb-4 text-teal-700">4. Where to deploy?</h2>
                                 <div className="mb-4 space-y-2">
                                     {targets.map(t => (
                                         <label key={t} className="flex items-center space-x-2">
@@ -275,14 +275,14 @@ export default function DemoWizard({
                                         onChange={e => setEnv(e.target.value)}
                                         className="w-full mb-4 border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                                     >
-                                        <option value="">— wybierz środowisko —</option>
+                                        <option value="">— choose environment —</option>
                                         {envOptions.map(e => (
                                             <option key={e} value={e}>{e}</option>
                                         ))}
                                     </select>
                                 )}
                                 <div className="flex justify-between items-center">
-                                    <button onClick={back} className="text-teal-600 hover:underline">← Wstecz</button>
+                                    <button onClick={back} className="text-teal-600 hover:underline">← Back</button>
                                     <button
                                         onClick={handleDeploy}
                                         disabled={loading || !target || (target === 'platform.sh' && !env)}
@@ -310,8 +310,21 @@ export default function DemoWizard({
                         {step === 5 && (
                             <motion.div key="5" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
                                         transition={{duration: 0.3}}>
-                                <h2 className="text-lg font-medium mb-4 text-teal-700">5. Podsumowanie & Deploy</h2>
+                                <h2 className="text-lg font-medium mb-4 text-teal-700">5. Summary & Deploy</h2>
                                 {/* Summary omitted for brevity */}
+                                <div className="mb-4">
+                                    <h3 className="font-semibold text-gray-800">Plugins:</h3>
+                                    <ul className="list-disc list-inside text-sm text-gray-700">
+                                        {selectedPlugins.map(c => {
+                                            const p = plugins.find(x => x.composer === c);
+                                            return <li key={c}>{p?.name} ({p?.version})</li>;
+                                        })}
+                                    </ul>
+                                </div>
+                                <div className="mb-4">
+                                    <h3 className="font-semibold text-gray-800">Deploy:</h3>
+                                    <p className="text-sm text-gray-700">{target}{target === 'platform.sh' && env ? ` (${env})` : ''}</p>
+                                </div>
                                 <div className="flex justify-center">
                                     <button
                                         disabled={deployStatus !== 'complete'}

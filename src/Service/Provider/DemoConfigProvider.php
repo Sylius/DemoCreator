@@ -9,11 +9,11 @@ final class DemoConfigProvider
     public function getPlugins(): array
     {
         return [
-            [
-                'name' => 'B2B Kit',
-                'composer' => 'sylius/b2b-kit',
-                'version' => '2.0.x-dev',
-            ],
+//            [
+//                'name' => 'B2B Kit',
+//                'composer' => 'sylius/b2b-kit',
+//                'version' => '2.0.x-dev',
+//            ],
             [
                 'name' => 'CMS Plugin',
                 'composer' => 'sylius/cms-plugin',
@@ -45,14 +45,14 @@ final class DemoConfigProvider
     public function getFixtures(): array
     {
         return [
-            'tractors',
+            'in progress',
         ];
     }
 
     public function getLogo(): array
     {
         return [
-            'tractor',
+            'in progress',
         ];
     }
 
@@ -66,10 +66,10 @@ final class DemoConfigProvider
     public function getEnvironments(): array
     {
         return [
-            'booster',
-            'przemo',
             'main',
-            'demo-cms',
+            'przemo',
+            'emil',
+            'booster',
         ];
     }
 }
