@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\DemoDeployer\LocalhostDeployer;
 use App\Service\DemoDeployer\PlatformShDeployer;
 use Platformsh\Client\Model\Project;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -18,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class DeployCommand extends Command
 {
-    public function __construct(private PlatformShDeployer $deployer)
+    public function __construct(private LocalhostDeployer $deployer)
     {
         parent::__construct();
     }
@@ -36,13 +37,15 @@ class DeployCommand extends Command
             environment: 'booster',
             plugins: [
                 "sylius/invoicing-plugin" => "2.0.x-dev",
+                "sylius/return-plugin" => "2.0.x-dev",
             ]
         );
 
         $io = new SymfonyStyle($input, $output);
-        $io->title('Deploying to Platform.sh');
-        $io->info('Status: ' . $result['status']);
-        $io->success('Deployed to ' . $result['url']);
+        $io->title('Deploying to localhost');
+//        $io->title('Deploying to Platform.sh');
+//        $io->info('Status: ' . $result['status']);
+//        $io->success('Deployed to ' . $result['url']);
 
         return Command::SUCCESS;
     }

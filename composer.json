@@ -7,9 +7,13 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/doctrine-bundle": "^2.14",
+        "doctrine/doctrine-migrations-bundle": "^3.4",
+        "doctrine/orm": "^3.3",
         "platformsh/client": "*",
         "symfony/asset-mapper": "7.2.*",
         "symfony/console": "7.2.*",
+        "symfony/doctrine-messenger": "7.2.*",
         "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2.5.1",
         "symfony/framework-bundle": "7.2.*",
@@ -75,8 +79,14 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
+            "allow-contrib": "true",
             "require": "7.2.*"
+        }
+    },
+    "repositories": {
+        "sylius": {
+            "type": "composer",
+            "url": "https://sylius.repo.packagist.com/sylius/"
         }
     }
 }
