@@ -34,7 +34,3 @@ services:
             $projectDir: '%kernel.project_dir%'
         tags:
             - { name: 'app.demo_deployer', alias: 'platformsh' }
-
-    App\MessageHandler\RunPluginManagerMessageHandler:
-        arguments:
-            $syliusWorkingDir: '%env(resolve:SYLIUS_STANDARD_DIR)%'
