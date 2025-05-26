@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\DemoDeployer\LocalhostDeployer;
 use App\Service\DemoDeployer\PlatformShDeployer;
 use App\Service\Provider\DemoConfigProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 final class CreateDemoController extends AbstractController
 {
     public function __construct(
-        private readonly PlatformShDeployer $deployer,
+        private readonly LocalhostDeployer $deployer,
         private readonly DemoConfigProvider $configProvider,
     )
     {
