@@ -1,5 +1,4 @@
 <?php
-// src/Controller/ThemePreviewController.php
 
 namespace App\Controller;
 
@@ -9,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(
-    path: '/theme/preview/{section}',
+    path: '/theme/preview/{section}/{locale}',
     name: 'app_theme_preview',
     requirements: ['section' => 'admin|shop'],
     methods: ['GET']
