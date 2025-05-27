@@ -1,0 +1,16 @@
+{# templates/home.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div {{ react_component('DemoWizard', {
+        apiUrl: path('demo_create'),
+        pluginsUrl: path('demo_plugins'),
+        fixturesUrl: path('demo_fixtures'),
+        logoUploadUrl: path('demo_upload_logo'),
+        targetsUrl: path('demo_targets'),
+        environmentsUrl: path('demo_environments'),
+        deployStateUrlBase: '/deploy-state',
+    }) }}>
+        Wczytywanie kreatora…
+    </div>
+{% endblock %}

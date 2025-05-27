@@ -8,12 +8,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(
-    path: '/theme/preview/{section}/{locale}',
-    name: 'app_theme_preview',
+    path: '/theme-creator/{section}/{locale}',
+    name: 'app_theme_creator',
     requirements: ['section' => 'admin|shop'],
     methods: ['GET']
 )]
-final class ThemePreviewController extends AbstractController
+final class ThemeCreatorController extends AbstractController
 {
     public function __invoke(Request $request, string $section = 'admin'): Response
     {
@@ -26,7 +26,7 @@ final class ThemePreviewController extends AbstractController
         // Forward the base URL for preview (port 8000)
         $previewBaseUrl = 'http://localhost:8000';
 
-        return $this->render('theme_preview/index.html.twig', [
+        return $this->render('theme_generate/index.html.twig', [
             'section'        => $section,
             'variables'      => $variables,
             'previewBaseUrl' => $previewBaseUrl,

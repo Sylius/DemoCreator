@@ -10,6 +10,8 @@
         "doctrine/doctrine-bundle": "^2.14",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
+        "openai-php/client": "^0.13.0",
+        "openai-php/symfony": "^0.13.0",
         "platformsh/client": "*",
         "symfony/asset-mapper": "7.2.*",
         "symfony/console": "7.2.*",

@@ -30,6 +30,7 @@
     "dependencies": {
         "@tailwindcss/postcss": "^4.1.7",
         "framer-motion": "^12.12.1",
-        "postcss": "^8.5.3"
+        "postcss": "^8.5.3",
+        "react-router-dom": "^7.6.1"
     }
 }
