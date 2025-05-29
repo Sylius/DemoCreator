@@ -20,10 +20,11 @@ interface DemoDeployerInterface
     /**
      * @param string $environment slug for the new demo environment
      * @param string[] $plugins [package => version]
+     * @param array<string, array $themes
      * @return array{status:string, url:string}
      * @throws DemoDeploymentException
      */
-    public function deploy(string $environment, array $plugins): array;
+    public function deploy(string $environment, array $plugins, $themes): array;
 
     /** @return array{status:string} */
     public function getDeployState(string $environment, string $activityId): array;

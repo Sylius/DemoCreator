@@ -22,9 +22,10 @@ final readonly class LocalhostDeployer implements DemoDeployerInterface
         return 'localhost';
     }
 
-    public function deploy(string $environment, array $plugins): array
+    public function deploy(string $environment, array $plugins, $themes): array
     {
         $this->messageBus->dispatch(new RunPluginManagerMessage($plugins));
+        $this->messageBus->dispatch(new RunThemeCreatorMessage($plugins));
 
         return [
             'status' => 'success',
