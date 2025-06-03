@@ -17,19 +17,13 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
     ) {
     }
 
-    public function getProviderKey(): string
-    {
-        return 'platformsh';
-    }
-
-    public function deploy(string $environment, array $plugins): array
+    public function deploy(string $store, string $environment): DeployResult
     {
         $syliusDir = $this->projectDir
             . DIRECTORY_SEPARATOR . 'sylius'
             . DIRECTORY_SEPARATOR . $environment;
 
         try {
-            // 0. Authenticate if needed
             try {
                 Process::fromShellCommandline('platform auth:info')->mustRun();
             } catch (\Throwable) {
