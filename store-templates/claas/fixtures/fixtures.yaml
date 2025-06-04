@@ -1,0 +1,160 @@
+sylius_fixtures:
+    suites:
+        jutrzenka_bydgoszcz:
+            listeners:
+                orm_purger: ~
+                images_purger: ~
+                logger: ~
+            fixtures:
+                admin_user:
+                    name: 'admin_user'
+                    options:
+                        custom:
+                            -   email: 'sylius@example.com'
+                                username: 'sylius'
+                                password: 'sylius'
+                                enabled: true
+                                locale_code: '%locale%'
+                                first_name: 'Anna'
+                                last_name: 'Kowalska'
+                                avatar: '@SyliusCoreBundle/Resources/fixtures/adminAvatars/john.webp'
+
+                            -   email: 'api@example.com'
+                                username: 'api'
+                                password: 'sylius-api'
+                                enabled: true
+                                locale_code: '%locale%'
+                                first_name: 'Piotr'
+                                last_name: 'Nowak'
+                                api: true
+                                avatar: '@SyliusCoreBundle/Resources/fixtures/adminAvatars/luke.webp'
+
+                locale:
+                    options:
+                        locales:
+                            - pl_PL
+                currency:
+                    options:
+                        currencies:
+                            - PLN
+                geographical:
+                    options:
+                        countries:
+                            - PL
+                        zones:
+                            WORLD:
+                                name: 'Globus'
+                                countries:
+                                    - PL
+                menu_taxon:
+                    name: taxon
+                    options:
+                        custom:
+                            category:
+                                code: SŁODYCZE
+                                name: 'Przekąski'
+                                translations:
+                                    pl_PL: { name: 'Przekąski' }
+                channel:
+                    options:
+                        custom:
+                            jutrzenka_bydgoszcz:
+                                name: 'Smakoland Warszawa'
+                                code: jutrzenka_bydgoszcz
+                                locales:
+                                    - pl_PL
+                                currencies:
+                                    - PLN
+                                enabled: true
+                                hostname: localhost
+                                theme_name: default
+                tax_category:
+                    options:
+                        custom:
+                            vat_slodycze:
+                                code: vat_slodycze
+                                name: 'VAT na przekąski'
+                tax_rate:
+                    options:
+                        custom:
+                            vat_slodycze_pl:
+                                name: 'VAT Polska - przekąski'
+                                zone: WORLD
+                                category: vat_slodycze
+                                amount: 0.23
+                taxon-czekoladowe:
+                    options:
+                        custom:
+                            slug:
+                                code: czekoladowe
+                                name: 'Wyroby czekoladowe'
+                                slug: czekoladowe
+                                translations:
+                                    pl_PL: { name: 'Wyroby czekoladowe', slug: czekoladowe }
+                    name: taxon
+                taxon-ciastka:
+                    options:
+                        custom:
+                            slug:
+                                code: ciastka
+                                name: 'Herbatniki'
+                                slug: ciastka
+                                translations:
+                                    pl_PL: { name: 'Herbatniki', slug: ciastka }
+                    name: taxon
+                product_attribute:
+                    name: product_attribute
+                    options:
+                        custom:
+                            -
+                                code: waga
+                                name: 'Wymiary'
+                                type: text
+                            -
+                                code: opakowanie
+                                name: 'Typ opakowania'
+                                type: text
+                            -
+                                code: smak
+                                name: 'Rodzaj smaku'
+                                type: text
+                            -
+                                code: producent
+                                name: 'Marka'
+                                type: text
+                tshirt_product:
+                    name: product
+                    options:
+                        custom:
+                            -
+                                name: 'Wiśnie w czekoladzie Smakoland'
+                                description: 'Wiśnie w czekoladzie Smakoland to wyjątkowy przysmak łączący soczyste owoce z delikatną czekoladą własnej marki. Każda wiśnia jest starannie wyselekcjonowana i pokryta wysokiej jakości czekoladą, tworząc doskonałe połączenie słodyczy i kwasowości. Produkt stanowi idealną przekąskę lub elegancki dodatek do deserów. Opakowanie 80 g sprawia, że jest to trafiony wybór na prezent lub chwilę przyjemności w ciągu dnia.'
+                                short_description: 'Soczyste wiśnie w czekoladzie Smakoland, idealne na deser lub prezent.'
+                                tax_category: vat_slodycze
+                                main_taxon: czekoladowe
+                                taxons:
+                                    - czekoladowe
+                                product_attributes:
+                                    waga: '80 g'
+                                    opakowanie: Torebka
+                                    smak: 'Wiśnia w czekoladzie'
+                                    producent: Smakoland
+                                product_options: {  }
+                                images:
+                                    - { path: '%kernel.project_dir%/var/fixture_img/Wi__nie_w_czekoladzie_Jutrzenka_main.png', type: main }
+                            -
+                                name: 'Herbatniki Petit Beurre Smakoland'
+                                description: 'Herbatniki Petit Beurre Smakoland to tradycyjne, kruche ciasteczka o maślanym smaku, które zachwycają od pierwszego kęsa. Prosta receptura i klasyczny kształt sprawiają, że doskonale pasują do kawy, herbaty oraz jako baza do deserów. Opakowanie zawiera 100 g chrupiących ciastek o delikatnym smaku.'
+                                short_description: 'Tradycyjne herbatniki Petit Beurre Smakoland, idealne do kawy lub jako baza do deserów.'
+                                tax_category: vat_slodycze
+                                main_taxon: ciastka
+                                taxons:
+                                    - ciastka
+                                product_attributes:
+                                    waga: '100 g'
+                                    opakowanie: Folia
+                                    smak: 'Maślany'
+                                    producent: Smakoland
+                                product_options: {  }
+                                images:
+                                    - { path: '%kernel.project_dir%/var/fixture_img/Herbatniki_Petit_Beurre_Jutrzenka_main.png', type: main }

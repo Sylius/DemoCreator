@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace App\Service\DemoDeployer;
 
-final class DeployResult
+final readonly class DeployTriggeredData
 {
+    public string $deployStateId;
 
+    public string $url;
 }
