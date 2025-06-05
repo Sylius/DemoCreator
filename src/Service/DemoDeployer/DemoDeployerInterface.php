@@ -17,10 +17,10 @@ use App\Exception\DemoDeploymentException;
 
 interface DemoDeployerInterface
 {
-    public function deploy(string $store, string $environment): DeployResult;
+    public function deploy(string $store, string $environment): DeploymentInitiationResult;
 
     /** @return array{status:string} */
     public function getDeployState(string $environment, string $activityId): array;
 
-    public function revertDemo(string $environment): void;
+//    public function revertDemo(string $environment): void;
 }

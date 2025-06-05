@@ -4,61 +4,38 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\DemoDeployer\LocalhostDeployer;
+use App\Constraint\CreateDemoConstraint;
 use App\Service\DemoDeployer\PlatformShDeployer;
-use App\Service\Provider\DemoConfigProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/create-demo', name: 'demo_create', methods: ['POST'])]
 final class CreateDemoController extends AbstractController
 {
     public function __construct(
-        private readonly LocalhostDeployer $deployer,
-        private readonly DemoConfigProvider $configProvider,
-    )
-    {
+        private readonly ValidatorInterface $validator,
+        private readonly PlatformShDeployer $deployer,
+    ) {
     }
 
     public function __invoke(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-        $env = $data['environment'] ?? '';
-        if (!is_string($env) || !$env) {
-            return $this->json(['status' => 'error', 'message' => 'Nieprawidłowe środowisko'], 400);
+        $payload = $request->toArray();
+        $violations = $this->validator->validate(new CreateDemoConstraint($payload));
+        if ($violations->count() > 0) {
+            $errors = [];
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return $this->json(['errors' => $errors], Response::HTTP_BAD_REQUEST);
         }
 
-        $rawPlugins = $data['plugins'] ?? [];
-        if (!is_array($rawPlugins)) {
-            return $this->json(['status' => 'error', 'message' => 'Brak pluginów'], 400);
-        }
+        $result = $this->deployer->deploy(store: $payload['store'], environment: $payload['environment']);
 
-        $available = array_column($this->configProvider->getPlugins(), 'composer');
-        // zostawiamy tylko te klucze, które są na liście allowed
-        $plugins = array_intersect_key(
-            $rawPlugins,
-            array_flip($available)
-        );
-
-        if (count($plugins) === 0) {
-            return $this->json(['status' => 'error', 'message' => 'Wybierz przynajmniej jeden plugin'], 400);
-        }
-
-        // (pomijam fixtures/target/logo dla skrótu)
-
-        try {
-            $result = $this->deployer->deploy($env, $plugins);
-
-            return $this->json($result);
-        } catch (\Throwable $e) {
-            return $this->json(
-                ['status' => 'error', 'message' => $e->getMessage()],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+        return $this->json(['activityId' => $result->activityId, 'url' => $result->url], Response::HTTP_OK);
     }
 }

@@ -1,7 +1,8 @@
 {
     "name": "john",
     "plugins": {
-        "sylius/return-plugin": "2.0.x-dev"
+        "sylius/return-plugin": "2.0.x-dev",
+        "sylius/loyalty-plugin": "2.0.x-dev"
     },
     "themes": {
         "shop": {

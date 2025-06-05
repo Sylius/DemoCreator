@@ -1,21 +1,13 @@
 <?php
-
-/*
- * This file is part of the Sylius package.
- *
- * (c) Sylius Sp. z o.o.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\Service\DemoDeployer;
 
-final readonly class DeployTriggeredData
+final readonly class DeploymentInitiationResult
 {
-    public string $deployStateId;
-
-    public string $url;
+    public function __construct(
+        public string $activityId,
+        public string $url,
+    ) {
+    }
 }

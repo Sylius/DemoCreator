@@ -4,5 +4,4 @@ framework:
         transports:
             async: '%env(MESSENGER_TRANSPORT_DSN)%'
             sync: 'null://'
-        routing:
-            'App\Message\RunPluginManagerMessage': async
+        routing: ~

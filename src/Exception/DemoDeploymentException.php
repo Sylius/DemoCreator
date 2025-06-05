@@ -6,10 +6,8 @@ namespace App\Exception;
 
 final class DemoDeploymentException extends \RuntimeException
 {
-    public function __construct(
-        string $message,
-        public readonly string $step
-    ) {
+    public function __construct(string $message)
+    {
         parent::__construct($message);
     }
 }

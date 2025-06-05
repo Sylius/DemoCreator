@@ -17,78 +17,25 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
     ) {
     }
 
-    public function deploy(string $store, string $environment): DeployResult
+    public function deploy(string $store, string $environment): DeploymentInitiationResult
     {
-        $syliusDir = $this->projectDir
-            . DIRECTORY_SEPARATOR . 'sylius'
-            . DIRECTORY_SEPARATOR . $environment;
+        $this->validateStore($store);
+        $this->login();
 
-        try {
-            try {
-                Process::fromShellCommandline('platform auth:info')->mustRun();
-            } catch (\Throwable) {
-                Process::fromShellCommandline(sprintf(
-                    'platform auth:api-token-login --token %s --no-interaction',
-                    escapeshellarg($this->platformCliToken)
-                ))->mustRun();
-            }
+        $syliusDir = $this->getSyliusDirectory($store);
+        $this->removeExistingSyliusProject($syliusDir);
+        $this->cloneSyliusRepository($syliusDir);
+        $this->copyStoreIntoSyliusDirectory($syliusDir, $store);
+        $this->commitStore($syliusDir);
 
-            Process::fromShellCommandline(
-                sprintf('rm -fr %s', escapeshellarg($syliusDir))
-            )->mustRun();
+        $this->pushSylius($syliusDir, $environment);
+        $url = $this->getUrl($environment);
+        $deployStateId = $this->getDeployStateId($environment);
 
-            // 1. Clone Sylius-Standard (branch 'booster') into sylius/<env>
-            Process::fromShellCommandline(sprintf(
-                'git clone --branch booster %s %s',
-                escapeshellarg('https://github.com/Sylius/Sylius-Standard.git'),
-                escapeshellarg($syliusDir)
-            ))->mustRun();
-
-            file_put_contents(
-                sprintf('%s/sylius-plugins.json', $syliusDir),
-                json_encode($plugins, JSON_PRETTY_PRINT));
-
-            // 3. Commit the new config
-            Process::fromShellCommandline(sprintf(
-                'cd %s && git add sylius-plugins.json && git commit -m %s',
-                escapeshellarg($syliusDir),
-                escapeshellarg("Add plugin config")
-            ))->mustRun();
-
-            // 4. Push to Platform.sh, triggering build + deploy
-            Process::fromShellCommandline(sprintf(
-                'cd %s && platform push --project=%s --environment=%s --force --no-wait',
-                escapeshellarg($syliusDir),
-                escapeshellarg($this->projectId),
-                escapeshellarg($environment)
-            ))->mustRun();
-
-            $url = trim(Process::fromShellCommandline(sprintf(
-                'platform environment:url --project=%s --environment=%s --primary --pipe',
-                escapeshellarg($this->projectId),
-                escapeshellarg($environment)
-            ))->mustRun()->getOutput());
-
-            $deployStateId = Process::fromShellCommandline(sprintf(
-                'platform activities --project=%s --environment=%s --limit 1 --no-header --columns=id --format=plain',
-                escapeshellarg($this->projectId),
-                escapeshellarg($environment)
-            ))->mustRun()->getOutput();
-
-            return [
-                'deployStateId' => $deployStateId,
-                'url' => $url,
-            ];
-        } catch (Throwable $e) {
-            Process::fromShellCommandline(
-                'rm -fr sylius'
-            )->mustRun();
-
-            throw new DemoDeploymentException(
-                'Deploy failed: ' . $e->getMessage(),
-                '',
-            );
-        }
+        return new DeploymentInitiationResult(
+            activityId: $deployStateId,
+            url: $url,
+        );
     }
 
     public function getDeployState(string $environment, string $activityId): array
@@ -99,11 +46,114 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
             escapeshellarg($this->projectId),
         );
 
-        return ['status' => trim(Process::fromShellCommandline($command)->mustRun()->getOutput())];
+        return ['status' => trim(Process::fromShellCommandline(trim($command))->mustRun()->getOutput())];
     }
 
-    public function revertDemo(string $environment): void
+    private function login(): void
     {
-        $this->deploy($environment, []);
+        try {
+            Process::fromShellCommandline('platform auth:info')->mustRun();
+        } catch (\Throwable) {
+            Process::fromShellCommandline(sprintf(
+                'platform auth:api-token-login --token %s --no-interaction',
+                escapeshellarg($this->platformCliToken)
+            ))->mustRun();
+        }
+    }
+
+    private function getSyliusDirectory(string $store): string
+    {
+        return $this->projectDir
+            . DIRECTORY_SEPARATOR . 'sylius'
+            . DIRECTORY_SEPARATOR . $store;
+    }
+
+    private function removeExistingSyliusProject(string $syliusDir): void
+    {
+        $result = Process::fromShellCommandline(
+            sprintf('rm -fr %s', escapeshellarg($syliusDir))
+        )->mustRun();
+
+        if (!$result->isSuccessful()) {
+            throw new DemoDeploymentException(sprintf(
+                'Failed to remove existing Sylius project at %s: %s',
+                $syliusDir,
+                $result->getErrorOutput()
+            ));
+        }
+    }
+
+    public function cloneSyliusRepository(string $syliusDir): void
+    {
+        Process::fromShellCommandline(sprintf(
+            'git clone --branch booster %s %s',
+            escapeshellarg('https://github.com/Sylius/Sylius-Standard.git'),
+            escapeshellarg($syliusDir)
+        ))->mustRun();
+    }
+
+    private function copyStoreIntoSyliusDirectory(string $syliusDir, string $store): void
+    {
+        $storePath = sprintf('%s/store-templates/%s', $this->projectDir, $store);
+        if (!is_dir($storePath)) {
+            throw new DemoDeploymentException(sprintf('Store "%s" not found in %s', $store, $storePath));
+        }
+
+        $targetDir = $syliusDir . '/store-preset/';
+        Process::fromShellCommandline(sprintf(
+            'mkdir -p %s',
+            escapeshellarg($targetDir)
+        ))->mustRun();
+
+        Process::fromShellCommandline(sprintf(
+            'cp -R %s/* %s/',
+            escapeshellarg($storePath),
+            escapeshellarg($targetDir)
+        ))->mustRun();
+    }
+
+    public function commitStore(string $syliusDir): void
+    {
+        Process::fromShellCommandline(sprintf(
+            'cd %s && git add . && git commit -m "Add store-templates files"',
+            escapeshellarg($syliusDir),
+        ))->mustRun();
+    }
+
+    public function pushSylius(string $syliusDir, string $environment): void
+    {
+        $result = Process::fromShellCommandline(sprintf(
+            'cd %s && platform push --project=%s --environment=%s --force --no-wait',
+            escapeshellarg($syliusDir),
+            escapeshellarg($this->projectId),
+            escapeshellarg($environment)
+        ))->mustRun();
+    }
+
+    public function getUrl(string $environment): string
+    {
+        return trim(Process::fromShellCommandline(sprintf(
+            'platform environment:url --project=%s --environment=%s --primary --pipe',
+            escapeshellarg($this->projectId),
+            escapeshellarg($environment)
+        ))->mustRun()->getOutput());
+    }
+
+    public function getDeployStateId(string $environment): string|false
+    {
+        return trim(Process::fromShellCommandline(sprintf(
+            'platform activities --project=%s --environment=%s --limit 1 --no-header --columns=id --format=plain',
+            escapeshellarg($this->projectId),
+            escapeshellarg($environment)
+        ))->mustRun()->getOutput());
+    }
+
+    private function validateStore(string $store): void
+    {
+        $storePath = sprintf('%s/store-templates/%s', $this->projectDir, $store);
+
+        if (!is_dir($storePath)) {
+            throw new DemoDeploymentException(sprintf('Store "%s" not found in %s', $store, $storePath));
+        }
     }
 }
