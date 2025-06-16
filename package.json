@@ -8,7 +8,7 @@
         "@symfony/stimulus-bridge": "^3.2.0 || ^4.0.0",
         "@symfony/ux-react": "file:vendor/symfony/ux-react/assets",
         "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
-        "@symfony/webpack-encore": "^5.0.0",
+        "@symfony/webpack-encore": "^5.1.0",
         "autoprefixer": "^10.4.21",
         "core-js": "^3.38.0",
         "postcss-loader": "^8.1.1",
