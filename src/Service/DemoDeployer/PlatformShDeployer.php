@@ -86,7 +86,7 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
     public function cloneSyliusRepository(string $syliusDir): void
     {
         Process::fromShellCommandline(sprintf(
-            'git clone --branch booster %s %s',
+            'git clone --branch 2.0-store-assembler %s %s',
             escapeshellarg('https://github.com/Sylius/Sylius-Standard.git'),
             escapeshellarg($syliusDir)
         ))->mustRun();
