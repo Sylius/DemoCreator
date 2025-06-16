@@ -1,7 +1,6 @@
 parameters:
-    platform.project_id: '%env(PLATFORM_PROJECT_ID)%'
-    platform.sylius_branch: '%env(SYLIUS_BRANCH)%'
-    platform.cli_token:   '%env(PLATFORMSH_CLI_TOKEN)%'
+    platformsh.project_id: '%env(PLATFORMSH_PROJECT_ID)%'
+    platformsh.cli_token: '%env(PLATFORMSH_CLI_TOKEN)%'
 
 services:
     _defaults:
@@ -29,8 +28,7 @@ services:
 
     App\Service\DemoDeployer\PlatformShDeployer:
         arguments:
-            $projectId:    '%platform.project_id%'
-            $platformCliToken:   '%platform.cli_token%'
+            $projectId: '%platformsh.project_id%'
             $projectDir: '%kernel.project_dir%'
         tags:
             - { name: 'app.demo_deployer', alias: 'platformsh' }

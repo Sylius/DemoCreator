@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Constraint\CreateDemoConstraint;
-use App\Exception\DemoDeploymentException;
 use App\Exception\InvalidStorePresetException;
 use App\Service\DemoDeployer\PlatformShDeployer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
