@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Constraint\CreateDemoConstraint;
+use App\Exception\DemoDeploymentException;
+use App\Exception\InvalidStorePresetException;
 use App\Service\DemoDeployer\PlatformShDeployer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +36,13 @@ final class CreateDemoController extends AbstractController
             return $this->json(['errors' => $errors], Response::HTTP_BAD_REQUEST);
         }
 
-        $result = $this->deployer->deploy(store: $payload['store'], environment: $payload['environment']);
+        try {
+            $result = $this->deployer->deploy(store: $payload['store'], environment: $payload['environment']);
+        } catch (InvalidStorePresetException $exception) {
+            return $this->json(['error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
+        } catch (\Throwable $exception) {
+            return $this->json(['error' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
         return $this->json(['activityId' => $result->activityId, 'url' => $result->url], Response::HTTP_OK);
     }

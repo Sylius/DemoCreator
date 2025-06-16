@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\DemoDeployer;
 
 use App\Exception\DemoDeploymentException;
+use App\Exception\InvalidStorePresetException;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -19,7 +20,6 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
 
     public function deploy(string $store, string $environment): DeploymentInitiationResult
     {
-        $this->validateStore($store);
         $this->login();
 
         $syliusDir = $this->getSyliusDirectory($store);
@@ -94,7 +94,7 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
 
     private function copyStoreIntoSyliusDirectory(string $syliusDir, string $store): void
     {
-        $storePath = sprintf('%s/store-templates/%s', $this->projectDir, $store);
+        $storePath = $this->getStorePresetPath($store);
         if (!is_dir($storePath)) {
             throw new DemoDeploymentException(sprintf('Store "%s" not found in %s', $store, $storePath));
         }
@@ -115,7 +115,7 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
     public function commitStore(string $syliusDir): void
     {
         Process::fromShellCommandline(sprintf(
-            'cd %s && git add . && git commit -m "Add store-templates files"',
+            'cd %s && git add . && git commit -m "Add store-preset files"',
             escapeshellarg($syliusDir),
         ))->mustRun();
     }
@@ -148,12 +148,24 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
         ))->mustRun()->getOutput());
     }
 
-    private function validateStore(string $store): void
+    private function getStorePresetPath(string $store): string
     {
-        $storePath = sprintf('%s/store-templates/%s', $this->projectDir, $store);
+        $path = $this->projectDir . '/store-presets/' . $store;
 
-        if (!is_dir($storePath)) {
-            throw new DemoDeploymentException(sprintf('Store "%s" not found in %s', $store, $storePath));
+        if (!is_dir($path)) {
+            $presets = array_diff(
+                scandir($this->projectDir . '/store-presets'),
+                ['.', '..']
+            );
+            $message = sprintf(
+                'Store preset "%s" not found at %s. Available presets: %s',
+                $store,
+                $path,
+                implode(', ', $presets)
+            );
+            throw new InvalidStorePresetException($message);
         }
+
+        return $path;
     }
 }
