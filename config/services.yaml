@@ -1,6 +1,5 @@
 parameters:
     platformsh.project_id: '%env(PLATFORMSH_PROJECT_ID)%'
-    platformsh.cli_token: '%env(PLATFORMSH_CLI_TOKEN)%'
 
 services:
     _defaults:
