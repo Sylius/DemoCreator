@@ -70,6 +70,7 @@
             "assets:install %PUBLIC_DIR%": "symfony-cmd",
             "importmap:install": "symfony-cmd"
         },
+        "demo-creator:update-store-presets": "bash bin/update-store-presets",
         "post-install-cmd": [
             "@auto-scripts"
         ],
