@@ -17,66 +17,11 @@ class GptChatController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $messages = $data['messages'] ?? [];
 
-        if (empty($messages) || !is_array($messages)) {
-            return new JsonResponse(
-                ['error' => 'Invalid request: "messages" must be a non-empty array of chat messages'],
-                400
-            );
-        }
-
-        // Prepend system message to guide the assistant's behavior
-        $systemMessage = [
-            'role'    => 'system',
-            'content' => 'Jesteś asystentem API, który generuje ostateczne fixtures JSON zgodnie z core_schema.jsonc. Zawsze zwracaj dane w formie wywołań funkcji z poprawnymi argumentami.',
-        ];
-        array_unshift($messages, $systemMessage);
-
-        // Validate that each message has both 'role' and 'content' and a supported role
-        $allowedRoles = ['system', 'assistant', 'user', 'function'];
-        foreach ($messages as $index => $msg) {
-            if (!isset($msg['role'], $msg['content'])) {
-                return new JsonResponse(
-                    ['error' => sprintf('Invalid message at index %d: each message must have "role" and "content"', $index)],
-                    400
-                );
-            }
-            if (!in_array($msg['role'], $allowedRoles, true)) {
-                return new JsonResponse(
-                    ['error' => sprintf(
-                        'Invalid message at index %d: role "%s" is not supported. Supported roles are: %s',
-                        $index,
-                        $msg['role'],
-                        implode(', ', $allowedRoles)
-                    )],
-                    400
-                );
-            }
-        }
-
-        // Load and validate JSON schema for final fixtures
-        $schemaPath = __DIR__ . '/../../config/core_schema.jsonc';
+        // Load JSON schema for final fixtures
+        $schemaPath = __DIR__ . '/../../config/core.json';
         $fixturesSchema = [];
         if (file_exists($schemaPath)) {
-            $schemaContent = file_get_contents($schemaPath);
-            $decodedSchema = json_decode($schemaContent, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                return new JsonResponse(
-                    ['error' => sprintf('Invalid JSON in schema file %s: %s', $schemaPath, json_last_error_msg())],
-                    500
-                );
-            }
-            $fixturesSchema = $decodedSchema;
-        }
-
-        // Ensure the schema is a non-empty object for the generate_fixtures function
-        if (empty($fixturesSchema) || !is_array($fixturesSchema)) {
-            return new JsonResponse(
-                ['error' => sprintf(
-                    'Invalid schema for function "generate_fixtures": schema loaded from %s must be a non-empty object',
-                    $schemaPath
-                )],
-                500
-            );
+            $fixturesSchema = json_decode(file_get_contents($schemaPath), true);
         }
 
         $apiKey = $_ENV['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY');
@@ -140,7 +85,7 @@ class GptChatController extends AbstractController
         // Append final generation function with full fixtures schema
         $functions[] = [
             'name' => 'generate_fixtures',
-            'description' => 'Generuje finalny JSON fixtures zgodnie z core_schema.jsonc',
+            'description' => 'Generuje finalny JSON fixtures zgodnie z core.json',
             'parameters' => $fixturesSchema ?: [
                 'type' => 'object',
                 'properties' => [],
@@ -172,8 +117,12 @@ class GptChatController extends AbstractController
                     'function_call' => 'auto',
                 ],
             ]);
-            $result = json_decode($response->getBody()->getContents(), true);
-            return new JsonResponse($result);
+            $body = json_decode($response->getBody()->getContents(), true);
+            if (empty($body['choices'][0]['message'])) {
+                return new JsonResponse(['error' => 'No assistant message returned'], 500);
+            }
+            $message = $body['choices'][0]['message'];
+            return new JsonResponse(['choices' => [['message' => $message]]]);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }

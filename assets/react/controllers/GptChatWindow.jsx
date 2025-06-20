@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 
-const GptChatWindow = () => {
+const GptChatWindow = ({ onNext }) => {
   const [messages, setMessages] = useState([
     {
       role: "system",
@@ -10,6 +10,7 @@ const GptChatWindow = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [ready, setReady] = useState(false);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -36,6 +37,10 @@ const GptChatWindow = () => {
       const assistantMsg = data.choices?.[0]?.message;
       if (assistantMsg) {
         setMessages((msgs) => [...msgs, assistantMsg]);
+        // mark as ready when final JSON is produced
+        if (assistantMsg.function_call?.name === 'generate_fixtures') {
+          setReady(true);
+        }
       } else {
         setError("No response from assistant.");
       }
@@ -61,7 +66,9 @@ const GptChatWindow = () => {
               {msg.content
                 ? msg.content
                 : msg.function_call
-                  ? `Function call ${msg.function_call.name}(${msg.function_call.arguments})`
+                  ? (msg.function_call.name === 'generate_fixtures'
+                      ? '✓ Wszystkie dane zebrane.'
+                      : '⏳ Trwa przetwarzanie…')
                   : null}
             </span>
           </div>
@@ -83,6 +90,22 @@ const GptChatWindow = () => {
           Send
         </button>
       </form>
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={!ready}
+        style={{
+          marginTop: 8,
+          padding: "8px 16px",
+          borderRadius: 4,
+          border: "none",
+          background: ready ? "#28a745" : "#ccc",
+          color: "#fff",
+          cursor: ready ? "pointer" : "not-allowed"
+        }}
+      >
+        Dalej
+      </button>
     </div>
   );
 };

@@ -1,0 +1,373 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+        "suiteName": {
+            "type": "string"
+        },
+        "locales": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "currencies": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "countries": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "zones": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "countries": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "countries"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "menuTaxon": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "code",
+                "name"
+            ],
+            "additionalProperties": false
+        },
+        "channel": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "locales": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "currencies": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "theme_name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "code",
+                "name",
+                "locales",
+                "currencies",
+                "hostname",
+                "theme_name"
+            ],
+            "additionalProperties": false
+        },
+        "categories": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "translations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "slug": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "slug"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "children": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/properties/categories/items"
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "slug",
+                    "translations"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "paymentMethods": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "shippingMethods": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "taxCategories": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "taxons": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "translations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "slug": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "slug"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": [
+                        "code",
+                        "name",
+                        "translations"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "taxRates": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "code": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "zone": {
+                            "type": "string"
+                        },
+                        "category": {
+                            "type": "string"
+                        },
+                        "amount": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "code",
+                        "name",
+                        "zone",
+                        "category",
+                        "amount"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "products": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "short_description": {
+                            "type": "string"
+                        },
+                        "img_prompt": {
+                            "type": "string"
+                        },
+                        "tax_category": {
+                            "type": "string"
+                        },
+                        "main_taxon": {
+                            "type": "string"
+                        },
+                        "taxons": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "product_attributes": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        },
+                        "product_options": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "images": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "path": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "path"
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "description",
+                        "short_description",
+                        "img_prompt",
+                        "tax_category",
+                        "main_taxon",
+                        "taxons",
+                        "product_attributes",
+                        "images"
+                    ],
+                    "additionalProperties": false
+                }
+            }
+        },
+        "additionalProperties": false
+    },
+    "required": [
+        "suiteName",
+        "locales",
+        "currencies",
+        "countries",
+        "zones",
+        "menuTaxon",
+        "channel",
+        "categories",
+        "paymentMethods",
+        "shippingMethods",
+        "taxCategories",
+        "taxons",
+        "taxRates",
+        "products"
+    ]
+}
