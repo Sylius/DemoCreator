@@ -8,11 +8,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class HomeController extends AbstractController
+class GptChatPageController extends AbstractController
 {
-    #[Route('/', name: 'home', methods: ['GET'])]
+    #[Route('/gpt-chat', name: 'gpt_chat_page', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->render('home.html.twig');
+        return $this->render('gpt_chat/index.html.twig');
     }
-}
+} 
