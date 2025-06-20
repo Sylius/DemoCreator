@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\MakerBundle\Validator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -76,43 +77,11 @@ SYS
                     'required' => ['industry'],
                 ],
             ],
-            [
-                'name' => 'collect_category',
-                'description' => 'Zbiera dane jednej kategorii',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'code' => ['type' => 'string'],
-                        'name' => ['type' => 'string'],
-                        'slug' => ['type' => 'string'],
-                        'parentCode' => ['type' => 'string'],
-                    ],
-                    'required' => ['code', 'name'],
-                ],
-            ],
-            [
-                'name' => 'collect_product',
-                'description' => 'Zbiera dane pojedynczego produktu',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'name' => ['type' => 'string'],
-                        'description' => ['type' => 'string'],
-                        'shortDescription' => ['type' => 'string'],
-                        'imgPrompt' => ['type' => 'string'],
-                        'taxCategory' => ['type' => 'string'],
-                        'mainTaxon' => ['type' => 'string'],
-                        'taxons' => ['type' => 'array', 'items' => ['type' => 'string']],
-                        'productAttributes' => ['type' => 'object', 'additionalProperties' => ['type' => 'string']],
-                    ],
-                    'required' => ['name', 'description', 'taxCategory', 'mainTaxon'],
-                ],
-            ],
         ];
 
         // Append final generation function with full fixtures schema
         $functions[] = [
-            'name' => 'generate_fixtures',
+            'name' => 'generateFixtures',
             'description' => 'Generuje finalny JSON fixtures zgodnie z core.json',
             'parameters' => $fixturesSchema ?: [
                 'type' => 'object',
@@ -159,6 +128,13 @@ SYS
                         case 'collectStoreInfo':
                             $resultData = $this->collectStoreInfo($args);
                             break;
+                        case 'generateFixtures':
+                            $resultData = $this->generateFixtures($args);
+                            // Immediately return validated fixtures JSON
+                            return new JsonResponse([
+                                'conversation_id' => $conversationId,
+                                'fixtures' => $resultData,
+                            ]);
                         // add additional cases as needed
                         default:
                             $resultData = [];
@@ -171,6 +147,8 @@ SYS
                     ];
                     // Continue loop to process next function call
                 } else {
+                    // Append the final assistant message before exiting the loop
+                    $messages[] = $message;
                     break;
                 }
             } while (true);
@@ -215,5 +193,55 @@ SYS
         $data['imageStyle'] = $data['imageStyle'] ?? '';
         // Here you could save $data to session or database if needed
         return $data;
+    }
+
+    /**
+     * Generate final fixtures array based on provided schema args.
+     */
+    private function generateFixtures(array $data): array
+    {
+        // Load and parse schema
+        $schemaPath = __DIR__ . '/../../config/core.json';
+        if (!file_exists($schemaPath)) {
+            throw new \RuntimeException("Schema file not found at {$schemaPath}");
+        }
+        $schema = json_decode(file_get_contents($schemaPath));
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException("Invalid JSON schema: " . json_last_error_msg());
+        }
+
+        // Build fixtures payload using provided data or sensible defaults
+        $result = [
+            'suiteName' => $data['suiteName'] ?? 'Sylius Store Fixtures',
+            'locales' => $data['locales'] ?? ['pl_PL'],
+            'currencies' => $data['currencies'] ?? ['PLN'],
+            'countries' => $data['countries'] ?? ['PL'],
+            'zones' => $data['zones'] ?? [
+                'WORLD' => [
+                    'name' => 'World Zone',
+                    'countries' => $data['countries'] ?? ['PL'],
+                ],
+            ],
+            'menuTaxon' => $data['menuTaxon'] ?? [
+                'code' => 'menu',
+                'name' => $data['ind'] ?? [],
+            ],
+            'channel' => $data['channel'] ?? [
+                'code' => 'default',
+                'name' => 'Default Channel',
+                'locales' => $data['locales'] ?? ['pl_PL'],
+                'currencies' => $data['currencies'] ?? ['PLN'],
+                'hostname' => 'localhost',
+                'theme_name' => 'default',
+            ],
+            'categories' => $data['categories'] ?? [],
+            'paymentMethods' => $data['paymentMethods'] ?? [],
+            'shippingMethods' => $data['shippingMethods'] ?? [],
+            'taxCategories' => $data['taxCategories'] ?? [],
+            'taxons' => $data['taxons'] ?? [],
+            'taxRates' => $data['taxRates'] ?? [],
+            'products' => $data['products'] ?? [],
+        ];
+        return $result;
     }
 }

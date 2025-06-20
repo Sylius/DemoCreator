@@ -11,11 +11,22 @@ const GptChatWindow = ({onNext}) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [ready, setReady] = useState(false);
+    // Initialize conversationId from localStorage to persist across refreshes
+    const [conversationId, setConversationId] = useState(() => {
+        return localStorage.getItem('conversation_id') || null;
+    });
     const chatEndRef = useRef(null);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({behavior: "smooth"});
     }, [messages, loading]);
+
+    // Persist conversationId to localStorage whenever it changes
+    useEffect(() => {
+        if (conversationId) {
+            localStorage.setItem('conversation_id', conversationId);
+        }
+    }, [conversationId]);
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -29,9 +40,15 @@ const GptChatWindow = ({onNext}) => {
             const response = await fetch("/api/gpt-chat", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({messages: newMessages}),
+                body: JSON.stringify({
+                    conversation_id: conversationId,
+                    messages: newMessages,
+                }),
             });
             const data = await response.json();
+            if (data.conversation_id) {
+                setConversationId(data.conversation_id);
+            }
             if (data.error) throw new Error(data.error);
             if (Array.isArray(data.messages)) {
                 setMessages(data.messages);
