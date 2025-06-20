@@ -16,7 +16,34 @@ class GptChatController extends AbstractController
     public function chat(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+        // Conversation token for client-side tracking
+        $conversationId = $data['conversation_id'] ?? null;
+        if (!$conversationId) {
+            $conversationId = bin2hex(random_bytes(16));
+        }
         $messages = $data['messages'] ?? [];
+        if (empty($messages)) {
+            // Prepend system prompt on new conversation
+            $messages[] = [
+                'role' => 'system',
+                'content' => <<<'SYS'
+You are an AI assistant that helps create complete Sylius store fixtures in JSON format. INFORMATION GATHERING
+• If any of the following details have not yet been provided by the user, ask EXACTLY ONE polite, consolidated question to collect them:
+  – Industry or product type (e.g., furniture, books, clothing, electronics)
+  – Store locales (convert natural language to locale codes, e.g. “Polish” → pl_PL)
+  – Currencies (convert to ISO codes, e.g. “złotówki” → PLN)
+  – Countries (convert to ISO 3166-1 alpha-2 codes and full names)
+  – Number of products (total or per category; default ≈10 per category if omitted)
+  – Description style and image style preferences (if relevant)
+• Default to pl_PL if locales are omitted.
+• Default currency by primary locale (pl_PL → PLN, en_US → USD, etc.) if omitted.
+• Default to the country matching the primary locale if omitted.
+• Ask only one combined question; once answered, proceed directly to gathering the next missing detail.
+• Do NOT suggest exporting or generating the final fixtures file until all required details have been collected.
+• Once all information is gathered, present a concise summary of the store configuration (locales, currency, countries, categories, number of products, description and image styles) and ask the user if they would like to make any final changes before proceeding to JSON generation.
+SYS
+            ];
+        }
 
         // Load JSON schema for final fixtures
         $schemaPath = __DIR__ . '/../../config/core.json';
@@ -147,7 +174,10 @@ class GptChatController extends AbstractController
                     break;
                 }
             } while (true);
-            return new JsonResponse(['choices' => [['message' => $message]]]);
+            return new JsonResponse([
+                'conversation_id' => $conversationId,
+                'messages' => $messages,
+            ]);
         } catch (ClientException $e) {
             $response = $e->getResponse();
             $rawBody = $response ? $response->getBody()->getContents() : $e->getMessage();
@@ -161,10 +191,16 @@ class GptChatController extends AbstractController
             }
             return new JsonResponse([
                 'error' => 'OpenAI API returned an error',
-                'details' => $decoded
+                'details' => $decoded,
+                'conversation_id' => $conversationId,
+                'messages' => $messages,
             ], $response ? $response->getStatusCode() : 500);
         } catch (\Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
+            return new JsonResponse([
+                'error' => $e->getMessage(),
+                'conversation_id' => $conversationId,
+                'messages' => $messages,
+            ], 500);
         }
     }
 
