@@ -237,14 +237,14 @@
                             ],
                             "additionalProperties": false
                         }
-                    },
-                    "required": [
-                        "code",
-                        "name",
-                        "translations"
-                    ],
-                    "additionalProperties": false
-                }
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "translations"
+                ],
+                "additionalProperties": false
             },
             "taxRates": {
                 "type": "array",

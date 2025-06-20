@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use GuzzleHttp\Exception\ClientException;
 
 class GptChatController extends AbstractController
 {
@@ -32,7 +33,7 @@ class GptChatController extends AbstractController
         // Define function specs
         $functions = [
             [
-                'name' => 'collect_store_info',
+                'name' => 'collectStoreInfo',
                 'description' => 'Zbiera podstawowe dane sklepu',
                 'parameters' => [
                     'type' => 'object',
@@ -122,11 +123,77 @@ class GptChatController extends AbstractController
                 return new JsonResponse(['error' => 'No assistant message returned'], 500);
             }
             $message = $body['choices'][0]['message'];
+
+            // Handle function call from assistant
+            if (isset($message['function_call'])) {
+                $func = $message['function_call'];
+                $name = $func['name'];
+                $args = json_decode($func['arguments'], true);
+
+                // Execute the corresponding PHP function
+                switch ($name) {
+                    case 'collectStoreInfo':
+                        $resultData = $this->collectStoreInfo($args);
+                        break;
+                    // add more cases as you define other functions
+                    default:
+                        $resultData = [];
+                }
+
+                // Append function call and its result to the conversation
+                $messages[] = $message;
+                $messages[] = [
+                    'role' => 'function',
+                    'name' => $name,
+                    'content' => json_encode($resultData),
+                ];
+
+                // Call OpenAI again with the function result
+                $response2 = $client->post('chat/completions', [
+                    'json' => [
+                        'model' => $model,
+                        'messages' => $messages,
+                        'functions' => $functions,
+                        'function_call' => 'auto',
+                    ],
+                ]);
+                $body2 = json_decode($response2->getBody()->getContents(), true);
+                $message2 = $body2['choices'][0]['message'];
+                return new JsonResponse(['choices' => [['message' => $message2]]]);
+            }
+
+            // No function call: return assistant message directly
             return new JsonResponse(['choices' => [['message' => $message]]]);
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
+            $rawBody = $response ? $response->getBody()->getContents() : $e->getMessage();
+            if ($response) {
+                $decoded = json_decode($rawBody, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    $decoded = $rawBody;
+                }
+            } else {
+                $decoded = $rawBody;
+            }
+            return new JsonResponse([
+                'error' => 'OpenAI API returned an error',
+                'details' => $decoded
+            ], $response ? $response->getStatusCode() : 500);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
     }
 
-    // ... mapDoctrineTypeToJson if still needed elsewhere ...
+    private function collectStoreInfo(array $data): array
+    {
+        // Fill defaults where missing
+        $data['locales'] = $data['locales'] ?? ['pl_PL'];
+        $data['currencies'] = $data['currencies'] ?? ['PLN'];
+        $data['countries'] = $data['countries'] ?? [$data['locales'][0] === 'en_US' ? 'US' : 'PL'];
+        $data['productsPerCat'] = $data['productsPerCat'] ?? 10;
+        $data['descriptionStyle'] = $data['descriptionStyle'] ?? '';
+        $data['imageStyle'] = $data['imageStyle'] ?? '';
+        // Here you could save $data to session or database if needed
+        return $data;
+    }
 }
