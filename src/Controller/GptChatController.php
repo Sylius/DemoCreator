@@ -110,46 +110,8 @@ class GptChatController extends AbstractController
         ]);
 
         try {
-            $response = $client->post('chat/completions', [
-                'json' => [
-                    'model' => $model,
-                    'messages' => $messages,
-                    'functions' => $functions,
-                    'function_call' => 'auto',
-                ],
-            ]);
-            $body = json_decode($response->getBody()->getContents(), true);
-            if (empty($body['choices'][0]['message'])) {
-                return new JsonResponse(['error' => 'No assistant message returned'], 500);
-            }
-            $message = $body['choices'][0]['message'];
-
-            // Handle function call from assistant
-            if (isset($message['function_call'])) {
-                $func = $message['function_call'];
-                $name = $func['name'];
-                $args = json_decode($func['arguments'], true);
-
-                // Execute the corresponding PHP function
-                switch ($name) {
-                    case 'collectStoreInfo':
-                        $resultData = $this->collectStoreInfo($args);
-                        break;
-                    // add more cases as you define other functions
-                    default:
-                        $resultData = [];
-                }
-
-                // Append function call and its result to the conversation
-                $messages[] = $message;
-                $messages[] = [
-                    'role' => 'function',
-                    'name' => $name,
-                    'content' => json_encode($resultData),
-                ];
-
-                // Call OpenAI again with the function result
-                $response2 = $client->post('chat/completions', [
+            do {
+                $response = $client->post('chat/completions', [
                     'json' => [
                         'model' => $model,
                         'messages' => $messages,
@@ -157,12 +119,34 @@ class GptChatController extends AbstractController
                         'function_call' => 'auto',
                     ],
                 ]);
-                $body2 = json_decode($response2->getBody()->getContents(), true);
-                $message2 = $body2['choices'][0]['message'];
-                return new JsonResponse(['choices' => [['message' => $message2]]]);
-            }
-
-            // No function call: return assistant message directly
+                $body = json_decode($response->getBody()->getContents(), true);
+                if (empty($body['choices'][0]['message'])) {
+                    throw new \RuntimeException('No assistant message returned');
+                }
+                $message = $body['choices'][0]['message'];
+                if (isset($message['function_call'])) {
+                    $func = $message['function_call'];
+                    $name = $func['name'];
+                    $args = json_decode($func['arguments'], true);
+                    switch ($name) {
+                        case 'collectStoreInfo':
+                            $resultData = $this->collectStoreInfo($args);
+                            break;
+                        // add additional cases as needed
+                        default:
+                            $resultData = [];
+                    }
+                    $messages[] = $message;
+                    $messages[] = [
+                        'role' => 'function',
+                        'name' => $name,
+                        'content' => json_encode($resultData),
+                    ];
+                    // Continue loop to process next function call
+                } else {
+                    break;
+                }
+            } while (true);
             return new JsonResponse(['choices' => [['message' => $message]]]);
         } catch (ClientException $e) {
             $response = $e->getResponse();
