@@ -10,11 +10,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use GuzzleHttp\Exception\ClientException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class GptChatController extends AbstractController
 {
     #[Route('/api/gpt-chat', name: 'api_gpt_chat', methods: ['POST'])]
-    public function chat(Request $request): JsonResponse
+    public function chat(Request $request, SessionInterface $session): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         // Conversation token for client-side tracking
@@ -22,10 +23,18 @@ class GptChatController extends AbstractController
         if (!$conversationId) {
             $conversationId = bin2hex(random_bytes(16));
         }
-        $messages = $data['messages'] ?? [];
-        if (empty($messages)) {
-            // Prepend system prompt on new conversation
-            $messages[] = [
+        // Persist conversation ID in session for later retrieval
+        $session->set('conversation_id', $conversationId);
+
+        // Merge incoming messages with any stored conversation, or prepend system prompt if new
+        $inputMessages = $data['messages'] ?? [];
+        $storedMessages = $session->get('messages_' . $conversationId, []);
+        if (is_array($storedMessages) && count($storedMessages) > 0) {
+            // Continue existing conversation
+            $messages = array_merge($storedMessages, $inputMessages);
+        } else {
+            // New conversation: initialize with system instruction
+            $systemMessage = [
                 'role' => 'system',
                 'content' => <<<'SYS'
 You are an AI assistant that helps create complete Sylius store fixtures in JSON format. INFORMATION GATHERING
@@ -44,6 +53,7 @@ You are an AI assistant that helps create complete Sylius store fixtures in JSON
 • Once all information is gathered, present a concise summary of the store configuration (locales, currency, countries, categories, number of products, description and image styles) and ask the user if they would like to make any final changes before proceeding to JSON generation.
 SYS
             ];
+            $messages = array_merge([$systemMessage], $inputMessages);
         }
 
         // Load JSON schema for final fixtures
@@ -127,12 +137,24 @@ SYS
                     switch ($name) {
                         case 'collectStoreInfo':
                             $resultData = $this->collectStoreInfo($args);
+                            $session->set('store_info_' . $conversationId, $resultData);
+                            if (
+                                isset($args['industry'], $args['locales'], $args['currencies'], $args['countries'],
+                                      $args['productsPerCat'], $args['descriptionStyle'], $args['imageStyle'])
+                            ) {
+                                $dataCompleted = true;
+                            }
                             break;
                         case 'generateFixtures':
                             $resultData = $this->generateFixtures($args);
+                            $session->set('messages_' . $conversationId, $messages);
+                            // Ensure conversation ID is stored
+                            $session->set('conversation_id', $conversationId);
                             // Immediately return validated fixtures JSON
                             return new JsonResponse([
                                 'conversation_id' => $conversationId,
+                                'dataCompleted' => true,
+                                'storeInfo' => $session->get('store_info_' . $conversationId),
                                 'fixtures' => $resultData,
                             ]);
                         // add additional cases as needed
@@ -152,8 +174,13 @@ SYS
                     break;
                 }
             } while (true);
+            // Ensure conversation ID is stored for subsequent requests
+            $session->set('conversation_id', $conversationId);
+            $session->set('messages_' . $conversationId, $messages);
             return new JsonResponse([
                 'conversation_id' => $conversationId,
+                'dataCompleted' => $dataCompleted ?? false,
+                'storeInfo' => $session->get('store_info_' . $conversationId),
                 'messages' => $messages,
             ]);
         } catch (ClientException $e) {
@@ -180,6 +207,60 @@ SYS
                 'messages' => $messages,
             ], 500);
         }
+    }
+
+    #[Route('/api/gpt-chat/state', name: 'api_gpt_chat_state', methods: ['GET'])]
+    public function state(Request $request, SessionInterface $session): JsonResponse
+    {
+        // Retrieve or generate conversation ID for new session
+        $conversationId = $request->query->get('conversation_id') ?? $session->get('conversation_id');
+        if (!$conversationId) {
+            $conversationId = bin2hex(random_bytes(16));
+        }
+        // Persist conversation ID in session
+        $session->set('conversation_id', $conversationId);
+
+        $info = $session->get('store_info_' . $conversationId, null);
+        $dataCompleted = $info !== null
+            && isset(
+                $info['industry'],
+                $info['locales'],
+                $info['currencies'],
+                $info['countries'],
+                $info['productsPerCat'],
+                $info['descriptionStyle'],
+                $info['imageStyle']
+            );
+        // Load existing messages or initialize with system prompt
+        $messages = $session->get('messages_' . $conversationId, []);
+        $systemMessage = [
+            'role' => 'system',
+            'content' => <<<'SYS'
+You are an AI assistant that helps create complete Sylius store fixtures in JSON format. INFORMATION GATHERING
+• If any of the following details have not yet been provided by the user, ask EXACTLY ONE polite, consolidated question to collect them:
+  – Industry or product type (e.g., furniture, books, clothing, electronics)
+  – Store locales (convert natural language to locale codes, e.g. “Polish” → pl_PL)
+  – Currencies (convert to ISO codes, e.g. “złotówki” → PLN)
+  – Countries (convert to ISO 3166-1 alpha-2 codes and full names)
+  – Number of products (total or per category; default ≈10 per category if omitted)
+  – Description style and image style preferences (if relevant)
+• Default to pl_PL if locales are omitted.
+• Default currency by primary locale (pl_PL → PLN, en_US → USD, etc.) if omitted.
+• Default to the country matching the primary locale if omitted.
+• Ask only one combined question; once answered, proceed directly to gathering the next missing detail.
+• Do NOT suggest exporting or generating the final fixtures file until all required details have been collected.
+• Once all information is gathered, present a concise summary of the store configuration (locales, currency, countries, categories, number of products, description and image styles) and ask the user if they would like to make any final changes before proceeding to JSON generation.
+SYS
+        ];
+        if (empty($messages)) {
+            $messages = [$systemMessage];
+        }
+        return new JsonResponse([
+            'conversation_id' => $conversationId,
+            'dataCompleted' => $dataCompleted,
+            'storeInfo' => $info,
+            'messages' => $messages,
+        ]);
     }
 
     private function collectStoreInfo(array $data): array

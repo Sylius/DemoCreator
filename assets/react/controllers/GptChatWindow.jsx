@@ -1,16 +1,13 @@
 import React, {useState, useRef, useEffect} from "react";
 
 const GptChatWindow = ({onNext}) => {
-    const [messages, setMessages] = useState([
-        {
-            role: "system",
-            content: `You are an AI assistant that gathers Sylius shop data step by step and then emits a final JSON fixtures via generate_fixtures(). Answer in natural language until all data are collected.`
-        }
-    ]);
+    const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [ready, setReady] = useState(false);
+    const [dataCompleted, setDataCompleted] = useState(false);
+    const [storeInfo, setStoreInfo] = useState(null);
     // Initialize conversationId from localStorage to persist across refreshes
     const [conversationId, setConversationId] = useState(() => {
         return localStorage.getItem('conversation_id') || null;
@@ -26,6 +23,26 @@ const GptChatWindow = ({onNext}) => {
         if (conversationId) {
             localStorage.setItem('conversation_id', conversationId);
         }
+    }, [conversationId]);
+
+    useEffect(() => {
+      if (conversationId) {
+        fetch(`/api/gpt-chat/state?conversation_id=${conversationId}`)
+          .then(res => res.json())
+          .then(data => {
+            if ('dataCompleted' in data) {
+              setDataCompleted(data.dataCompleted);
+              setReady(data.dataCompleted);
+            }
+            if (data.storeInfo) {
+              setStoreInfo(data.storeInfo);
+            }
+            if (Array.isArray(data.messages)) {
+              setMessages(data.messages);
+            }
+          })
+          .catch(console.error);
+      }
     }, [conversationId]);
 
     const handleSend = async (e) => {
@@ -46,22 +63,22 @@ const GptChatWindow = ({onNext}) => {
                 }),
             });
             const data = await response.json();
+            if ('dataCompleted' in data) {
+                setDataCompleted(data.dataCompleted);
+                setReady(data.dataCompleted);
+            }
             if (data.conversation_id) {
                 setConversationId(data.conversation_id);
+            }
+            if (data.storeInfo) {
+              setStoreInfo(data.storeInfo);
             }
             if (data.error) throw new Error(data.error);
             if (Array.isArray(data.messages)) {
                 setMessages(data.messages);
-                const lastMsg = data.messages[data.messages.length - 1];
-                if (lastMsg.function_call?.name === 'generate_fixtures') {
-                    setReady(true);
-                }
             } else if (Array.isArray(data.choices) && data.choices[0]?.message) {
                 const assistantMsg = data.choices[0].message;
                 setMessages((msgs) => [...msgs, assistantMsg]);
-                if (assistantMsg.function_call?.name === 'generate_fixtures') {
-                    setReady(true);
-                }
             } else {
                 setError("Brak 'messages' lub 'choices' w odpowiedzi API");
             }
@@ -70,6 +87,28 @@ const GptChatWindow = ({onNext}) => {
         } finally {
             setLoading(false);
         }
+    };
+    const copyConversation = () => {
+      const payload = JSON.stringify(
+        { conversation_id: conversationId, messages },
+        null,
+        2
+      );
+      navigator.clipboard.writeText(payload)
+        .then(() => alert("Rozmowa skopiowana do schowka!"))
+        .catch(() => alert("Nie udało się skopiować rozmowy."));
+    };
+    const clearConversation = () => {
+        // Reset conversation state and clear storage
+        setConversationId(null);
+        localStorage.removeItem('conversation_id');
+        setMessages([]);
+        setInput("");
+        setError(null);
+        setLoading(false);
+        setReady(false);
+        setDataCompleted(false);
+        setStoreInfo(null);
     };
 
     return (
@@ -82,6 +121,48 @@ const GptChatWindow = ({onNext}) => {
             background: "#fff",
             boxShadow: "0 2px 8px #0001"
         }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+            <button
+              onClick={copyConversation}
+              title="Kopiuj konwersację w JSON"
+              style={{
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                fontSize: "1rem",
+                color: "#007bff"
+              }}
+            >
+              📋 Kopiuj JSON
+            </button>
+            <button
+              onClick={clearConversation}
+              title="Wyczyść konwersację"
+              style={{
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                fontSize: "1rem",
+                color: "#dc3545",
+                marginLeft: 12
+              }}
+            >
+              🗑️ Wyczyść
+            </button>
+          </div>
+            {ready && (
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+                <span style={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  background: "#28a745",
+                  display: "inline-block",
+                  marginRight: 8
+                }} />
+                <strong style={{ color: "#28a745" }}>Wszystkie dane zebrane!</strong>
+              </div>
+            )}
             <div style={{
                 height: 650,
                 overflowY: "auto",
@@ -132,12 +213,13 @@ const GptChatWindow = ({onNext}) => {
                 disabled={!ready}
                 style={{
                     marginTop: 8,
-                    padding: "8px 16px",
+                    padding: ready ? "12px 24px" : "8px 16px",
                     borderRadius: 4,
                     border: "none",
                     background: ready ? "#28a745" : "#ccc",
                     color: "#fff",
-                    cursor: ready ? "pointer" : "not-allowed"
+                    cursor: ready ? "pointer" : "not-allowed",
+                    fontSize: ready ? "1.25rem" : "1rem"
                 }}
             >
                 Dalej
@@ -146,4 +228,4 @@ const GptChatWindow = ({onNext}) => {
     );
 };
 
-export default GptChatWindow; 
+export default GptChatWindow;

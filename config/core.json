@@ -52,8 +52,8 @@
                     "type": "string"
                 },
                 "name": {
-                    "type": "object",
-                    "additionalProperties": {
+                    "type": "array",
+                    "items": {
                         "type": "string"
                     }
                 }
@@ -245,114 +245,113 @@
                     "translations"
                 ],
                 "additionalProperties": false
-            },
-            "taxRates": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "code": {
-                            "type": "string"
-                        },
-                        "name": {
-                            "type": "string"
-                        },
-                        "zone": {
-                            "type": "string"
-                        },
-                        "category": {
-                            "type": "string"
-                        },
-                        "amount": {
-                            "type": "number"
-                        }
-                    },
-                    "required": [
-                        "code",
-                        "name",
-                        "zone",
-                        "category",
-                        "amount"
-                    ],
-                    "additionalProperties": false
-                }
-            },
-            "products": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "description": {
-                            "type": "string"
-                        },
-                        "short_description": {
-                            "type": "string"
-                        },
-                        "img_prompt": {
-                            "type": "string"
-                        },
-                        "tax_category": {
-                            "type": "string"
-                        },
-                        "main_taxon": {
-                            "type": "string"
-                        },
-                        "taxons": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "product_attributes": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        },
-                        "product_options": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "images": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "path": {
-                                        "type": "string"
-                                    },
-                                    "type": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": [
-                                    "path"
-                                ],
-                                "additionalProperties": false
-                            }
-                        }
-                    },
-                    "required": [
-                        "name",
-                        "description",
-                        "short_description",
-                        "img_prompt",
-                        "tax_category",
-                        "main_taxon",
-                        "taxons",
-                        "product_attributes",
-                        "images"
-                    ],
-                    "additionalProperties": false
-                }
             }
         },
-        "additionalProperties": false
+        "taxRates": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "zone": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "zone",
+                    "category",
+                    "amount"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "products": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "short_description": {
+                        "type": "string"
+                    },
+                    "img_prompt": {
+                        "type": "string"
+                    },
+                    "tax_category": {
+                        "type": "string"
+                    },
+                    "main_taxon": {
+                        "type": "string"
+                    },
+                    "taxons": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "product_attributes": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "product_options": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "path": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "path"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "description",
+                    "short_description",
+                    "img_prompt",
+                    "tax_category",
+                    "main_taxon",
+                    "taxons",
+                    "product_attributes",
+                    "images"
+                ],
+                "additionalProperties": false
+            }
+        }
     },
     "required": [
         "suiteName",
@@ -369,5 +368,6 @@
         "taxons",
         "taxRates",
         "products"
-    ]
+    ],
+    "additionalProperties": false
 }
