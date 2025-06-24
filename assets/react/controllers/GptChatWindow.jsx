@@ -1,13 +1,25 @@
 import React, {useState, useRef, useEffect} from "react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const GptChatWindow = ({onNext}) => {
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState(() => {
+        const stored = localStorage.getItem('messages');
+        return stored ? JSON.parse(stored) : [];
+    });
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [ready, setReady] = useState(false);
     const [dataCompleted, setDataCompleted] = useState(false);
-    const [storeInfo, setStoreInfo] = useState(null);
+    const [storeInfo, setStoreInfo] = useState(() => {
+        const stored = localStorage.getItem('storeInfo');
+        return stored ? JSON.parse(stored) : null;
+    });
+    const [showFunctionMessages, setShowFunctionMessages] = useState(false);
     const [fixturesJson, setFixturesJson] = useState(null);
     // Initialize conversationId from localStorage to persist across refreshes
     const [conversationId, setConversationId] = useState(() => {
@@ -26,25 +38,20 @@ const GptChatWindow = ({onNext}) => {
         }
     }, [conversationId]);
 
+    // Persist messages to localStorage whenever they change
     useEffect(() => {
-      if (conversationId) {
-        fetch(`/api/gpt-chat/state?conversation_id=${conversationId}`)
-          .then(res => res.json())
-          .then(data => {
-            if ('dataCompleted' in data) {
-              setDataCompleted(data.dataCompleted);
-              setReady(data.dataCompleted);
-            }
-            if (data.storeInfo) {
-              setStoreInfo(data.storeInfo);
-            }
-            if (Array.isArray(data.messages)) {
-              setMessages(data.messages);
-            }
-          })
-          .catch(console.error);
-      }
-    }, [conversationId]);
+        localStorage.setItem('messages', JSON.stringify(messages));
+    }, [messages]);
+
+    // Persist storeInfo to localStorage whenever it changes
+    useEffect(() => {
+        if (storeInfo !== null) {
+            localStorage.setItem('storeInfo', JSON.stringify(storeInfo));
+        } else {
+            localStorage.removeItem('storeInfo');
+        }
+    }, [storeInfo]);
+
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -55,12 +62,21 @@ const GptChatWindow = ({onNext}) => {
         setInput("");
         setLoading(true);
         try {
+            // Include current storeInfo as a function message in the payload
+            const payloadMessages = [...newMessages];
+            if (storeInfo) {
+                payloadMessages.push({
+                    role: "function",
+                    name: "collectStoreInfo",
+                    content: JSON.stringify(storeInfo),
+                });
+            }
             const response = await fetch("/api/gpt-chat", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     conversation_id: conversationId,
-                    messages: newMessages,
+                    messages: payloadMessages,
                 }),
             });
             const data = await response.json();
@@ -103,25 +119,36 @@ const GptChatWindow = ({onNext}) => {
         // Reset conversation state and clear storage
         setConversationId(null);
         localStorage.removeItem('conversation_id');
+        localStorage.removeItem('messages');
+        localStorage.removeItem('storeInfo');
+        setStoreInfo(null);
         setMessages([]);
         setInput("");
         setError(null);
         setLoading(false);
         setReady(false);
         setDataCompleted(false);
-        setStoreInfo(null);
     };
 
   const handleGenerate = async () => {
     setError(null);
     setLoading(true);
     try {
+      // Include current storeInfo as a function message in the payload
+      const payloadMessages = [...messages];
+      if (storeInfo) {
+          payloadMessages.push({
+              role: "function",
+              name: "collectStoreInfo",
+              content: JSON.stringify(storeInfo),
+          });
+      }
       const response = await fetch("/api/gpt-chat", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
           conversation_id: conversationId,
-          messages,
+          messages: payloadMessages,
           generateFixtures: true,
         }),
       });
@@ -173,6 +200,15 @@ const GptChatWindow = ({onNext}) => {
             >
               📋 Kopiuj JSON
             </button>
+            <label style={{ display: "flex", alignItems: "center", marginLeft: 12 }}>
+              <input
+                type="checkbox"
+                checked={showFunctionMessages}
+                onChange={e => setShowFunctionMessages(e.target.checked)}
+                style={{ marginRight: 4 }}
+              />
+              Pokaż funkcje
+            </label>
             <button
               onClick={clearConversation}
               title="Wyczyść konwersację"
@@ -209,17 +245,43 @@ const GptChatWindow = ({onNext}) => {
                 padding: 8,
                 borderRadius: 4
             }}>
-                {messages.filter(m => m.role !== "system").map((msg, idx) => (
+                {messages
+                  .filter(m => m.role !== "system" && (showFunctionMessages || m.role !== "function"))
+                  .map((msg, idx) => (
                     <div key={idx} style={{margin: "8px 0", textAlign: msg.role === "user" ? "right" : "left"}}>
-            <span style={{
-                display: "inline-block",
-                padding: "8px 12px",
-                borderRadius: 16,
-                background: msg.role === "user" ? "#d1e7dd" : "#e2e3e5",
-                color: "#222"
-            }}>
-              {msg.content}
-            </span>
+                      <div style={{
+                          display: "inline-block",
+                          padding: "8px 12px",
+                          borderRadius: 16,
+                          background: msg.role === "user" ? "#d1e7dd" : "#e2e3e5",
+                          color: "#222",
+                          maxWidth: "80%"
+                      }}>
+                        {msg.role === "function" ? (
+                          <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+                            <code>{JSON.stringify(JSON.parse(msg.content), null, 2)}</code>
+                          </pre>
+                        ) : (
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeRaw]}
+                            components={{
+                              code({node, inline, className, children, ...props}) {
+                                const match = /language-(\w+)/.exec(className || '');
+                                return !inline && match ? (
+                                  <SyntaxHighlighter style={tomorrow} language={match[1]} PreTag="div" {...props}>
+                                    {String(children).replace(/\n$/, '')}
+                                  </SyntaxHighlighter>
+                                ) : (
+                                  <code className={className} {...props}>{children}</code>
+                                );
+                              }
+                            }}
+                          >
+                            {msg.content}
+                          </ReactMarkdown>
+                        )}
+                      </div>
                     </div>
                 ))}
                 {loading && <div style={{color: "#888", fontStyle: "italic"}}>Assistant is typing...</div>}
@@ -269,7 +331,6 @@ const GptChatWindow = ({onNext}) => {
                 <button
                   type="button"
                   onClick={handleGenerate}
-                  disabled={loading || fixturesJson !== null}
                   style={{
                     padding: "12px 24px",
                     borderRadius: 4,

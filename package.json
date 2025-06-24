@@ -31,6 +31,10 @@
         "@tailwindcss/postcss": "^4.1.7",
         "framer-motion": "^12.12.1",
         "postcss": "^8.5.3",
-        "react-router-dom": "^7.6.1"
+        "react-markdown": "^10.1.0",
+        "react-router-dom": "^7.6.1",
+        "react-syntax-highlighter": "^15.6.1",
+        "rehype-raw": "^7.0.0",
+        "remark-gfm": "^4.0.1"
     }
 }

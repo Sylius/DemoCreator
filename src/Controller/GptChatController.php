@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use GuzzleHttp\Exception\ClientException;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class GptChatController extends AbstractController
 {
@@ -22,22 +21,27 @@ class GptChatController extends AbstractController
     }
 
     #[Route('/api/gpt-chat', name: 'api_gpt_chat', methods: ['POST'])]
-    public function chat(Request $request, SessionInterface $session): JsonResponse
+    public function chat(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+        $storeInfo = $data['storeInfo'] ?? [];
         $conversationId = $data['conversation_id'] ?? null;
         if (!$conversationId) {
             $conversationId = bin2hex(random_bytes(16));
         }
-        // Persist conversation ID in session for later retrieval
-        $session->set('conversation_id', $conversationId);
 
         // If front requests direct fixtures generation, bypass conversation logic
         if (!empty($data['generateFixtures'])) {
-            // Use collected store info from session to generate fixtures
-            $storeInfo = $session->get('store_info_' . $conversationId, []);
+            $initialMessages = [$this->getSystemMessage()];
+            if (!empty($storeInfo)) {
+                $initialMessages[] = [
+                    'role' => 'function',
+                    'name' => 'collectStoreInfo',
+                    'content' => json_encode($storeInfo),
+                ];
+            }
             $message = $this->askGPT(
-                [$this->getSystemMessage(), ['role' => 'user', 'content' => json_encode($storeInfo)]],
+                $initialMessages,
                 'gpt-4o-2024-08-06',
                 $this->getGenerateFixturesFunction(),
                 'generateFixtures',
@@ -45,16 +49,28 @@ class GptChatController extends AbstractController
             $func = $message['function_call'];
             $args = json_decode($func['arguments'], true);
             $resultData = $this->generateFixtures($args);
+            $stack = $initialMessages;
+            $stack[] = $message;
+            $stack[] = [
+                'role' => 'function',
+                'name' => $func['name'],
+                'content' => json_encode($resultData),
+            ];
             return new JsonResponse([
                 'conversation_id' => $conversationId,
                 'dataCompleted' => true,
-                'storeInfo' => $session->get('store_info_' . $conversationId),
+                'storeInfo' => $storeInfo,
                 'fixtures' => $resultData,
+                'messages' => $stack,
             ]);
         }
 
         $inputMessages = $data['messages'] ?? [];
-        $messages = count($inputMessages) > 1 ? $inputMessages : array_merge([$this->getSystemMessage()], $inputMessages);
+        // Prepend system message once for new conversations
+        if (empty($inputMessages) || ($inputMessages[0]['role'] ?? '') !== 'system') {
+            array_unshift($inputMessages, $this->getSystemMessage());
+        }
+        $messages = $inputMessages;
 
         // Choose model: mini for interview, full for final generation
         $last = end($messages);
@@ -76,7 +92,7 @@ class GptChatController extends AbstractController
                 switch ($name) {
                     case 'collectStoreInfo':
                         $resultData = $this->collectStoreInfo($args);
-                        $session->set('store_info_' . $conversationId, $resultData);
+                        $storeInfo = $resultData;
                         if (
                             isset($args['industry'], $args['locales'], $args['currencies'], $args['countries'],
                                 $args['productsPerCat'], $args['descriptionStyle'], $args['imageStyle'])
@@ -86,15 +102,12 @@ class GptChatController extends AbstractController
                         break;
                     case 'generateFixtures':
                         $resultData = $this->generateFixtures($args);
-                        $session->set('messages_' . $conversationId, $messages);
-                        // Ensure conversation ID is stored
-                        $session->set('conversation_id', $conversationId);
-                        // Immediately return validated fixtures JSON
                         return new JsonResponse([
                             'conversation_id' => $conversationId,
                             'dataCompleted' => true,
-                            'storeInfo' => $session->get('store_info_' . $conversationId),
+                            'storeInfo' => $storeInfo,
                             'fixtures' => $resultData,
+                            'messages' => $messages,
                         ]);
                     // add additional cases as needed
                     default:
@@ -113,40 +126,14 @@ class GptChatController extends AbstractController
                 break;
             }
         } while (true);
-        // Ensure conversation ID is stored for subsequent requests
-        $session->set('conversation_id', $conversationId);
-        $session->set('messages_' . $conversationId, $messages);
         return new JsonResponse([
             'conversation_id' => $conversationId,
             'dataCompleted' => $dataCompleted ?? false,
-            'storeInfo' => $session->get('store_info_' . $conversationId),
-            'messages' => $messages,
-        ]);
-    }
-
-    #[Route('/api/gpt-chat/state', name: 'api_gpt_chat_state', methods: ['GET'])]
-    public function state(Request $request, SessionInterface $session): JsonResponse
-    {
-        // Retrieve or generate conversation ID for new session
-        $conversationId = $request->query->get('conversation_id') ?? $session->get('conversation_id');
-        if (!$conversationId) {
-            $conversationId = bin2hex(random_bytes(16));
-        }
-        // Persist conversation ID in session
-        $session->set('conversation_id', $conversationId);
-
-        // Load existing messages or initialize with system prompt
-        $messages = $session->get('messages_' . $conversationId, []);
-
-        $storeInfo = $session->get('store_info_' . $conversationId, []);
-
-        return new JsonResponse([
-            'conversation_id' => $conversationId,
-            'dataCompleted' => $this->isInterviewCompleted($storeInfo),
             'storeInfo' => $storeInfo,
             'messages' => $messages,
         ]);
     }
+
 
     private function collectStoreInfo(array $data): array
     {
@@ -160,46 +147,6 @@ class GptChatController extends AbstractController
         $data['imageStyle'] = $data['imageStyle'] ?? '';
         // Here you could save $data to session or database if needed
         return $data;
-    }
-
-    /**
-     * Generate final fixtures array based on provided schema args.
-     */
-    private function generateFixtures(array $data): array
-    {
-        // Build fixtures payload using provided data or sensible defaults
-        $result = [
-            'suiteName' => $data['suiteName'] ?? 'Sylius Store Fixtures',
-            'locales' => $data['locales'] ?? ['pl_PL'],
-            'currencies' => $data['currencies'] ?? ['PLN'],
-            'countries' => $data['countries'] ?? ['PL'],
-            'zones' => $data['zones'] ?? [
-                    'WORLD' => [
-                        'name' => 'World Zone',
-                        'countries' => $data['countries'] ?? ['PL'],
-                    ],
-                ],
-            'menuTaxon' => $data['menuTaxon'] ?? [
-                    'code' => 'menu',
-                    'name' => $data['menuTaxon']['name'] ?? 'Menu',
-                ],
-            'channel' => $data['channel'] ?? [
-                    'code' => 'default',
-                    'name' => 'Default Channel',
-                    'locales' => $data['locales'] ?? ['pl_PL'],
-                    'currencies' => $data['currencies'] ?? ['PLN'],
-                    'hostname' => 'localhost',
-                    'theme_name' => 'default',
-                ],
-            'categories' => $data['categories'] ?? [],
-            'paymentMethods' => $data['paymentMethods'] ?? [],
-            'shippingMethods' => $data['shippingMethods'] ?? [],
-            'taxCategories' => $data['taxCategories'] ?? [],
-            'taxons' => $data['taxons'] ?? [],
-            'taxRates' => $data['taxRates'] ?? [],
-            'products' => $data['products'] ?? [],
-        ];
-        return $result;
     }
 
     private function setupClient(): void
@@ -226,7 +173,7 @@ class GptChatController extends AbstractController
                     'model' => $model,
                     'messages' => $messages,
                     'functions' => [$function],
-                    'function_call' => $functionName ? ['name' => $functionName] : 'auto',
+                    'function_call' => $functionName !== null ? ['name' => $functionName] : 'auto',
                 ],
             ]);
             $body = json_decode($response->getBody()->getContents(), true);
@@ -277,7 +224,7 @@ class GptChatController extends AbstractController
                         'descriptionStyle' => ['type' => 'string'],
                         'imageStyle' => ['type' => 'string'],
                     ],
-                    'required' => ['industry', 'locales', 'currencies', 'countries', 'categories', 'productsPerCat', 'descriptionStyle', 'imageStyle'],
+                    'required' => [],
                 ],
             ];
     }
@@ -313,35 +260,32 @@ class GptChatController extends AbstractController
 
     private function getSystemMessage(): array
     {
-        $schema = __DIR__ . '/../../config/core.json';
-        if (!file_exists($schema)) {
-            throw new \RuntimeException('Core schema file not found: ' . $schema);
-        }
-
-        $schemaContent = file_get_contents($schema);
-
         $content = <<<'SYS'
-You are an AI assistant that helps create complete Sylius store fixtures in JSON format. INFORMATION GATHERING
+You are an AI assistant that helps create complete Sylius store fixtures in JSON format.
 • If any of the following details have not yet been provided by the user, ask EXACTLY ONE polite, consolidated question to collect them:
   – Industry or product type (e.g., furniture, books, clothing, electronics)
-  – Store locales (convert natural language to locale codes, e.g. “Polish” → pl_PL)
+  – Store locales (convert natural language to locale codes, e.g. “Polish” → pl_PL), but don't use technical terms like "locale"
   – Currencies (convert to ISO codes, e.g. “złotówki” → PLN)
-  – Countries (convert to ISO 3166-1 alpha-2 codes and full names)
-  – Number of products (total or per category; default ≈10 per category if omitted)
+  – Countries (convert to ISO 3166-1 alpha-2 codes and full names), don't use technical terms like pl_PL
+  - Categories (provide a list of categories with codes, names, and slugs; if user doesn't specify, use 5 categories based on industry)
+  – Number of products (total or per category; default 5 per category if omitted)
   – Description style and image style preferences (if relevant)
-• Default to pl_PL if locales are omitted.
-• Default currency by primary locale (pl_PL → PLN, en_US → USD, etc.) if omitted.
-• Default to the country matching the primary locale if omitted.
+• If user let you decide, choose locale and currency based on the language he speaks, for example:
+  – For Polish, use pl_PL and PLN.
+  – For English, use en_US and USD.
 • Ask only one combined question; once answered, proceed directly to gathering the next missing detail.
 • Do NOT suggest exporting or generating the final fixtures file until all required details have been collected.
-• Once all information is gathered, present a concise summary of the store configuration (locales, currency, countries, categories, number of products, description and image styles) and ask the user if they would like to make any final changes before proceeding to JSON generation.
+• Once all information is gathered, present a concise summary of the store configuration and ask the user if they would like to make any final changes before proceeding to generation.
+• Don't use technical terms like JSON schema, fixtures, or export.
 
-You are an AI assistant that helps create complete Sylius store fixtures in JSON format. You will be provided with a JSON schema that defines the structure of the fixtures. Your task is to generate valid JSON fixtures based on the provided schema and the information collected from the user.
+Whenever you receive new relevant information from the user, call the function `collectStoreInfo` with that data to update the current `storeInfo`. Continue this step-by-step process until all fields in the JSON schema are fully populated: industry, locales, currencies, countries, categories, productsPerCat, descriptionStyle, imageStyle.
+
+Once `storeInfo` is complete, present a concise summary of the store configuration and ask the user if they would like any final changes. Ask the user to write a certain confirmation word. Only after the user confirms, call the function `generateFixtures` to generate the final JSON fixtures.
 SYS;
 
         return [
             'role' => 'system',
-            'content' => $schemaContent . "\n\n" . $content,
+            'content' => $content,
         ];
     }
 }
