@@ -8,6 +8,7 @@ const GptChatWindow = ({onNext}) => {
     const [ready, setReady] = useState(false);
     const [dataCompleted, setDataCompleted] = useState(false);
     const [storeInfo, setStoreInfo] = useState(null);
+    const [fixturesJson, setFixturesJson] = useState(null);
     // Initialize conversationId from localStorage to persist across refreshes
     const [conversationId, setConversationId] = useState(() => {
         return localStorage.getItem('conversation_id') || null;
@@ -111,6 +112,43 @@ const GptChatWindow = ({onNext}) => {
         setStoreInfo(null);
     };
 
+  const handleGenerate = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const response = await fetch("/api/gpt-chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          conversation_id: conversationId,
+          messages,
+          generateFixtures: true,
+        }),
+      });
+      const data = await response.json();
+      if (data.fixtures) {
+        const json = JSON.stringify(data.fixtures, null, 2);
+        setFixturesJson(json);
+      } else if (data.error) {
+        throw new Error(data.error);
+      } else {
+        throw new Error("Brak fixtures w odpowiedzi API");
+      }
+    } catch (err) {
+      setError(err.message || "Unknown error generating fixtures");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyFixtures = () => {
+    if (fixturesJson) {
+      navigator.clipboard.writeText(fixturesJson)
+        .then(() => alert("Fixtures skopiowane do schowka!"))
+        .catch(() => alert("Nie udało się skopiować fixtures."));
+    }
+  };
+
     return (
         <div style={{
             maxWidth: 1000,
@@ -207,23 +245,62 @@ const GptChatWindow = ({onNext}) => {
                     Send
                 </button>
             </form>
-            <button
+            {!dataCompleted && (
+              <button
                 type="button"
                 onClick={onNext}
                 disabled={!ready}
                 style={{
-                    marginTop: 8,
-                    padding: ready ? "12px 24px" : "8px 16px",
+                  marginTop: 8,
+                  padding: ready ? "12px 24px" : "8px 16px",
+                  borderRadius: 4,
+                  border: "none",
+                  background: ready ? "#28a745" : "#ccc",
+                  color: "#fff",
+                  cursor: ready ? "pointer" : "not-allowed",
+                  fontSize: ready ? "1.25rem" : "1rem"
+                }}
+              >
+                Dalej
+              </button>
+            )}
+            {dataCompleted && (
+              <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  disabled={loading || fixturesJson !== null}
+                  style={{
+                    padding: "12px 24px",
                     borderRadius: 4,
                     border: "none",
-                    background: ready ? "#28a745" : "#ccc",
+                    background: "#007bff",
                     color: "#fff",
-                    cursor: ready ? "pointer" : "not-allowed",
-                    fontSize: ready ? "1.25rem" : "1rem"
-                }}
-            >
-                Dalej
-            </button>
+                    cursor: loading || fixturesJson ? "not-allowed" : "pointer",
+                    fontSize: "1rem"
+                  }}
+                >
+                  Generuj
+                </button>
+                {fixturesJson && (
+                  <button
+                    type="button"
+                    onClick={copyFixtures}
+                    style={{
+                      padding: "12px 24px",
+                      borderRadius: 4,
+                      border: "none",
+                      background: "#17a2b8",
+                      color: "#fff",
+                      cursor: "pointer",
+                      fontSize: "1rem"
+                    }}
+                  >
+                    Kopiuj JSON fixtures
+                  </button>
+                )}
+              </div>
+            )}
         </div>
     );
 };
