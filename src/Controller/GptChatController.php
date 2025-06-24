@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use GuzzleHttp\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -40,7 +41,7 @@ class GptChatController extends AbstractController
         // Choose model: mini for interview, full for final generation
         $last = end($messages);
         $model = 'gpt-4.1-mini';
-        if (isset($last['function_call']['name']) && $last['function_call']['name'] === 'generate_fixtures') {
+        if (isset($last['function_call']['name']) && $last['function_call']['name'] === 'generateFixtures') {
             $model = 'gpt-4o-2024-08-06';
         }
 
@@ -48,7 +49,6 @@ class GptChatController extends AbstractController
             $message = $this->askGPT(
                 $messages,
                 $model,
-                $this->getCollectStoreDataFunction(),
             );
             if (isset($message['function_call'])) {
                 $func = $message['function_call'];
@@ -58,6 +58,13 @@ class GptChatController extends AbstractController
                     case 'collectStoreInfo':
                         $resultData = $this->collectStoreInfo($args);
                         $storeInfo = $resultData;
+                        // Append the function call and its result to the conversation
+                        $messages[] = $message;
+                        $messages[] = [
+                            'role'    => 'function',
+                            'name'    => $name,
+                            'content' => json_encode($resultData),
+                        ];
                         if (
                             isset($args['industry'], $args['locales'], $args['currencies'], $args['countries'],
                                 $args['productsPerCat'], $args['descriptionStyle'], $args['imageStyle'])
@@ -66,7 +73,21 @@ class GptChatController extends AbstractController
                         }
                         break;
                     case 'generateFixtures':
-                        $resultData = $this->generateFixtures($args);
+                        // Arguments are already decoded to array
+                        $resultData = $args;
+                        $filesystem = new Filesystem();
+                        $industry = $storeInfo['industry'] ?? 'default';
+                        $fixturesPath = $this->getParameter('kernel.project_dir') . '/fixtures/' . $industry . '_' . date('Ymd_His') . '.json';
+                        if (!$filesystem->exists(dirname($fixturesPath))) {
+                            $filesystem->mkdir(dirname($fixturesPath));
+                        }
+                        $filesystem->dumpFile($fixturesPath, json_encode($resultData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                        $messages[] = $message;
+                        $messages[] = [
+                            'role' => 'function',
+                            'name' => $name,
+                            'content' => json_encode($resultData),
+                        ];
                         return new JsonResponse([
                             'conversation_id' => $conversationId,
                             'dataCompleted' => true,
@@ -78,12 +99,6 @@ class GptChatController extends AbstractController
                     default:
                         $resultData = [];
                 }
-                $messages[] = $message;
-                $messages[] = [
-                    'role' => 'function',
-                    'name' => $name,
-                    'content' => json_encode($resultData),
-                ];
                 // Continue loop to process next function call
             } else {
                 // Append the final assistant message before exiting the loop
@@ -237,6 +252,9 @@ You are an AI assistant that helps create complete Sylius store fixtures in JSON
 • Don't use technical terms like JSON schema, fixtures, or export.
 
 Whenever you receive new relevant information from the user, call the function `collectStoreInfo` with that data to update the current `storeInfo`. Continue this step-by-step process until all fields in the JSON schema are fully populated: industry, locales, currencies, countries, categories, productsPerCat, descriptionStyle, imageStyle.
+Other technical details:
+- when generating fixtures, ensure each product includes a `product_attributes` object containing key/value string pairs (e.g., `"material": "Steel"`, `"weight_kg": "18"`), even if empty.
+- suiteName - name of the store without spaces (snake/lower-case); if not provided by the user, create it based on the industry.
 
 Once `storeInfo` is complete, present a concise summary of the store configuration and ask the user if they would like any final changes. Ask the user to write a certain confirmation word. Only after the user confirms, call the function `generateFixtures` to generate the final JSON fixtures.
 SYS;

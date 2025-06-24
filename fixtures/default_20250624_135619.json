@@ -1,0 +1,163 @@
+{
+    "suiteName": "Bi\u017cuteria sklep internetowy",
+    "locales": [
+        "pl_PL"
+    ],
+    "currencies": [
+        "PLN"
+    ],
+    "countries": [
+        "PL"
+    ],
+    "menuTaxon": {
+        "code": "root",
+        "name": [
+            "Bi\u017cuteria"
+        ]
+    },
+    "channel": {
+        "code": "default",
+        "name": "Kana\u0142 g\u0142\u00f3wny",
+        "locales": [
+            "pl_PL"
+        ],
+        "currencies": [
+            "PLN"
+        ],
+        "hostname": "bi\u017cuteria-sklep.pl",
+        "theme_name": "default"
+    },
+    "categories": [
+        {
+            "code": "earrings",
+            "name": "Kolczyki",
+            "slug": "kolczyki"
+        },
+        {
+            "code": "necklaces",
+            "name": "Naszyjniki",
+            "slug": "naszyjniki"
+        },
+        {
+            "code": "bracelets",
+            "name": "Bransoletki",
+            "slug": "bransoletki"
+        }
+    ],
+    "paymentMethods": [
+        {
+            "code": "cash_on_delivery",
+            "name": "P\u0142atno\u015b\u0107 przy odbiorze"
+        },
+        {
+            "code": "bank_transfer",
+            "name": "Przelew bankowy"
+        },
+        {
+            "code": "card_payment",
+            "name": "P\u0142atno\u015b\u0107 kart\u0105"
+        }
+    ],
+    "shippingMethods": [
+        {
+            "code": "in_store_pickup",
+            "name": "Odbi\u00f3r osobisty"
+        },
+        {
+            "code": "flat_rate",
+            "name": "Stawka rycza\u0142towa"
+        },
+        {
+            "code": "free_shipping",
+            "name": "Darmowa wysy\u0142ka"
+        }
+    ],
+    "taxCategories": [
+        {
+            "code": "default",
+            "name": "Standardowa stawka VAT"
+        }
+    ],
+    "taxons": [
+        {
+            "code": "earrings",
+            "name": "Kolczyki"
+        },
+        {
+            "code": "necklaces",
+            "name": "Naszyjniki"
+        },
+        {
+            "code": "bracelets",
+            "name": "Bransoletki"
+        }
+    ],
+    "taxRates": [
+        {
+            "code": "vat_standard",
+            "name": "VAT standardowy",
+            "zone": "PL",
+            "category": "default",
+            "amount": 0.23
+        }
+    ],
+    "products": [
+        {
+            "name": "Kolczyki Per\u0142owe Elegancja",
+            "description": "Delikatne kolczyki z naturalnymi per\u0142ami, idealne na eleganckie okazje. Wykonane ze srebra najwy\u017cszej pr\u00f3by.",
+            "short_description": "Delikatne srebrne kolczyki z per\u0142ami.",
+            "img_prompt": "minimalistyczne zdj\u0119cie srebrnych kolczyk\u00f3w z per\u0142ami na bia\u0142ym tle",
+            "tax_category": "default",
+            "main_taxon": "earrings",
+            "taxons": [
+                "earrings"
+            ],
+            "product_options": [
+                "Rozmiar"
+            ],
+            "images": [
+                {
+                    "path": "earrings_pearl.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Naszyjnik Z\u0142oty Minimalizm",
+            "description": "Subtelny z\u0142oty naszyjnik o minimalistycznym designie, wykonany z 14-karatowego z\u0142ota. Doskona\u0142y do codziennej elegancji.",
+            "short_description": "Z\u0142oty naszyjnik minimalistyczny.",
+            "img_prompt": "minimalistyczne zdj\u0119cie z\u0142otego naszyjnika na jasnym tle",
+            "tax_category": "default",
+            "main_taxon": "necklaces",
+            "taxons": [
+                "necklaces"
+            ],
+            "product_options": [
+                "D\u0142ugo\u015b\u0107"
+            ],
+            "images": [
+                {
+                    "path": "necklace_gold.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Bransoletka Sk\u00f3rzana Klasyka",
+            "description": "Wysokiej jako\u015bci sk\u00f3rzana bransoletka, idealna dla os\u00f3b ceni\u0105cych prostot\u0119 i elegancj\u0119. Zamkni\u0119cie ze stali nierdzewnej.",
+            "short_description": "Sk\u00f3rzana bransoletka z klasycznym zapi\u0119ciem.",
+            "img_prompt": "minimalistyczne zdj\u0119cie sk\u00f3rzanej bransoletki na jednolitym tle",
+            "tax_category": "default",
+            "main_taxon": "bracelets",
+            "taxons": [
+                "bracelets"
+            ],
+            "product_options": [
+                "D\u0142ugo\u015b\u0107"
+            ],
+            "images": [
+                {
+                    "path": "bracelet_leather.jpg"
+                }
+            ]
+        }
+    ]
+}

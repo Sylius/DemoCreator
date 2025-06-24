@@ -1,0 +1,184 @@
+{
+    "suiteName": "bizuteria",
+    "locales": [
+        "pl_PL"
+    ],
+    "currencies": [
+        "PLN"
+    ],
+    "countries": [
+        "PL"
+    ],
+    "menuTaxon": {
+        "code": "menu",
+        "name": [
+            "Menu"
+        ]
+    },
+    "channel": {
+        "code": "default",
+        "name": "Kana\u0142 g\u0142\u00f3wny",
+        "locales": [
+            "pl_PL"
+        ],
+        "currencies": [
+            "PLN"
+        ],
+        "hostname": "localhost",
+        "theme_name": "default"
+    },
+    "categories": [
+        {
+            "code": "earrings",
+            "name": "Kolczyki",
+            "slug": "kolczyki"
+        },
+        {
+            "code": "necklaces",
+            "name": "Naszyjniki",
+            "slug": "naszyjniki"
+        },
+        {
+            "code": "bracelets",
+            "name": "Bransoletki",
+            "slug": "bransoletki"
+        }
+    ],
+    "paymentMethods": [
+        {
+            "code": "paypal",
+            "name": "PayPal"
+        },
+        {
+            "code": "stripe",
+            "name": "Stripe"
+        }
+    ],
+    "shippingMethods": [
+        {
+            "code": "flat_rate",
+            "name": "Sta\u0142a stawka"
+        },
+        {
+            "code": "free_shipping",
+            "name": "Darmowa wysy\u0142ka"
+        }
+    ],
+    "taxCategories": [
+        {
+            "code": "standard",
+            "name": "Standardowa"
+        }
+    ],
+    "taxons": [
+        {
+            "code": "earrings",
+            "name": [
+                "Kolczyki"
+            ]
+        },
+        {
+            "code": "necklaces",
+            "name": [
+                "Naszyjniki"
+            ]
+        },
+        {
+            "code": "bracelets",
+            "name": [
+                "Bransoletki"
+            ]
+        }
+    ],
+    "taxRates": [
+        {
+            "code": "standard_tax",
+            "name": "Podatek standardowy",
+            "zone": "PL",
+            "category": "standard",
+            "amount": 0.23
+        }
+    ],
+    "products": [
+        {
+            "name": "Delikatne srebrne kolczyki z kryszta\u0142ami",
+            "description": "Eleganckie i subtelne srebrne kolczyki ozdobione kryszta\u0142ami, idealne na ka\u017cd\u0105 okazj\u0119.",
+            "short_description": "Srebrne kolczyki z kryszta\u0142ami",
+            "img_prompt": "minimalistyczne zdj\u0119cie delikatnych srebrnych kolczyk\u00f3w z kryszta\u0142ami",
+            "tax_category": "standard",
+            "main_taxon": "earrings",
+            "taxons": [
+                "earrings"
+            ],
+            "product_attributes": {
+                "material": "Srebro",
+                "weight_g": "3"
+            },
+            "images": [
+                {
+                    "path": "delikatne-srebrne-kolczyki.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Z\u0142ote kolczyki ko\u0142a",
+            "description": "Klasyczne z\u0142ote kolczyki w kszta\u0142cie ko\u0142a o minimalistycznym designie, kt\u00f3re podkre\u015bl\u0105 Twoj\u0105 elegancj\u0119.",
+            "short_description": "Z\u0142ote kolczyki ko\u0142a",
+            "img_prompt": "minimalistyczne zdj\u0119cie z\u0142otych kolczyk\u00f3w w kszta\u0142cie ko\u0142a",
+            "tax_category": "standard",
+            "main_taxon": "earrings",
+            "taxons": [
+                "earrings"
+            ],
+            "product_attributes": {
+                "material": "Z\u0142oto",
+                "weight_g": "4"
+            },
+            "images": [
+                {
+                    "path": "zlote-kolczyki-kola.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Naszyjnik z naturalnym kamieniem",
+            "description": "Elegancki naszyjnik z naturalnym kamieniem, kt\u00f3ry doda szyku ka\u017cdej stylizacji.",
+            "short_description": "Naszyjnik z kamieniem",
+            "img_prompt": "minimalistyczne zdj\u0119cie naszyjnika z naturalnym kamieniem",
+            "tax_category": "standard",
+            "main_taxon": "necklaces",
+            "taxons": [
+                "necklaces"
+            ],
+            "product_attributes": {
+                "material": "Srebro",
+                "weight_g": "10"
+            },
+            "images": [
+                {
+                    "path": "naszyjnik-kamien.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Bransoletka z per\u0142ami",
+            "description": "Stylowa bransoletka zdobiona per\u0142ami, idealna do eleganckich zestaw\u00f3w.",
+            "short_description": "Bransoletka z per\u0142ami",
+            "img_prompt": "minimalistyczne zdj\u0119cie bransoletki z per\u0142ami",
+            "tax_category": "standard",
+            "main_taxon": "bracelets",
+            "taxons": [
+                "bracelets"
+            ],
+            "product_attributes": {
+                "material": "Per\u0142y",
+                "weight_g": "8"
+            },
+            "images": [
+                {
+                    "path": "bransoletka-perly.jpg"
+                }
+            ]
+        }
+    ]
+}

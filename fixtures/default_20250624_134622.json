@@ -1,0 +1,167 @@
+{
+    "suiteName": "bi\u017cuteria",
+    "locales": [
+        "pl_PL"
+    ],
+    "currencies": [
+        "PLN"
+    ],
+    "countries": [
+        "PL"
+    ],
+    "menuTaxon": {
+        "code": "root",
+        "name": [
+            "Bi\u017cuteria"
+        ]
+    },
+    "channel": {
+        "code": "default",
+        "name": "Sklep Bi\u017cuteria",
+        "locales": [
+            "pl_PL"
+        ],
+        "currencies": [
+            "PLN"
+        ],
+        "hostname": "sklep.bizuteria.pl",
+        "theme_name": "minimalistyczny"
+    },
+    "categories": [
+        {
+            "code": "earrings",
+            "name": "Kolczyki",
+            "slug": "kolczyki"
+        },
+        {
+            "code": "necklaces",
+            "name": "Naszyjniki",
+            "slug": "naszyjniki"
+        },
+        {
+            "code": "bracelets",
+            "name": "Bransoletki",
+            "slug": "bransoletki"
+        }
+    ],
+    "paymentMethods": [
+        {
+            "code": "cod",
+            "name": "P\u0142atno\u015b\u0107 przy odbiorze"
+        },
+        {
+            "code": "paypal",
+            "name": "PayPal"
+        }
+    ],
+    "shippingMethods": [
+        {
+            "code": "standard",
+            "name": "Standardowa przesy\u0142ka"
+        },
+        {
+            "code": "express",
+            "name": "Ekspresowa przesy\u0142ka"
+        }
+    ],
+    "taxCategories": [
+        {
+            "code": "default",
+            "name": "Standardowa stawka VAT"
+        }
+    ],
+    "taxons": [
+        {
+            "code": "earrings",
+            "name": "Kolczyki"
+        },
+        {
+            "code": "necklaces",
+            "name": "Naszyjniki"
+        },
+        {
+            "code": "bracelets",
+            "name": "Bransoletki"
+        }
+    ],
+    "taxRates": [
+        {
+            "code": "vat",
+            "name": "VAT Polska",
+            "zone": "PL",
+            "category": "default",
+            "amount": 0.23
+        }
+    ],
+    "products": [
+        {
+            "name": "Kolczyki Eleganckie Srebrne",
+            "description": "Wyj\u0105tkowe, eleganckie kolczyki z wysokiej jako\u015bci srebra, idealne na ka\u017cd\u0105 okazj\u0119.",
+            "short_description": "Eleganckie srebrne kolczyki.",
+            "img_prompt": "minimalistyczne zdj\u0119cie eleganckich srebrnych kolczyk\u00f3w na bia\u0142ym tle",
+            "tax_category": "default",
+            "main_taxon": "earrings",
+            "taxons": [
+                "earrings"
+            ],
+            "product_attributes": [
+                "materia\u0142: srebro",
+                "styl: elegancki"
+            ],
+            "product_options": [
+                "rozmiar"
+            ],
+            "images": [
+                {
+                    "path": "earrings_eleganckie_srebrne_1.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Naszyjnik Klasyczny Z\u0142oty",
+            "description": "Minimalistyczny, z\u0142oty naszyjnik o klasycznym wzorze, dodaj\u0105cy szyku ka\u017cdej stylizacji.",
+            "short_description": "Klasyczny z\u0142oty naszyjnik.",
+            "img_prompt": "minimalistyczne zdj\u0119cie klasycznego z\u0142otego naszyjnika na bia\u0142ym tle",
+            "tax_category": "default",
+            "main_taxon": "necklaces",
+            "taxons": [
+                "necklaces"
+            ],
+            "product_attributes": [
+                "materia\u0142: z\u0142oto",
+                "styl: elegancki"
+            ],
+            "product_options": [
+                "d\u0142ugo\u015b\u0107"
+            ],
+            "images": [
+                {
+                    "path": "necklace_klasyczny_zloty_1.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Bransoletka Delikatna Srebrna",
+            "description": "Delikatna bransoletka wykonana z wysokiej jako\u015bci srebra, idealna do codziennego noszenia.",
+            "short_description": "Delikatna srebrna bransoletka.",
+            "img_prompt": "minimalistyczne zdj\u0119cie delikatnej srebrnej bransoletki na bia\u0142ym tle",
+            "tax_category": "default",
+            "main_taxon": "bracelets",
+            "taxons": [
+                "bracelets"
+            ],
+            "product_attributes": [
+                "materia\u0142: srebro",
+                "styl: elegancki"
+            ],
+            "product_options": [
+                "rozmiar"
+            ],
+            "images": [
+                {
+                    "path": "bracelet_delikatna_srebrna_1.jpg"
+                }
+            ]
+        }
+    ]
+}

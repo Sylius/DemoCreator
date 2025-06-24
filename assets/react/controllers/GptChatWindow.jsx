@@ -62,15 +62,7 @@ const GptChatWindow = ({onNext}) => {
         setInput("");
         setLoading(true);
         try {
-            // Include current storeInfo as a function message in the payload
             const payloadMessages = [...newMessages];
-            if (storeInfo) {
-                payloadMessages.push({
-                    role: "function",
-                    name: "collectStoreInfo",
-                    content: JSON.stringify(storeInfo),
-                });
-            }
             const response = await fetch("/api/gpt-chat", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -134,15 +126,7 @@ const GptChatWindow = ({onNext}) => {
     setError(null);
     setLoading(true);
     try {
-      // Include current storeInfo as a function message in the payload
       const payloadMessages = [...messages];
-      if (storeInfo) {
-          payloadMessages.push({
-              role: "function",
-              name: "collectStoreInfo",
-              content: JSON.stringify(storeInfo),
-          });
-      }
       const response = await fetch("/api/gpt-chat", {
         method: "POST",
         headers: {"Content-Type": "application/json"},

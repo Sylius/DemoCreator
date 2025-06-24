@@ -1,0 +1,334 @@
+{
+    "suiteName": "Bi\u017cuteria",
+    "locales": [
+        "pl_PL"
+    ],
+    "currencies": [
+        "PLN"
+    ],
+    "countries": [
+        "PL"
+    ],
+    "menuTaxon": {
+        "code": "menu",
+        "name": [
+            "Menu"
+        ]
+    },
+    "channel": {
+        "code": "website",
+        "name": "Sklep internetowy",
+        "locales": [
+            "pl_PL"
+        ],
+        "currencies": [
+            "PLN"
+        ],
+        "hostname": "localhost",
+        "theme_name": "default"
+    },
+    "categories": [
+        {
+            "code": "earrings",
+            "name": "Kolczyki",
+            "slug": "kolczyki"
+        },
+        {
+            "code": "necklaces",
+            "name": "Naszyjniki",
+            "slug": "naszyjniki"
+        },
+        {
+            "code": "bracelets",
+            "name": "Bransoletki",
+            "slug": "bransoletki"
+        }
+    ],
+    "paymentMethods": [
+        {
+            "code": "paypal",
+            "name": "PayPal"
+        },
+        {
+            "code": "stripe",
+            "name": "Stripe"
+        }
+    ],
+    "shippingMethods": [
+        {
+            "code": "flat_rate",
+            "name": "Stawka sta\u0142a"
+        }
+    ],
+    "taxCategories": [
+        {
+            "code": "default",
+            "name": "Standardowa"
+        }
+    ],
+    "taxons": [
+        {
+            "code": "earrings",
+            "name": "Kolczyki"
+        },
+        {
+            "code": "necklaces",
+            "name": "Naszyjniki"
+        },
+        {
+            "code": "bracelets",
+            "name": "Bransoletki"
+        }
+    ],
+    "taxRates": [
+        {
+            "code": "standard_tax",
+            "name": "Podatek standardowy",
+            "zone": "PL",
+            "category": "default",
+            "amount": 23
+        }
+    ],
+    "products": [
+        {
+            "name": "Kolczyki Eleganckie 1",
+            "description": "Eleganckie kolczyki, kt\u00f3re doda Ci klasy na ka\u017cd\u0105 okazj\u0119.",
+            "short_description": "Eleganckie kolczyki.",
+            "img_prompt": "Eleganckie, minimalistyczne kolczyki w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "earrings",
+            "taxons": [
+                "earrings"
+            ],
+            "images": [
+                {
+                    "path": "earrings_1.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Kolczyki Eleganckie 2",
+            "description": "Eleganckie kolczyki, kt\u00f3re doda Ci klasy na ka\u017cd\u0105 okazj\u0119.",
+            "short_description": "Eleganckie kolczyki.",
+            "img_prompt": "Eleganckie, minimalistyczne kolczyki w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "earrings",
+            "taxons": [
+                "earrings"
+            ],
+            "images": [
+                {
+                    "path": "earrings_2.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Kolczyki Eleganckie 3",
+            "description": "Eleganckie kolczyki, kt\u00f3re doda Ci klasy na ka\u017cd\u0105 okazj\u0119.",
+            "short_description": "Eleganckie kolczyki.",
+            "img_prompt": "Eleganckie, minimalistyczne kolczyki w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "earrings",
+            "taxons": [
+                "earrings"
+            ],
+            "images": [
+                {
+                    "path": "earrings_3.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Kolczyki Eleganckie 4",
+            "description": "Eleganckie kolczyki, kt\u00f3re doda Ci klasy na ka\u017cd\u0105 okazj\u0119.",
+            "short_description": "Eleganckie kolczyki.",
+            "img_prompt": "Eleganckie, minimalistyczne kolczyki w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "earrings",
+            "taxons": [
+                "earrings"
+            ],
+            "images": [
+                {
+                    "path": "earrings_4.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Kolczyki Eleganckie 5",
+            "description": "Eleganckie kolczyki, kt\u00f3re doda Ci klasy na ka\u017cd\u0105 okazj\u0119.",
+            "short_description": "Eleganckie kolczyki.",
+            "img_prompt": "Eleganckie, minimalistyczne kolczyki w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "earrings",
+            "taxons": [
+                "earrings"
+            ],
+            "images": [
+                {
+                    "path": "earrings_5.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Naszyjnik Elegancki 1",
+            "description": "Elegancki naszyjnik, kt\u00f3ry podkre\u015bli Tw\u00f3j styl i klas\u0119.",
+            "short_description": "Elegancki naszyjnik.",
+            "img_prompt": "Elegancki, minimalistyczny naszyjnik w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "necklaces",
+            "taxons": [
+                "necklaces"
+            ],
+            "images": [
+                {
+                    "path": "necklaces_1.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Naszyjnik Elegancki 2",
+            "description": "Elegancki naszyjnik, kt\u00f3ry podkre\u015bli Tw\u00f3j styl i klas\u0119.",
+            "short_description": "Elegancki naszyjnik.",
+            "img_prompt": "Elegancki, minimalistyczny naszyjnik w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "necklaces",
+            "taxons": [
+                "necklaces"
+            ],
+            "images": [
+                {
+                    "path": "necklaces_2.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Naszyjnik Elegancki 3",
+            "description": "Elegancki naszyjnik, kt\u00f3ry podkre\u015bli Tw\u00f3j styl i klas\u0119.",
+            "short_description": "Elegancki naszyjnik.",
+            "img_prompt": "Elegancki, minimalistyczny naszyjnik w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "necklaces",
+            "taxons": [
+                "necklaces"
+            ],
+            "images": [
+                {
+                    "path": "necklaces_3.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Naszyjnik Elegancki 4",
+            "description": "Elegancki naszyjnik, kt\u00f3ry podkre\u015bli Tw\u00f3j styl i klas\u0119.",
+            "short_description": "Elegancki naszyjnik.",
+            "img_prompt": "Elegancki, minimalistyczny naszyjnik w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "necklaces",
+            "taxons": [
+                "necklaces"
+            ],
+            "images": [
+                {
+                    "path": "necklaces_4.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Naszyjnik Elegancki 5",
+            "description": "Elegancki naszyjnik, kt\u00f3ry podkre\u015bli Tw\u00f3j styl i klas\u0119.",
+            "short_description": "Elegancki naszyjnik.",
+            "img_prompt": "Elegancki, minimalistyczny naszyjnik w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "necklaces",
+            "taxons": [
+                "necklaces"
+            ],
+            "images": [
+                {
+                    "path": "necklaces_5.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Bransoletka Elegancka 1",
+            "description": "Elegancka bransoletka, kt\u00f3ra doda uroku i klasy.",
+            "short_description": "Elegancka bransoletka.",
+            "img_prompt": "Elegancka, minimalistyczna bransoletka w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "bracelets",
+            "taxons": [
+                "bracelets"
+            ],
+            "images": [
+                {
+                    "path": "bracelets_1.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Bransoletka Elegancka 2",
+            "description": "Elegancka bransoletka, kt\u00f3ra doda uroku i klasy.",
+            "short_description": "Elegancka bransoletka.",
+            "img_prompt": "Elegancka, minimalistyczna bransoletka w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "bracelets",
+            "taxons": [
+                "bracelets"
+            ],
+            "images": [
+                {
+                    "path": "bracelets_2.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Bransoletka Elegancka 3",
+            "description": "Elegancka bransoletka, kt\u00f3ra doda uroku i klasy.",
+            "short_description": "Elegancka bransoletka.",
+            "img_prompt": "Elegancka, minimalistyczna bransoletka w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "bracelets",
+            "taxons": [
+                "bracelets"
+            ],
+            "images": [
+                {
+                    "path": "bracelets_3.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Bransoletka Elegancka 4",
+            "description": "Elegancka bransoletka, kt\u00f3ra doda uroku i klasy.",
+            "short_description": "Elegancka bransoletka.",
+            "img_prompt": "Elegancka, minimalistyczna bransoletka w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "bracelets",
+            "taxons": [
+                "bracelets"
+            ],
+            "images": [
+                {
+                    "path": "bracelets_4.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Bransoletka Elegancka 5",
+            "description": "Elegancka bransoletka, kt\u00f3ra doda uroku i klasy.",
+            "short_description": "Elegancka bransoletka.",
+            "img_prompt": "Elegancka, minimalistyczna bransoletka w stylu bi\u017cuterii",
+            "tax_category": "default",
+            "main_taxon": "bracelets",
+            "taxons": [
+                "bracelets"
+            ],
+            "images": [
+                {
+                    "path": "bracelets_5.jpg"
+                }
+            ]
+        }
+    ]
+}
