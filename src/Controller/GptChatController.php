@@ -30,41 +30,6 @@ class GptChatController extends AbstractController
             $conversationId = bin2hex(random_bytes(16));
         }
 
-        // If front requests direct fixtures generation, bypass conversation logic
-        if (!empty($data['generateFixtures'])) {
-            $initialMessages = [$this->getSystemMessage()];
-            if (!empty($storeInfo)) {
-                $initialMessages[] = [
-                    'role' => 'function',
-                    'name' => 'collectStoreInfo',
-                    'content' => json_encode($storeInfo),
-                ];
-            }
-            $message = $this->askGPT(
-                $initialMessages,
-                'gpt-4o-2024-08-06',
-                $this->getGenerateFixturesFunction(),
-                'generateFixtures',
-            );
-            $func = $message['function_call'];
-            $args = json_decode($func['arguments'], true);
-            $resultData = $this->generateFixtures($args);
-            $stack = $initialMessages;
-            $stack[] = $message;
-            $stack[] = [
-                'role' => 'function',
-                'name' => $func['name'],
-                'content' => json_encode($resultData),
-            ];
-            return new JsonResponse([
-                'conversation_id' => $conversationId,
-                'dataCompleted' => true,
-                'storeInfo' => $storeInfo,
-                'fixtures' => $resultData,
-                'messages' => $stack,
-            ]);
-        }
-
         $inputMessages = $data['messages'] ?? [];
         // Prepend system message once for new conversations
         if (empty($inputMessages) || ($inputMessages[0]['role'] ?? '') !== 'system') {
@@ -165,15 +130,18 @@ class GptChatController extends AbstractController
         ]);
     }
 
-    private function askGPT(array $messages, string $model, array $function, ?string $functionName = null): array
+    private function askGPT(array $messages, string $model): array
     {
         try {
             $response = $this->client->post('chat/completions', [
                 'json' => [
                     'model' => $model,
                     'messages' => $messages,
-                    'functions' => [$function],
-                    'function_call' => $functionName !== null ? ['name' => $functionName] : 'auto',
+                    'functions' => array_merge([
+                        $this->getCollectStoreDataFunction(),
+                        $this->getGenerateFixturesFunction(),
+                    ]),
+                    'function_call' => 'auto',
                 ],
             ]);
             $body = json_decode($response->getBody()->getContents(), true);
@@ -232,30 +200,20 @@ class GptChatController extends AbstractController
     private function getGenerateFixturesFunction(): array
     {
         $schemaPath = __DIR__ . '/../../config/core.json';
-        $fixturesSchema = [];
-        if (file_exists($schemaPath)) {
-            $fixturesSchema = json_decode(file_get_contents($schemaPath), true);
+
+        if (!file_exists($schemaPath)) {
+            throw new \RuntimeException('Fixtures schema file not found: ' . $schemaPath);
+        }
+        $fixturesSchema = json_decode(file_get_contents($schemaPath), true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('Invalid JSON in fixtures schema file: ' . json_last_error_msg());
         }
 
         return [
             'name' => 'generateFixtures',
-            'description' => 'Generuje finalny JSON fixtures zgodnie z core.json',
-            'parameters' => $fixturesSchema ?: [
-                'type' => 'object',
-                'properties' => [],
-            ],
+            'description' => 'It generates the final json fixtures based on the collectStoreInfo retrieved data',
+            'parameters' => $fixturesSchema,
         ];
-    }
-
-    private function isInterviewCompleted(array $storeInfo): bool
-    {
-        return !empty($storeInfo['industry']) &&
-            !empty($storeInfo['locales']) &&
-            !empty($storeInfo['currencies']) &&
-            !empty($storeInfo['countries']) &&
-            !empty($storeInfo['productsPerCat']) &&
-            !empty($storeInfo['descriptionStyle']) &&
-            !empty($storeInfo['imageStyle']);
     }
 
     private function getSystemMessage(): array
