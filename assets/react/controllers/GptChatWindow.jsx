@@ -69,6 +69,7 @@ const GptChatWindow = ({onNext}) => {
                 body: JSON.stringify({
                     conversation_id: conversationId,
                     messages: payloadMessages,
+                    storeInfo: storeInfo,
                 }),
             });
             const data = await response.json();
@@ -99,7 +100,7 @@ const GptChatWindow = ({onNext}) => {
     };
     const copyConversation = () => {
       const payload = JSON.stringify(
-        { conversation_id: conversationId, messages },
+        { conversation_id: conversationId, messages, storeInfo },
         null,
         2
       );
@@ -133,6 +134,7 @@ const GptChatWindow = ({onNext}) => {
         body: JSON.stringify({
           conversation_id: conversationId,
           messages: payloadMessages,
+          storeInfo: storeInfo,
           generateFixtures: true,
         }),
       });

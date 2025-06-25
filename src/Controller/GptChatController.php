@@ -38,17 +38,34 @@ class GptChatController extends AbstractController
         }
         $messages = $inputMessages;
 
+        // If user confirmed, trigger generateFixtures via function call
+        $lastUser = end($messages);
+        if (($lastUser['role'] ?? '') === 'user' &&
+            strtolower(trim($lastUser['content'])) === 'potwierdzam' ||
+            strtolower(trim($lastUser['content'])) === 'tak'
+        ) {
+            $messages[] = [
+                'role' => 'assistant',
+                'function_call' => [
+                    'name' => 'generateFixtures',
+                    'arguments' => json_encode($storeInfo),
+                ],
+            ];
+        }
+
         // Choose model: mini for interview, full for final generation
         $last = end($messages);
         $model = 'gpt-4.1-mini';
         if (isset($last['function_call']['name']) && $last['function_call']['name'] === 'generateFixtures') {
             $model = 'gpt-4o-2024-08-06';
+            $maxCompletionTokens = 8192;
         }
 
         do {
             $message = $this->askGPT(
                 $messages,
                 $model,
+                $maxCompletionTokens ?? 1024
             );
             if (isset($message['function_call'])) {
                 $func = $message['function_call'];
@@ -125,6 +142,8 @@ class GptChatController extends AbstractController
         $data['productsPerCat'] = $data['productsPerCat'] ?? 10;
         $data['descriptionStyle'] = $data['descriptionStyle'] ?? '';
         $data['imageStyle'] = $data['imageStyle'] ?? '';
+        // Default to a single WORLD zone if none provided
+        $data['zones'] = $data['zones'] ?? ['WORLD' => ['name' => 'WORLD', 'countries' => $data['countries']]];
         // Here you could save $data to session or database if needed
         return $data;
     }
@@ -145,7 +164,7 @@ class GptChatController extends AbstractController
         ]);
     }
 
-    private function askGPT(array $messages, string $model): array
+    private function askGPT(array $messages, string $model, int $maxCompletionTokens = 1024): array
     {
         try {
             $response = $this->client->post('chat/completions', [
@@ -157,11 +176,15 @@ class GptChatController extends AbstractController
                         $this->getGenerateFixturesFunction(),
                     ]),
                     'function_call' => 'auto',
+                    'max_completion_tokens' => $maxCompletionTokens,
                 ],
             ]);
             $body = json_decode($response->getBody()->getContents(), true);
 
-            return $body['choices'][0]['message'] ?? [];
+            $usage = $body['usage'] ?? [];
+            $message = $body['choices'][0]['message'] ?? [];
+            $message['usage'] = $usage;
+            return $message;
         } catch (ClientException $e) {
             $response = $e->getResponse();
             $body = $response ? $response->getBody()->getContents() : $e->getMessage();
@@ -182,6 +205,21 @@ class GptChatController extends AbstractController
                         'locales' => ['type' => 'array', 'items' => ['type' => 'string']],
                         'currencies' => ['type' => 'array', 'items' => ['type' => 'string']],
                         'countries' => ['type' => 'array', 'items' => ['type' => 'string']],
+                        'zones' => [
+                            'type' => 'object',
+                            'additionalProperties' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'name' => ['type' => 'string'],
+                                    'countries' => [
+                                        'type' => 'array',
+                                        'items' => ['type' => 'string'],
+                                    ],
+                                ],
+                                'required' => ['name', 'countries'],
+                                'additionalProperties' => false,
+                            ],
+                        ],
                         'categories' => [
                             'type' => 'array',
                             'items' => [
@@ -255,7 +293,9 @@ Whenever you receive new relevant information from the user, call the function `
 Other technical details:
 - when generating fixtures, ensure each product includes a `product_attributes` object containing key/value string pairs (e.g., `"material": "Steel"`, `"weight_kg": "18"`), even if empty.
 - suiteName - name of the store without spaces (snake/lower-case); if not provided by the user, create it based on the industry.
-
+- zones - if the user does not define zones, create a single "WORLD" zone that includes all countries.
+- products - ensure each product has a realistic name according to the category, e.g. "Brass earrings" for earrings category, "Wooden chair" for chairs, etc. Use the `descriptionStyle` to generate a product description and `imageStyle` to generate an image URL.
+- When generating the products array, use the productsPerCat integer to create exactly that many products per category.
 Once `storeInfo` is complete, present a concise summary of the store configuration and ask the user if they would like any final changes. Ask the user to write a certain confirmation word. Only after the user confirms, call the function `generateFixtures` to generate the final JSON fixtures.
 SYS;
 

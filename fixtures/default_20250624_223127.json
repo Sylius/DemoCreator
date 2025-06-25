@@ -1,0 +1,155 @@
+{
+    "suiteName": "bizuteria",
+    "locales": [
+        "pl_PL"
+    ],
+    "currencies": [
+        "PLN"
+    ],
+    "countries": [
+        "PL"
+    ],
+    "menuTaxon": {
+        "code": "root",
+        "name": [
+            "Root"
+        ]
+    },
+    "channel": {
+        "code": "default",
+        "name": "Default",
+        "locales": [
+            "pl_PL"
+        ],
+        "currencies": [
+            "PLN"
+        ],
+        "hostname": "localhost",
+        "theme_name": "default"
+    },
+    "categories": [
+        {
+            "code": "kolczyki",
+            "name": "Kolczyki",
+            "slug": "kolczyki"
+        },
+        {
+            "code": "naszyjniki",
+            "name": "Naszyjniki",
+            "slug": "naszyjniki"
+        },
+        {
+            "code": "pierscionki",
+            "name": "Pier\u015bcionki",
+            "slug": "pierscionki"
+        }
+    ],
+    "paymentMethods": [
+        {
+            "code": "paypal",
+            "name": "PayPal"
+        },
+        {
+            "code": "cash_on_delivery",
+            "name": "P\u0142atno\u015b\u0107 przy odbiorze"
+        }
+    ],
+    "shippingMethods": [
+        {
+            "code": "flat_rate",
+            "name": "Sta\u0142a stawka"
+        },
+        {
+            "code": "free_shipping",
+            "name": "Darmowa wysy\u0142ka"
+        }
+    ],
+    "taxCategories": [
+        {
+            "code": "standard",
+            "name": "Standardowa"
+        },
+        {
+            "code": "reduced",
+            "name": "Obni\u017cona"
+        }
+    ],
+    "taxons": [],
+    "taxRates": [
+        {
+            "code": "standard_pl",
+            "name": "Standardowa Polska",
+            "zone": "WORLD",
+            "category": "standard",
+            "amount": 23
+        }
+    ],
+    "products": [
+        {
+            "name": "Srebrne kolczyki z onyksem",
+            "description": "Eleganckie srebrne kolczyki z pi\u0119knie oszlifowanym onyksem, kt\u00f3re doskonale dope\u0142ni\u0105 ka\u017cd\u0105 stylizacj\u0119.",
+            "short_description": "Srebrne kolczyki z onyksem",
+            "img_prompt": "minimalistyczne zdj\u0119cie srebrnych kolczyk\u00f3w z onyksem",
+            "tax_category": "standard",
+            "main_taxon": "kolczyki",
+            "taxons": [
+                "kolczyki"
+            ],
+            "product_attributes": {
+                "material": "Srebro",
+                "kamie\u0144": "Onyks",
+                "waga_g": "5"
+            },
+            "product_options": [],
+            "images": [
+                {
+                    "path": "https://example.com/images/kolczyki_srebrne_onyks_1.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Z\u0142oty naszyjnik z per\u0142\u0105",
+            "description": "Delikatny z\u0142oty naszyjnik ozdobiony naturaln\u0105 per\u0142\u0105, kt\u00f3ry podkre\u015bli elegancj\u0119 ka\u017cdej kreacji.",
+            "short_description": "Z\u0142oty naszyjnik z per\u0142\u0105",
+            "img_prompt": "minimalistyczne zdj\u0119cie z\u0142otego naszyjnika z per\u0142\u0105",
+            "tax_category": "standard",
+            "main_taxon": "naszyjniki",
+            "taxons": [
+                "naszyjniki"
+            ],
+            "product_attributes": {
+                "material": "Z\u0142oto",
+                "kamie\u0144": "Per\u0142a",
+                "d\u0142ugo\u015b\u0107_cm": "45"
+            },
+            "product_options": [],
+            "images": [
+                {
+                    "path": "https://example.com/images/naszyjnik_zloty_perla_1.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Pier\u015bcionek z brylantem",
+            "description": "Wyj\u0105tkowy pier\u015bcionek z brylantem, emanuj\u0105cy luksusem i ponadczasowym stylem.",
+            "short_description": "Pier\u015bcionek z brylantem",
+            "img_prompt": "minimalistyczne zdj\u0119cie pier\u015bcionka z brylantem",
+            "tax_category": "standard",
+            "main_taxon": "pierscionki",
+            "taxons": [
+                "pierscionki"
+            ],
+            "product_attributes": {
+                "materia\u0142": "Z\u0142oto",
+                "kamie\u0144": "Brylant",
+                "rozmiar": "16"
+            },
+            "product_options": [],
+            "images": [
+                {
+                    "path": "https://example.com/images/pierscionek_brylant_1.jpg"
+                }
+            ]
+        }
+    ]
+}

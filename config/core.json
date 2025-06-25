@@ -23,28 +23,6 @@
                 "type": "string"
             }
         },
-        "zones": {
-            "type": "object",
-            "additionalProperties": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "countries": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "required": [
-                    "name",
-                    "countries"
-                ],
-                "additionalProperties": false
-            }
-        },
         "menuTaxon": {
             "type": "object",
             "properties": {

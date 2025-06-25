@@ -1,0 +1,164 @@
+{
+    "suiteName": "bizuteria",
+    "locales": [
+        "pl_PL"
+    ],
+    "currencies": [
+        "PLN"
+    ],
+    "countries": [
+        "PL"
+    ],
+    "menuTaxon": {
+        "code": "menu",
+        "name": [
+            "Menu"
+        ]
+    },
+    "channel": {
+        "code": "default",
+        "name": "Sklep internetowy",
+        "locales": [
+            "pl_PL"
+        ],
+        "currencies": [
+            "PLN"
+        ],
+        "hostname": "localhost",
+        "theme_name": "default"
+    },
+    "categories": [
+        {
+            "code": "naszyjniki",
+            "name": "Naszyjniki",
+            "slug": "naszyjniki"
+        },
+        {
+            "code": "bransoletki",
+            "name": "Bransoletki",
+            "slug": "bransoletki"
+        },
+        {
+            "code": "pierscionki",
+            "name": "Pier\u015bcionki",
+            "slug": "pierscionki"
+        }
+    ],
+    "paymentMethods": [
+        {
+            "code": "cash",
+            "name": "P\u0142atno\u015b\u0107 got\u00f3wk\u0105"
+        },
+        {
+            "code": "card",
+            "name": "P\u0142atno\u015b\u0107 kart\u0105"
+        }
+    ],
+    "shippingMethods": [
+        {
+            "code": "standard",
+            "name": "Standardowa wysy\u0142ka"
+        },
+        {
+            "code": "express",
+            "name": "Ekspresowa wysy\u0142ka"
+        }
+    ],
+    "taxCategories": [
+        {
+            "code": "standard",
+            "name": "Standardowa stawka VAT"
+        }
+    ],
+    "taxons": [
+        {
+            "code": "naszyjniki",
+            "name": [
+                "Naszyjniki"
+            ]
+        },
+        {
+            "code": "bransoletki",
+            "name": [
+                "Bransoletki"
+            ]
+        },
+        {
+            "code": "pierscionki",
+            "name": [
+                "Pier\u015bcionki"
+            ]
+        }
+    ],
+    "taxRates": [
+        {
+            "code": "vat_standard",
+            "name": "VAT 23%",
+            "zone": "WORLD",
+            "category": "standard",
+            "amount": 0.23
+        }
+    ],
+    "products": [
+        {
+            "name": "Naszyjnik Elegancja",
+            "description": "Elegancki i minimalistyczny naszyjnik, kt\u00f3ry podkre\u015bli ka\u017cdy str\u00f3j.",
+            "short_description": "Minimalistyczny naszyjnik",
+            "img_prompt": "Elegancki, minimalistyczny naszyjnik z delikatnym zdobieniem",
+            "tax_category": "standard",
+            "main_taxon": "naszyjniki",
+            "taxons": [
+                "naszyjniki"
+            ],
+            "product_attributes": {
+                "materia\u0142": "srebro",
+                "d\u0142ugo\u015b\u0107_cm": "45"
+            },
+            "images": [
+                {
+                    "path": "naszyjnik_elegancja.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Bransoletka Subtelna",
+            "description": "Finezyjna i minimalistyczna bransoletka idealna na ka\u017cd\u0105 okazj\u0119.",
+            "short_description": "Minimalistyczna bransoletka",
+            "img_prompt": "Elegancka, minimalistyczna bransoletka z cienkim paskiem",
+            "tax_category": "standard",
+            "main_taxon": "bransoletki",
+            "taxons": [
+                "bransoletki"
+            ],
+            "product_attributes": {
+                "materia\u0142": "z\u0142oto",
+                "waga_g": "10"
+            },
+            "images": [
+                {
+                    "path": "bransoletka_subtelna.jpg"
+                }
+            ]
+        },
+        {
+            "name": "Pier\u015bcionek Klasyczny",
+            "description": "Klasyczny pier\u015bcionek o prostym, eleganckim designie.",
+            "short_description": "Minimalistyczny pier\u015bcionek",
+            "img_prompt": "Elegancki, minimalistyczny pier\u015bcionek z pojedynczym kamieniem",
+            "tax_category": "standard",
+            "main_taxon": "pierscionki",
+            "taxons": [
+                "pierscionki"
+            ],
+            "product_attributes": {
+                "materia\u0142": "platyna",
+                "rozmiar": "17"
+            },
+            "images": [
+                {
+                    "path": "pierscionek_klasyczny.jpg"
+                }
+            ]
+        }
+    ]
+}
