@@ -279,7 +279,7 @@ const GptChatWindow = ({onNext}) => {
                     type="text"
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    placeholder="Type your message..."
+                    placeholder="Wpisz wiadomość, np. „Sprzedaję biżuterię, akcesoria sportowe itp.”"
                     disabled={loading}
                     style={{flex: 1, padding: 8, borderRadius: 4, border: "1px solid #ccc"}}
                 />

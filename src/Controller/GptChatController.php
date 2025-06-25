@@ -38,20 +38,8 @@ class GptChatController extends AbstractController
         }
         $messages = $inputMessages;
 
-        // If user confirmed, trigger generateFixtures via function call
-        $lastUser = end($messages);
-        if (($lastUser['role'] ?? '') === 'user' &&
-            strtolower(trim($lastUser['content'])) === 'potwierdzam' ||
-            strtolower(trim($lastUser['content'])) === 'tak'
-        ) {
-            $messages[] = [
-                'role' => 'assistant',
-                'function_call' => [
-                    'name' => 'generateFixtures',
-                    'arguments' => json_encode($storeInfo),
-                ],
-            ];
-        }
+
+        // Confirmation is handled by the model itself via function_call: 'auto'
 
         // Choose model: mini for interview, full for final generation
         $last = end($messages);

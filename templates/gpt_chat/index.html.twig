@@ -5,8 +5,17 @@
 {% block body %}
   <div class="container">
     <h2>GPT Chat Demo</h2>
-    <div {{ react_component('GptChatWindow') }}>
-        Wczytywanie kreatora…
+    <div class="chat-wizard-wrapper" style="display: flex; flex-wrap: wrap; gap: 20px;">
+      <div class="chat-container" style="flex: 1; min-width: 300px;">
+        <div {{ react_component('GptChatWindow') }}>
+          Wczytywanie kreatora…
+        </div>
+      </div>
+      <div class="wizard-container" style="flex: 0 0 300px; min-width: 300px;">
+        <div {{ react_component('FixturesWizard') }}>
+          Wczytywanie kreatora…
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}
