@@ -31,3 +31,7 @@ services:
             $projectDir: '%kernel.project_dir%'
         tags:
             - { name: 'app.demo_deployer', alias: 'platformsh' }
+
+    App\StoreDesigner\Controller\:
+        resource: '../src/StoreDesigner/Controller'
+        tags: ['controller.service_arguments']

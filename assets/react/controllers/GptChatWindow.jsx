@@ -23,7 +23,7 @@ const GptChatWindow = ({onNext}) => {
     const [fixturesJson, setFixturesJson] = useState(null);
     // Initialize conversationId from localStorage to persist across refreshes
     const [conversationId, setConversationId] = useState(() => {
-        return localStorage.getItem('conversation_id') || null;
+        return localStorage.getItem('conversationId') || null;
     });
     const chatEndRef = useRef(null);
 
@@ -34,7 +34,7 @@ const GptChatWindow = ({onNext}) => {
     // Persist conversationId to localStorage whenever it changes
     useEffect(() => {
         if (conversationId) {
-            localStorage.setItem('conversation_id', conversationId);
+            localStorage.setItem('conversationId', conversationId);
         }
     }, [conversationId]);
 
@@ -63,11 +63,11 @@ const GptChatWindow = ({onNext}) => {
         setLoading(true);
         try {
             const payloadMessages = [...newMessages];
-            const response = await fetch("/api/gpt-chat", {
+            const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    conversation_id: conversationId,
+                    conversationId: conversationId,
                     messages: payloadMessages,
                     storeInfo: storeInfo,
                 }),
@@ -77,8 +77,8 @@ const GptChatWindow = ({onNext}) => {
                 setDataCompleted(data.dataCompleted);
                 setReady(data.dataCompleted);
             }
-            if (data.conversation_id) {
-                setConversationId(data.conversation_id);
+            if (data.conversationId) {
+                setConversationId(data.conversationId);
             }
             if (data.storeInfo) {
               setStoreInfo(data.storeInfo);
@@ -100,7 +100,7 @@ const GptChatWindow = ({onNext}) => {
     };
     const copyConversation = () => {
       const payload = JSON.stringify(
-        { conversation_id: conversationId, messages, storeInfo },
+        { conversationId: conversationId, messages, storeInfo },
         null,
         2
       );
@@ -111,7 +111,7 @@ const GptChatWindow = ({onNext}) => {
     const clearConversation = () => {
         // Reset conversation state and clear storage
         setConversationId(null);
-        localStorage.removeItem('conversation_id');
+        localStorage.removeItem('conversationId');
         localStorage.removeItem('messages');
         localStorage.removeItem('storeInfo');
         setStoreInfo(null);
@@ -128,11 +128,11 @@ const GptChatWindow = ({onNext}) => {
     setLoading(true);
     try {
       const payloadMessages = [...messages];
-      const response = await fetch("/api/gpt-chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-          conversation_id: conversationId,
+          conversationId: conversationId,
           messages: payloadMessages,
           storeInfo: storeInfo,
           generateFixtures: true,

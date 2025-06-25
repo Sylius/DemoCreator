@@ -6,13 +6,18 @@ namespace App\StoreDesigner\Service;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\HttpKernel\KernelInterface;
 
-class StoreFixtureProcessor
+readonly class StoreFixtureProcessor
 {
+    private string $projectDir;
+
     public function __construct(
-        private readonly FixtureParser $fixtureParser,
-        private readonly string $fixturesDir
-    ) {}
+        private FixtureParser $fixtureParser,
+        KernelInterface $kernel,
+    ) {
+        $this->projectDir = $kernel->getProjectDir();
+    }
 
     public function processJsonAndSave(array $jsonData, string $industry): string
     {
@@ -25,14 +30,20 @@ class StoreFixtureProcessor
     public function processJsonAndConvertToYaml(array $jsonData, string $industry): string
     {
         $yamlName = $industry . '_' . date('Ymd_His') . '.yaml';
-        $yamlPath = $this->fixturesDir . '/' . $yamlName;
 
+        $yamlPath = $this->getPath($industry, 'yaml');
         $this->fixtureParser->generateFixturesFromArray($jsonData, $yamlPath);
         return $yamlPath;
     }
 
     private function getPath(string $industry, string $ext): string
     {
-        return $this->fixturesDir . '/' . $industry . '_' . date('Ymd_His') . '.' . $ext;
+        return sprintf(
+            '%s/store-presets/%s/%s.%s',
+            rtrim($this->projectDir, '/'),
+            $industry,
+            $industry . '_' . date('Ymd_His'),
+            $ext
+        );
     }
 }
