@@ -18,7 +18,7 @@ const FixturesWizard = ({ onNext }) => {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto", fontFamily: "sans-serif" }}>
+    <div style={{ maxWidth: 400, margin: "0 auto" }}>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {steps.map((label, index) => {
           const isActive = index === currentStep;

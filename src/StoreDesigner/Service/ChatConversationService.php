@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Service;
 
-use App\StoreDesigner\Dto\ChatRequestDto;
-use App\StoreDesigner\Dto\ChatResponseDto;
+use App\StoreDesigner\Dto\ChatConversationDto;
+use App\StoreDesigner\Dto\ChatConversationState;
+use App\StoreDesigner\Dto\StoreDetailsDto;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -23,65 +24,100 @@ final class ChatConversationService
         $this->client = $client;
     }
 
-    public function processConversation(ChatRequestDto $data): ChatResponseDto
+    public function processConversation(ChatConversationDto $data): ChatConversationDto
     {
         $conversationId = $data->conversationId ?? bin2hex(random_bytes(16));
         $messages = $data->messages ?? [];
-        $storeConfiguration = $data->storeConfiguration;
-        $fixtures = $data->fixtures;
-        $dataCompleted = $data->dataCompleted ?? false;
+        $storeDetails = $data->storeDetails;
+        $state = $data->state ?? ChatConversationState::Collecting;
+        $error = $data->error;
 
         if (empty($messages) || ($messages[0]['role'] ?? '') !== 'system') {
             array_unshift($messages, $this->getSystemMessage());
         }
 
-        $last = end($messages);
-        $model = 'gpt-4.1-mini';
-        if (isset($last['function_call']['name']) && $last['function_call']['name'] === 'generateFixtures') {
-            $model = 'gpt-4o-2024-08-06';
-            $maxCompletionTokens = 8192;
-        }
+        $functionMap = [
+            'updateStoreDetails' => function(array $args) use (&$storeDetails) {
+                $storeDetails = new StoreDetailsDto(
+                    industry: $args['industry'] ?? '',
+                    locales: $args['locales'] ?? [],
+                    currencies: $args['currencies'] ?? [],
+                    countries: $args['countries'] ?? [],
+                    categories: $args['categories'] ?? [],
+                    productsPerCat: $args['productsPerCat'] ?? 0,
+                    descriptionStyle: $args['descriptionStyle'] ?? null,
+                    imageStyle: $args['imageStyle'] ?? null,
+                    zones: $args['zones'] ?? [],
+                );
+                return $storeDetails;
+            },
+            // Dodaj inne funkcje jeśli będą potrzebne
+        ];
 
-        $message = $this->askGPT(
-            $messages,
-            $model,
-            $maxCompletionTokens ?? 1024
-        );
-        $messages[] = $message;
+        $model = 'gpt-4o';
+        $maxCompletionTokens = 4096;
+        $maxFunctionCalls = 5;
+        $functionCallCount = 0;
 
-        if (isset($message['function_call'])) {
-            $func = $message['function_call'];
-            $name = $func['name'];
-            $args = json_decode($func['arguments'], true);
-            switch ($name) {
-                case 'collectStoreInfo':
-                    $storeConfiguration = new \App\StoreDesigner\Dto\StoreConfigurationDto(
-                        industry: $args['industry'] ?? '',
-                        locales: $args['locales'] ?? [],
-                        currencies: $args['currencies'] ?? [],
-                        countries: $args['countries'] ?? [],
-                        categories: $args['categories'] ?? [],
-                        productsPerCat: $args['productsPerCat'] ?? 0,
-                        descriptionStyle: $args['descriptionStyle'] ?? null,
-                        imageStyle: $args['imageStyle'] ?? null,
-                        zones: $args['zones'] ?? [],
-                    );
-                    $dataCompleted = isset($args['industry'], $args['locales'], $args['currencies'], $args['countries'], $args['productsPerCat'], $args['descriptionStyle'], $args['imageStyle']);
-                    break;
-                case 'generateFixtures':
-                    $fixtures = $args;
-                    $dataCompleted = true;
-                    break;
+        do {
+            if ($functionCallCount++ > $maxFunctionCalls) {
+                $error = 'Przekroczono maksymalną liczbę wywołań function_call (limit: ' . $maxFunctionCalls . '). Możliwe zapętlenie.';
+                $state = ChatConversationState::Error;
+                break;
             }
+            $message = $this->askGPT(
+                $messages,
+                $model,
+                $maxCompletionTokens
+            );
+            $messages[] = $message;
+
+            if (isset($message['function_call'])) {
+                $func = $message['function_call'];
+                $name = $func['name'];
+                $args = json_decode($func['arguments'] ?? '{}', true);
+                if (isset($functionMap[$name])) {
+                    $result = $functionMap[$name]($args);
+                    $messages[] = [
+                        'role' => 'function',
+                        'name' => $name,
+                        'content' => json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                    ];
+                } else {
+                    $error = "Unknown function: $name";
+                    $state = ChatConversationState::Error;
+                    break;
+                }
+            }
+        } while (isset($message['function_call']) && $state !== ChatConversationState::Error);
+
+        // Ustal stan na podstawie ostatniej odpowiedzi
+        if ($state !== ChatConversationState::Error) {
+            $state = $this->determineState($messages, $storeDetails);
         }
 
-        return new ChatResponseDto(
+        return new ChatConversationDto(
             conversationId: $conversationId,
             messages: $messages,
-            storeConfiguration: $storeConfiguration,
-            fixtures: $fixtures,
-            dataCompleted: $dataCompleted,
+            storeDetails: $storeDetails,
+            state: $state,
+            error: $error,
         );
+    }
+
+    private function determineState(array $messages, ?StoreDetailsDto $storeDetails): ChatConversationState
+    {
+        $last = end($messages);
+        if (isset($last['function_call']) && $last['function_call']['name'] === 'generateFixtures') {
+            return ChatConversationState::Generating;
+        }
+        if ($storeDetails && $storeDetails->industry && $storeDetails->locales && $storeDetails->currencies && $storeDetails->countries && $storeDetails->productsPerCat) {
+            return ChatConversationState::AwaitingConfirmation;
+        }
+        if (isset($last['content']) && $last['content']) {
+            return ChatConversationState::Done;
+        }
+        return ChatConversationState::Collecting;
     }
 
     private function collectStoreInfo(array $data): array
@@ -95,11 +131,6 @@ final class ChatConversationService
         $data['imageStyle'] = $data['imageStyle'] ?? '';
         $data['zones'] = $data['zones'] ?? ['WORLD' => ['name' => 'WORLD', 'countries' => $data['countries']]];
         return $data;
-    }
-
-    private function setupClient(): void
-    {
-        // NIEUŻYWANE - klient przekazywany przez DI
     }
 
     private function askGPT(array $messages, string $model, int $maxCompletionTokens = 1024): array
@@ -118,7 +149,7 @@ final class ChatConversationService
                     'model' => $model,
                     'messages' => $messages,
                     'functions' => array_merge([
-                        $this->getCollectStoreDataFunction(),
+                        $this->getUpdateStoreDetailsFunction(),
                         $this->getGenerateFixturesFunction(),
                     ]),
                     'function_call' => 'auto',
@@ -129,6 +160,7 @@ final class ChatConversationService
             $usage = $body['usage'] ?? [];
             $message = $body['choices'][0]['message'] ?? [];
             $message['usage'] = $usage;
+
             return $message;
         } catch (TransportExceptionInterface $e) {
             throw new \RuntimeException('OpenAI API transport error: ' . $e->getMessage(), 0, $e);
@@ -147,6 +179,7 @@ final class ChatConversationService
         if ($data === false) {
             throw new \RuntimeException('Failed to read system instructions file: ' . $path);
         }
+
         return $data;
     }
 
@@ -159,23 +192,80 @@ final class ChatConversationService
         ];
     }
 
-    private function getCollectStoreDataFunction(): array
+    private function getUpdateStoreDetailsFunction(): array
     {
-        $functions = $this->getSystemInstructions()['functions'] ?? [];
-        return $functions['collectStoreInfo'] ?? [
-            'name' => 'collectStoreInfo',
-            'description' => 'Collects basic store data.',
-            'parameters' => [],
-        ];
+        return
+            [
+                'name' => 'updateStoreDetails',
+                'description' => 'Zbiera podstawowe dane sklepu',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'industry' => ['type' => 'string'],
+                        'locales' => ['type' => 'array', 'items' => ['type' => 'string']],
+                        'currencies' => ['type' => 'array', 'items' => ['type' => 'string']],
+                        'countries' => ['type' => 'array', 'items' => ['type' => 'string']],
+                        'zones' => [
+                            'type' => 'object',
+                            'additionalProperties' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'name' => ['type' => 'string'],
+                                    'countries' => [
+                                        'type' => 'array',
+                                        'items' => ['type' => 'string'],
+                                    ],
+                                ],
+                                'required' => ['name', 'countries'],
+                                'additionalProperties' => false,
+                            ],
+                        ],
+                        'categories' => [
+                            'type' => 'array',
+                            'items' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'code' => ['type' => 'string'],
+                                    'name' => ['type' => 'string'],
+                                    'slug' => ['type' => 'string'],
+                                    'translations' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            'type' => 'array',
+                                            'items' => [
+                                                'type' => 'string',
+                                            ]
+                                        ],
+                                    ],
+                                ],
+                                'required' => ['code', 'name'],
+                            ],
+                        ],
+                        'productsPerCat' => ['type' => 'integer', 'minimum' => 1],
+                        'descriptionStyle' => ['type' => 'string'],
+                        'imageStyle' => ['type' => 'string'],
+                    ],
+                    'required' => [],
+                ],
+            ];
     }
 
     private function getGenerateFixturesFunction(): array
     {
-        $functions = $this->getSystemInstructions()['functions'] ?? [];
-        return $functions['generateFixtures'] ?? [
+        $schemaPath = $this->kernel->getProjectDir() . '/config/gpt/core.json';
+
+        if (!file_exists($schemaPath)) {
+            throw new \RuntimeException('Fixtures schema file not found: ' . $schemaPath);
+        }
+        $fixturesSchema = json_decode(file_get_contents($schemaPath), true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('Invalid JSON in fixtures schema file: ' . json_last_error_msg());
+        }
+
+        return [
             'name' => 'generateFixtures',
-            'description' => 'Generates fixture JSON based on store data.',
-            'parameters' => [],
+            'description' => 'It generates the final json fixtures based on the collectStoreInfo retrieved data',
+            'parameters' => $fixturesSchema,
         ];
     }
 }

@@ -79,4 +79,8 @@ Encore
     //.autoProvidejQuery()
 ;
 
-module.exports = Encore.getWebpackConfig();
+const config = Encore.getWebpackConfig();
+config.watchOptions = {
+    ignored: /public\\build/,
+};
+module.exports = config;

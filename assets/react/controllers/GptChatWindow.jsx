@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import StoreDetailsSummary from './StoreDetailsSummary';
 
 const GptChatWindow = ({onNext}) => {
     const [messages, setMessages] = useState(() => {
@@ -13,16 +14,14 @@ const GptChatWindow = ({onNext}) => {
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [status, setStatus] = useState(() => {
-        return localStorage.getItem('status') || 'collecting';
+    const [state, setState] = useState(() => {
+        return localStorage.getItem('state') || 'collecting';
     });
-    const [dataCompleted, setDataCompleted] = useState(false);
-    const [storeConfiguration, setStoreConfiguration] = useState(() => {
-        const stored = localStorage.getItem('storeConfiguration');
+    const [storeDetails, setStoreDetails] = useState(() => {
+        const stored = localStorage.getItem('storeDetails');
         return stored ? JSON.parse(stored) : null;
     });
     const [showFunctionMessages, setShowFunctionMessages] = useState(false);
-    const [fixturesJson, setFixturesJson] = useState(null);
     const [conversationId, setConversationId] = useState(() => {
         return localStorage.getItem('conversationId') || null;
     });
@@ -43,58 +42,68 @@ const GptChatWindow = ({onNext}) => {
     }, [messages]);
 
     useEffect(() => {
-        if (storeConfiguration !== null) {
-            localStorage.setItem('storeConfiguration', JSON.stringify(storeConfiguration));
+        if (storeDetails !== null) {
+            localStorage.setItem('storeDetails', JSON.stringify(storeDetails));
         } else {
-            localStorage.removeItem('storeConfiguration');
+            localStorage.removeItem('storeDetails');
         }
-    }, [storeConfiguration]);
+    }, [storeDetails]);
 
     useEffect(() => {
-        if (status) {
-            localStorage.setItem('status', status);
+        if (state) {
+            localStorage.setItem('state', state);
         }
-    }, [status]);
+    }, [state]);
 
-    const handleSend = async (e) => {
-        e.preventDefault();
-        if (!input.trim()) return;
+    // Automatyczne wysyłanie kolejnego requestu, jeśli ostatnia wiadomość to function_call
+    useEffect(() => {
+        if (
+            messages.length > 0 &&
+            messages[messages.length - 1].function_call &&
+            !loading
+        ) {
+            // Wyślij automatycznie kolejny request
+            handleSend({ preventDefault: () => {} }, true);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [messages]);
+
+    const handleSend = async (e, auto = false) => {
+        if (!auto) e.preventDefault();
+        if (!auto && !input.trim()) return;
         setError(null);
-        const newMessages = [...messages, {role: "user", content: input}];
-        setMessages(newMessages);
-        setInput("");
+        const newMessages = auto
+            ? [...messages]
+            : [...messages, { role: "user", content: input }];
+        if (!auto) setMessages(newMessages);
+        if (!auto) setInput("");
         setLoading(true);
         try {
             const payload = {
                 conversationId,
                 messages: newMessages,
-                storeConfiguration,
-                fixtures: null,
-                dataCompleted,
-                status,
+                storeDetails,
+                state,
+                error,
             };
             const response = await fetch("/api/chat", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
             const data = await response.json();
-            if (data.error) throw new Error(data.error);
-            if (data.status) setStatus(data.status);
-            if ('dataCompleted' in data) setDataCompleted(data.dataCompleted);
+            if (data.error) setError(data.error); else setError(null);
+            if (data.state) setState(data.state);
             if (data.conversationId) setConversationId(data.conversationId);
-            if (data.storeConfiguration) setStoreConfiguration(data.storeConfiguration);
+            if (data.storeDetails) setStoreDetails(data.storeDetails);
             if (Array.isArray(data.messages)) {
                 setMessages(data.messages);
             } else {
                 setError("Brak 'messages' w odpowiedzi API");
             }
-            if (data.fixtures) {
-                setFixturesJson(JSON.stringify(data.fixtures, null, 2));
-            }
         } catch (err) {
             setError(err.message || "Unknown error");
-            setStatus('error');
+            setState('error');
         } finally {
             setLoading(false);
         }
@@ -102,7 +111,7 @@ const GptChatWindow = ({onNext}) => {
 
     const copyConversation = () => {
         const payload = JSON.stringify(
-            { conversationId, messages, storeConfiguration, dataCompleted, status },
+            { conversationId, messages, storeDetails, state, error },
             null,
             2
         );
@@ -114,58 +123,14 @@ const GptChatWindow = ({onNext}) => {
         setConversationId(null);
         localStorage.removeItem('conversationId');
         localStorage.removeItem('messages');
-        localStorage.removeItem('storeConfiguration');
-        localStorage.removeItem('status');
-        setStoreConfiguration(null);
+        localStorage.removeItem('storeDetails');
+        localStorage.removeItem('state');
+        setStoreDetails(null);
         setMessages([]);
         setInput("");
         setError(null);
         setLoading(false);
-        setDataCompleted(false);
-        setStatus('collecting');
-        setFixturesJson(null);
-    };
-
-    const handleGenerate = async () => {
-        setError(null);
-        setLoading(true);
-        try {
-            const payload = {
-                conversationId,
-                messages,
-                storeConfiguration,
-                fixtures: null,
-                dataCompleted,
-                status: 'generating',
-            };
-            const response = await fetch("/api/chat", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(payload),
-            });
-            const data = await response.json();
-            if (data.fixtures) {
-                setFixturesJson(JSON.stringify(data.fixtures, null, 2));
-                setStatus('done');
-            } else if (data.error) {
-                throw new Error(data.error);
-            } else {
-                throw new Error("Brak fixtures w odpowiedzi API");
-            }
-        } catch (err) {
-            setError(err.message || "Unknown error generating fixtures");
-            setStatus('error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const copyFixtures = () => {
-        if (fixturesJson) {
-            navigator.clipboard.writeText(fixturesJson)
-                .then(() => alert("Fixtures skopiowane do schowka!"))
-                .catch(() => alert("Nie udało się skopiować fixtures."));
-        }
+        setState('collecting');
     };
 
     return (
@@ -178,6 +143,7 @@ const GptChatWindow = ({onNext}) => {
             background: "#fff",
             boxShadow: "0 2px 8px #0001"
         }}>
+            <StoreDetailsSummary storeDetails={storeDetails} />
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
                 <button
                     onClick={copyConversation}
@@ -216,7 +182,7 @@ const GptChatWindow = ({onNext}) => {
                     🗑️ Wyczyść
                 </button>
             </div>
-            {status === 'done' && (
+            {state === 'done' && (
                 <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
                     <span style={{
                         width: 12,
@@ -278,13 +244,6 @@ const GptChatWindow = ({onNext}) => {
                     ))}
                 <div ref={chatEndRef} />
             </div>
-            {fixturesJson && (
-                <div style={{ margin: "16px 0" }}>
-                    <h4>Wygenerowane fixtures</h4>
-                    <pre style={{ background: "#222", color: "#fff", padding: 12, borderRadius: 8, maxHeight: 300, overflow: "auto" }}>{fixturesJson}</pre>
-                    <button onClick={copyFixtures} style={{ marginTop: 8 }}>Kopiuj fixtures</button>
-                </div>
-            )}
             {error && (
                 <div style={{ color: "#dc3545", margin: "12px 0" }}>
                     <strong>Błąd:</strong> {error}
@@ -295,19 +254,14 @@ const GptChatWindow = ({onNext}) => {
                     type="text"
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    disabled={loading || status === 'done'}
-                    placeholder={loading ? "Czekaj..." : "Napisz wiadomość..."}
+                    disabled={loading || state === 'done'}
+                    placeholder={loading ? "Czekaj..." : "Wpisz wiadomość, np. „Sprzedaję biżuterię, akcesoria sportowe itp."}
                     style={{ flex: 1, padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
                 />
-                <button type="submit" disabled={loading || !input.trim() || status === 'done'} style={{ padding: "8px 16px" }}>
+                <button type="submit" disabled={loading || !input.trim() || state === 'done'} style={{ padding: "8px 16px" }}>
                     Wyślij
                 </button>
             </form>
-            {dataCompleted && status !== 'done' && (
-                <button onClick={handleGenerate} disabled={loading} style={{ marginTop: 16, padding: "8px 16px", background: "#007bff", color: "#fff", border: "none", borderRadius: 4 }}>
-                    Wygeneruj fixtures
-                </button>
-            )}
         </div>
     );
 };
