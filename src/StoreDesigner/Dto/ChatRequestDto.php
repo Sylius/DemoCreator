@@ -7,9 +7,10 @@ namespace App\StoreDesigner\Dto;
 final readonly class ChatRequestDto
 {
     public function __construct(
-        public string $message,
-        public ?array $history = [],
+        public string $conversationId,
+        public array $messages = [],
         public ?StoreConfigurationDto $storeConfiguration = null,
-        public ?array $fixtures = null
+        public ?array $fixtures = null,
+        public ?bool $dataCompleted = null,
     ) {}
 }

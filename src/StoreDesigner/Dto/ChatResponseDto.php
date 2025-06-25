@@ -8,10 +8,10 @@ final readonly class ChatResponseDto
 {
     public function __construct(
         public string $conversationId,
-        public array $messages,
-        public bool $dataCompleted,
-        public StoreConfigurationDto $storeConfiguration,
-        public ?array $fixtures,
+        public array $messages = [],
+        public ?StoreConfigurationDto $storeConfiguration = null,
+        public ?array $fixtures = null,
+        public ?bool $dataCompleted = null,
     ) {
     }
 }

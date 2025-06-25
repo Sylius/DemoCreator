@@ -8,9 +8,14 @@ final readonly class StoreConfigurationDto
 {
     public function __construct(
         public string $industry,
-        public ?string $locale = null,
-        public ?string $currency = null,
-        public ?string $theme = null
+        public array $locales = [],
+        public array $currencies = [],
+        public array $countries = [],
+        public array $categories = [],
+        public int $productsPerCat = 0,
+        public ?string $descriptionStyle = null,
+        public ?string $imageStyle = null,
+        public array $zones = [],
     ) {
     }
 }

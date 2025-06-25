@@ -25,14 +25,15 @@ final class ChatConversationService
 
     public function processConversation(ChatRequestDto $data): ChatResponseDto
     {
-        $storeInfo = $data['storeInfo'] ?? [];
-        $conversationId = $data['conversationId'] ?? bin2hex(random_bytes(16));
-        $inputMessages = $data['messages'] ?? [];
+        $conversationId = $data->conversationId ?? bin2hex(random_bytes(16));
+        $messages = $data->messages ?? [];
+        $storeConfiguration = $data->storeConfiguration;
+        $fixtures = $data->fixtures;
+        $dataCompleted = $data->dataCompleted ?? false;
 
-        if (empty($inputMessages) || ($inputMessages[0]['role'] ?? '') !== 'system') {
-            array_unshift($inputMessages, $this->getSystemMessage());
+        if (empty($messages) || ($messages[0]['role'] ?? '') !== 'system') {
+            array_unshift($messages, $this->getSystemMessage());
         }
-        $messages = $inputMessages;
 
         $last = end($messages);
         $model = 'gpt-4.1-mini';
@@ -48,15 +49,23 @@ final class ChatConversationService
         );
         $messages[] = $message;
 
-        $dataCompleted = false;
-        $fixtures = null;
         if (isset($message['function_call'])) {
             $func = $message['function_call'];
             $name = $func['name'];
             $args = json_decode($func['arguments'], true);
             switch ($name) {
                 case 'collectStoreInfo':
-                    $storeInfo = $this->collectStoreInfo($args);
+                    $storeConfiguration = new \App\StoreDesigner\Dto\StoreConfigurationDto(
+                        industry: $args['industry'] ?? '',
+                        locales: $args['locales'] ?? [],
+                        currencies: $args['currencies'] ?? [],
+                        countries: $args['countries'] ?? [],
+                        categories: $args['categories'] ?? [],
+                        productsPerCat: $args['productsPerCat'] ?? 0,
+                        descriptionStyle: $args['descriptionStyle'] ?? null,
+                        imageStyle: $args['imageStyle'] ?? null,
+                        zones: $args['zones'] ?? [],
+                    );
                     $dataCompleted = isset($args['industry'], $args['locales'], $args['currencies'], $args['countries'], $args['productsPerCat'], $args['descriptionStyle'], $args['imageStyle']);
                     break;
                 case 'generateFixtures':
@@ -68,10 +77,10 @@ final class ChatConversationService
 
         return new ChatResponseDto(
             conversationId: $conversationId,
-            dataCompleted: $dataCompleted,
-            storeInfo: $storeInfo,
-            fixtures: $fixtures,
             messages: $messages,
+            storeConfiguration: $storeConfiguration,
+            fixtures: $fixtures,
+            dataCompleted: $dataCompleted,
         );
     }
 
