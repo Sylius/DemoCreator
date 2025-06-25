@@ -6,20 +6,21 @@ namespace App\StoreDesigner\Service;
 
 use App\StoreDesigner\Dto\ChatRequestDto;
 use App\StoreDesigner\Dto\ChatResponseDto;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 final class ChatConversationService
 {
-    private Client $client;
+    private HttpClientInterface $client;
     private KernelInterface $kernel;
 
     public function __construct(
-        KernelInterface $kernel
+        KernelInterface $kernel,
+        HttpClientInterface $client
     ) {
         $this->kernel = $kernel;
-        $this->setupClient();
+        $this->client = $client;
     }
 
     public function processConversation(ChatRequestDto $data): ChatResponseDto
@@ -40,57 +41,36 @@ final class ChatConversationService
             $maxCompletionTokens = 8192;
         }
 
-        do {
-            $message = $this->askGPT(
-                $messages,
-                $model,
-                $maxCompletionTokens ?? 1024
-            );
-            if (isset($message['function_call'])) {
-                $func = $message['function_call'];
-                $name = $func['name'];
-                $args = json_decode($func['arguments'], true);
-                switch ($name) {
-                    case 'collectStoreInfo':
-                        $resultData = $this->collectStoreInfo($args);
-                        $storeInfo = $resultData;
-                        $messages[] = $message;
-                        $messages[] = [
-                            'role'    => 'function',
-                            'name'    => $name,
-                            'content' => json_encode($resultData),
-                        ];
-                        $dataCompleted = isset($args['industry'], $args['locales'], $args['currencies'], $args['countries'], $args['productsPerCat'], $args['descriptionStyle'], $args['imageStyle']);
-                        break;
-                    case 'generateFixtures':
-                        $resultData = $args;
-                        $messages[] = $message;
-                        $messages[] = [
-                            'role' => 'function',
-                            'name' => $name,
-                            'content' => json_encode($resultData),
-                        ];
-                        return new ChatResponseDto(
-                            conversationId: $conversationId,
-                            dataCompleted: true,
-                            storeInfo: $storeInfo,
-                            fixtures: $resultData,
-                            messages: $messages,
-                        );
-                    default:
-                        $resultData = [];
-                }
-            } else {
-                $messages[] = $message;
-                break;
+        $message = $this->askGPT(
+            $messages,
+            $model,
+            $maxCompletionTokens ?? 1024
+        );
+        $messages[] = $message;
+
+        $dataCompleted = false;
+        $fixtures = null;
+        if (isset($message['function_call'])) {
+            $func = $message['function_call'];
+            $name = $func['name'];
+            $args = json_decode($func['arguments'], true);
+            switch ($name) {
+                case 'collectStoreInfo':
+                    $storeInfo = $this->collectStoreInfo($args);
+                    $dataCompleted = isset($args['industry'], $args['locales'], $args['currencies'], $args['countries'], $args['productsPerCat'], $args['descriptionStyle'], $args['imageStyle']);
+                    break;
+                case 'generateFixtures':
+                    $fixtures = $args;
+                    $dataCompleted = true;
+                    break;
             }
-        } while (true);
+        }
 
         return new ChatResponseDto(
             conversationId: $conversationId,
-            dataCompleted: $dataCompleted ?? false,
+            dataCompleted: $dataCompleted,
             storeInfo: $storeInfo,
-            fixtures: null,
+            fixtures: $fixtures,
             messages: $messages,
         );
     }
@@ -110,24 +90,21 @@ final class ChatConversationService
 
     private function setupClient(): void
     {
-        $apiKey = $_ENV['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY');
-        if (!$apiKey) {
-            throw new \Exception('OpenAI API key is not set. Please set the OPENAI_API_KEY environment variable.');
-        }
-
-        $this->client = new Client([
-            'base_uri' => 'https://api.openai.com/v1/',
-            'headers' => [
-                'Authorization' => 'Bearer ' . $apiKey,
-                'Content-Type' => 'application/json',
-            ],
-        ]);
+        // NIEUŻYWANE - klient przekazywany przez DI
     }
 
     private function askGPT(array $messages, string $model, int $maxCompletionTokens = 1024): array
     {
+        $apiKey = $_ENV['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY');
+        if (!$apiKey) {
+            throw new \Exception('OpenAI API key is not set. Please set the OPENAI_API_KEY environment variable.');
+        }
         try {
-            $response = $this->client->post('chat/completions', [
+            $response = $this->client->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type' => 'application/json',
+                ],
                 'json' => [
                     'model' => $model,
                     'messages' => $messages,
@@ -139,36 +116,38 @@ final class ChatConversationService
                     'max_completion_tokens' => $maxCompletionTokens,
                 ],
             ]);
-            $body = json_decode($response->getBody()->getContents(), true);
+            $body = $response->toArray(false);
             $usage = $body['usage'] ?? [];
             $message = $body['choices'][0]['message'] ?? [];
             $message['usage'] = $usage;
             return $message;
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-            $body = $response ? $response->getBody()->getContents() : $e->getMessage();
-            throw new \RuntimeException('OpenAI API returned an error: ' . $body, $response ? $response->getStatusCode() : 0, $e);
+        } catch (TransportExceptionInterface $e) {
+            throw new \RuntimeException('OpenAI API transport error: ' . $e->getMessage(), 0, $e);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('OpenAI API error: ' . $e->getMessage(), 0, $e);
         }
     }
 
     private function getSystemInstructions(): string
     {
-        $path = $this->kernel->getProjectDir() . '/config/gpt/system_instructions.txt';
+        $path = $this->kernel->getProjectDir() . '/config/gpt/system_instructions.md';
         if (!file_exists($path)) {
-            throw new \RuntimeException('System instructions JSON not found: ' . $path);
+            throw new \RuntimeException('System instructions file not found: ' . $path);
         }
         $data = file_get_contents($path);
         if ($data === false) {
             throw new \RuntimeException('Failed to read system instructions file: ' . $path);
         }
-
         return $data;
     }
 
     private function getSystemMessage(): array
     {
         $instructions = $this->getSystemInstructions();
-        return ['role' => 'system', 'content' => $instructions['system'] ?? ''];
+        return [
+            'role' => 'system',
+            'content' => $instructions,
+        ];
     }
 
     private function getCollectStoreDataFunction(): array
