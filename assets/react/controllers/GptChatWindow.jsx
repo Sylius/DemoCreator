@@ -91,7 +91,16 @@ const GptChatWindow = ({onNext}) => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
-            const data = await response.json();
+            const rawResponse = await response.text();
+            let data;
+            try {
+                data = JSON.parse(rawResponse);
+            } catch (parseError) {
+                setError(`Nieprawidłowa odpowiedź JSON z API:\n${rawResponse}`);
+                setState('error');
+                setLoading(false);
+                return;
+            }
             if (data.error) setError(data.error); else setError(null);
             if (data.state) setState(data.state);
             if (data.conversationId) setConversationId(data.conversationId);
@@ -119,6 +128,85 @@ const GptChatWindow = ({onNext}) => {
             .then(() => alert("Rozmowa skopiowana do schowka!"))
             .catch(() => alert("Nie udało się skopiować rozmowy."));
     };
+
+    const retryRequest = async () => {
+        setLoading(true);
+        try {
+            const payload = {
+                conversationId,
+                messages,
+                storeDetails,
+                state,
+                error,
+            };
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            const rawResponse = await response.text();
+            let data;
+            try {
+                data = JSON.parse(rawResponse);
+            } catch (parseError) {
+                setError(`Nieprawidłowa odpowiedź JSON z API:\n${rawResponse}`);
+                setState('error');
+                setLoading(false);
+                return;
+            }
+            if (data.error) setError(data.error); else setError(null);
+            if (data.state) setState(data.state);
+            if (data.conversationId) setConversationId(data.conversationId);
+            if (data.storeDetails) setStoreDetails(data.storeDetails);
+            if (Array.isArray(data.messages)) {
+                setMessages(data.messages);
+            } else {
+                setError("Brak 'messages' w odpowiedzi API");
+            }
+        } catch (err) {
+            setError(err.message || "Unknown error");
+            setState('error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCreateFixtures = async () => {
+        setError(null);
+        setLoading(true);
+        const payload = { conversationId, messages, storeDetails, state, error };
+        try {
+            const response = await fetch("/api/create-fixtures", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            const rawResponse = await response.text();
+            let data;
+            try {
+                data = JSON.parse(rawResponse);
+            } catch (parseError) {
+                setError(`Nieprawidłowa odpowiedź JSON z API:\n${rawResponse}`);
+                setState('error');
+                return;
+            }
+            if (data.error) setError(data.error); else setError(null);
+            if (data.state) setState(data.state);
+            if (data.conversationId) setConversationId(data.conversationId);
+            if (data.storeDetails) setStoreDetails(data.storeDetails);
+            if (Array.isArray(data.messages)) {
+                setMessages(data.messages);
+            } else {
+                setError("Brak 'messages' w odpowiedzi API");
+            }
+        } catch (err) {
+            setError(err.message || "Unknown error");
+            setState('error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const clearConversation = () => {
         setConversationId(null);
         localStorage.removeItem('conversationId');
@@ -158,6 +246,20 @@ const GptChatWindow = ({onNext}) => {
                 >
                     📋 Kopiuj JSON
                 </button>
+                <button
+                    onClick={retryRequest}
+                    title="Wyślij ponownie ostatni request"
+                    style={{
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                        fontSize: "1rem",
+                        color: "#ffc107",
+                        marginLeft: 12
+                    }}
+                >
+                    🔁 Retry
+                </button>
                 <label style={{ display: "flex", alignItems: "center", marginLeft: 12 }}>
                     <input
                         type="checkbox"
@@ -167,6 +269,23 @@ const GptChatWindow = ({onNext}) => {
                     />
                     Pokaż funkcje
                 </label>
+                {state === 'awaiting_confirmation' && (
+                    <button
+                        onClick={handleCreateFixtures}
+                        disabled={loading}
+                        title="Create Fixtures"
+                        style={{
+                            border: "none",
+                            background: "transparent",
+                            cursor: "pointer",
+                            fontSize: "1rem",
+                            color: "#007bff",
+                            marginLeft: 12
+                        }}
+                    >
+                        Create Fixtures
+                    </button>
+                )}
                 <button
                     onClick={clearConversation}
                     title="Wyczyść konwersację"
@@ -267,3 +386,22 @@ const GptChatWindow = ({onNext}) => {
 };
 
 export default GptChatWindow;
+    // Retry request function (if exists in your codebase, apply the same patch)
+    // If you have a retryRequest function, replace the fetch/parse block with the following:
+    /*
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            const rawResponse = await response.text();
+            let data;
+            try {
+                data = JSON.parse(rawResponse);
+            } catch (parseError) {
+                setError(`Nieprawidłowa odpowiedź JSON z API:\n${rawResponse}`);
+                setState('error');
+                setLoading(false);
+                return;
+            }
+    */

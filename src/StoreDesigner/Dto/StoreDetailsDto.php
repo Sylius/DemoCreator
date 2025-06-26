@@ -13,18 +13,33 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Dto;
 
-final class StoreDetailsDto
+final class StoreDetailsDto implements \JsonSerializable
 {
     public function __construct(
         public string $industry,
-        public array $locales = [],
-        public array $currencies = [],
-        public array $countries = [],
-        public array $categories = [],
-        public int $productsPerCat = 0,
-        public ?string $descriptionStyle = null,
-        public ?string $imageStyle = null,
-        public array $zones = [],
+        public array $locales,
+        public array $currencies,
+        public array $countries,
+        public array $categories,
+        public int $productsPerCat,
+        public string $descriptionStyle,
+        public string $imageStyle,
+        public array $zones,
     ) {
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'industry' => $this->industry,
+            'locales' => $this->locales,
+            'currencies' => $this->currencies,
+            'countries' => $this->countries,
+            'categories' => $this->categories,
+            'productsPerCat' => $this->productsPerCat,
+            'descriptionStyle' => $this->descriptionStyle,
+            'imageStyle' => $this->imageStyle,
+            'zones' => $this->zones,
+        ];
     }
 }

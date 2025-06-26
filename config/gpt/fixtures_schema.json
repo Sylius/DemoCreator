@@ -30,6 +30,9 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "translations": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -95,28 +98,9 @@
                         "type": "string"
                     },
                     "translations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "slug": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "name",
-                                "slug"
-                            ],
-                            "additionalProperties": false
-                        }
-                    },
-                    "children": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/properties/categories/items"
+                            "type": "string"
                         }
                     }
                 },
@@ -198,22 +182,9 @@
                         "type": "string"
                     },
                     "translations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "slug": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "name",
-                                "slug"
-                            ],
-                            "additionalProperties": false
+                        "type": "array",
+                        "items": {
+                            "type": "string"
                         }
                     }
                 },
@@ -255,6 +226,10 @@
                 ],
                 "additionalProperties": false
             }
+        },
+        "zones": {
+            "type": "array",
+            "items": { "type": "string" }
         },
         "products": {
             "type": "array",

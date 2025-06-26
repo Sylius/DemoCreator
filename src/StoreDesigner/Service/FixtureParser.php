@@ -16,6 +16,17 @@ final class FixtureParser
     ) {
     }
 
+    /**
+     * @param array $jsonData
+     * @return string YAML string representing the fixtures.
+     */
+    public function parse(array $jsonData): string
+    {
+        $fixturesArray = $this->buildSyliusFixtures($jsonData, false);
+
+        return Yaml::dump($fixturesArray, 10, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | Yaml::DUMP_NULL_AS_TILDE);
+    }
+
     public function generateFixturesFromArray(array $jsonData, string $yamlPath)
     {
     }
@@ -190,11 +201,6 @@ final class FixtureParser
 
     private function buildMenuTaxonFixture(array $menuTaxon, array $locales): array
     {
-        $translations = [];
-        foreach ($menuTaxon['name'] as $key => $value) {
-            $translations[$locales[$key]] = ['name' => $value];
-        }
-
         return [
             'menu_taxon' => [
                 'name' => 'taxon',
@@ -202,8 +208,8 @@ final class FixtureParser
                     'custom' => [
                         'category' => [
                             'code' => $menuTaxon['code'],
-                            'name' => reset($menuTaxon['name']),
-                            'translations' => $translations,
+                            'name' => $menuTaxon['name'],
+                            'translations' => $this->mapTranslations($menuTaxon['translations'], $locales),
                         ],
                     ],
                 ],
@@ -267,6 +273,34 @@ final class FixtureParser
         ];
     }
 
+    function buildTaxons(mixed $products, array $categories): array
+    {
+        $result = [];
+
+        foreach ($categories as $category) {
+            $categoryName = 'taxon-' . $category['slug'];
+            $result[$categoryName]['options']['custom']['slug'] = $category;
+            $result[$categoryName]['name'] = 'taxon';
+        }
+
+        $result['menu_taxon'] = [
+            'name' => 'taxon',
+            'options' => [
+                'custom' => [
+                    'category' => [
+                        'code' => 'MENU_CATEGORY',
+                        'name' => 'Category',
+                        'translations' => [
+                            'en_US' => ['name' => 'Category'],
+                            'es_ES' => ['name' => 'C'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        return $result;
+    }
+
     private function buildProductFixtures(array $inputData, string $prefix = 'product', bool $withImages = false): array
     {
         if ($inputData === []) {
@@ -316,5 +350,15 @@ final class FixtureParser
                 'options' => ['custom' => $formattedProducts],
             ],
         ];
+    }
+
+    private function mapTranslations(mixed $translations, array $locales): array
+    {
+        $mappedTranslations = [];
+        foreach ($translations as $key => $value) {
+            $mappedTranslations[$locales[$key]] = ['name' => $value];
+        }
+
+        return $mappedTranslations;
     }
 }
