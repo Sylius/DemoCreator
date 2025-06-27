@@ -81,6 +81,7 @@ Encore
 
 const config = Encore.getWebpackConfig();
 config.watchOptions = {
-    ignored: /public\\build/,
+    ignored: /public[\\/]+build/,
 };
+
 module.exports = config;
