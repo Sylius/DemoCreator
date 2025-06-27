@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
+import { WizardContext, useWizard } from './wizard-context';
 import FixtureWizard from './FixtureWizard';
 import {useSupportedPlugins} from '../hooks/useSupportedPlugins';
 import StoreDetailsPanel from './FixtureWizard/StoreDetailsPanel';
@@ -82,7 +83,7 @@ export default function DemoWizard({
                                        deployStateUrlBase
                                    }) {
     const navigate = useNavigate();
-    const { step: stepParam } = useParams();
+    const {step: stepParam} = useParams();
     const initialStepIndex = stepPaths.indexOf(stepParam) !== -1 ? stepPaths.indexOf(stepParam) : 0;
     const [step, setStep] = useState(initialStepIndex + 1);
     const [direction, setDirection] = useState(1); // 1 = next, -1 = back
@@ -102,19 +103,19 @@ export default function DemoWizard({
     const [deployUrl, setDeployUrl] = useState(null);
     const [deployStatus, setDeployStatus] = useState(null);
     const [storeDetailsPanelState, setStoreDetailsPanelState] = useState(null); // for storing storeDetails
-    const [fixtureWizardState, setFixtureWizardState] = useState({}); // for passing state from FixtureWizard
+    const [fixtureWizardState, setFixtureWizardState] = useState(null); // for passing state from FixtureWizard
 
     // Synchronize step with URL
     useEffect(() => {
         if (!stepParam || stepParam !== stepPaths[step - 1]) {
-            navigate(`/wizard/${stepPaths[step - 1]}`, { replace: true });
+            navigate(`/wizard/${stepPaths[step - 1]}`, {replace: true});
         }
     }, [step, stepParam, navigate]);
 
     // Redirect /wizard to first step
     useEffect(() => {
         if (!stepParam) {
-            navigate(`/wizard/${stepPaths[0]}`, { replace: true });
+            navigate(`/wizard/${stepPaths[0]}`, {replace: true});
         }
     }, [stepParam, navigate]);
 
@@ -205,18 +206,14 @@ export default function DemoWizard({
         }
     };
 
-    // Callback to update fixtures from FixtureWizard
+    // Handlers for context
     const handleFixturesGenerated = (newFixtures) => {
         setFixtures(newFixtures);
-        setSelectedFixtures(newFixtures); // or custom logic
+        setSelectedFixtures(newFixtures);
     };
-
-    // Handler for when user confirms in StoreDetailsPanel
     const handleStoreDetailsConfirm = () => {
-        next();
+        setStep(s => Math.min(s + 1, stepPaths.length));
     };
-
-    // Handler to receive storeDetails and state from FixtureWizard
     const handleStoreDetailsPanel = (details, state) => {
         setStoreDetailsPanelState(details);
         setFixtureWizardState(state);
