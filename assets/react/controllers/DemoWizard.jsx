@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
 import FixtureWizard from './FixtureWizard';
-import { useSupportedPlugins } from '../hooks/useSupportedPlugins';
+import {useSupportedPlugins} from '../hooks/useSupportedPlugins';
 
 const stepVariants = {
     hidden: {opacity: 0, x: 50},
@@ -33,30 +33,30 @@ const stepDescriptions = [
 ];
 
 const PLUGIN_LABELS = {
-  'cms-plugin': 'CMS',
-  'customer-service-plugin': 'Customer Service',
-  'invoicing-plugin': 'Invoicing',
-  'loyalty-plugin': 'Loyalty',
-  'refund-plugin': 'Refund',
-  'return-plugin': 'Return',
-  // ...dodaj kolejne jeśli chcesz
+    'cms-plugin': 'CMS',
+    'customer-service-plugin': 'Customer Service',
+    'invoicing-plugin': 'Invoicing',
+    'loyalty-plugin': 'Loyalty',
+    'refund-plugin': 'Refund',
+    'return-plugin': 'Return',
+    // ...dodaj kolejne jeśli chcesz
 };
 
 function prettify(name) {
-  return name
-    .replace(/^sylius\//, '')
-    .replace(/-plugin$/, '')
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, l => l.toUpperCase());
+    return name
+        .replace(/^sylius\//, '')
+        .replace(/-plugin$/, '')
+        .replace(/-/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
 }
 
-function FixturesStep({ fixtures, selectedFixtures, setSelectedFixtures, onFixturesGenerated }) {
+function FixturesStep({fixtures, selectedFixtures, setSelectedFixtures, onFixturesGenerated}) {
     // Render FixtureWizard and handle fixture selection
     return (
         <div>
             <h2 className="text-xl font-semibold mb-4 text-teal-700">2. Fixtures</h2>
             <div className="mb-6">
-                <FixtureWizard onFixturesGenerated={onFixturesGenerated} />
+                <FixtureWizard onFixturesGenerated={onFixturesGenerated}/>
             </div>
             {/* Optionally, show selected fixtures summary here */}
             <div className="flex justify-between">
@@ -67,13 +67,13 @@ function FixturesStep({ fixtures, selectedFixtures, setSelectedFixtures, onFixtu
 }
 
 export default function DemoWizard({
-    apiUrl,
-    logoUploadUrl,
-    environmentsUrl,
-    deployStateUrlBase
-}) {
+                                       apiUrl,
+                                       logoUploadUrl,
+                                       environmentsUrl,
+                                       deployStateUrlBase
+                                   }) {
     const [step, setStep] = useState(1);
-    const { plugins, loading: pluginsLoading, error: pluginsError } = useSupportedPlugins();
+    const {plugins, loading: pluginsLoading, error: pluginsError} = useSupportedPlugins();
     const [fixtures, setFixtures] = useState([]);
     const [targets, setTargets] = useState([]);
     const [selectedPlugins, setSelectedPlugins] = useState([]);
@@ -181,199 +181,218 @@ export default function DemoWizard({
             <div className="mb-6">
                 <div className="flex items-center gap-2 mt-4 justify-center">
                     {steps.map((label, idx) => (
-                        <span key={label} className={`h-2 w-2 rounded-full transition-colors duration-200 ${step === idx + 1 ? 'bg-teal-600' : 'bg-gray-200'}`}></span>
+                        <span key={label}
+                              className={`h-2 w-2 rounded-full transition-colors duration-200 ${step === idx + 1 ? 'bg-teal-600' : 'bg-gray-200'}`}></span>
                     ))}
                 </div>
-                <h2 className="text-2xl font-bold text-center mt-6 mb-2">{stepTitles[step-1]}</h2>
-                {stepDescriptions[step-1] && (
-                    <p className="text-gray-500 text-center mb-4">{stepDescriptions[step-1]}</p>
+                <h2 className="text-2xl font-bold text-center mt-6 mb-2">{stepTitles[step - 1]}</h2>
+                {stepDescriptions[step - 1] && (
+                    <p className="text-gray-500 text-center mb-4">{stepDescriptions[step - 1]}</p>
                 )}
             </div>
             <div className="border-b border-gray-100 pb-0 flex-1" style={{minHeight: 0}}>
-                <div className="py-4">
-                    {error && <div className="mb-4 text-teal-700 bg-teal-50 p-3 rounded-lg border border-teal-100 text-sm">{error}</div>}
-                    <AnimatePresence exitBeforeEnter>
-                        {/* Step 1: Plugins */}
-                        {step === 1 && (
-                            <motion.div key="1" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
-                                <div className="flex flex-col items-center justify-start w-full pt-6" style={{minHeight: '60vh'}}>
-                                    <div className="w-full max-w-lg">
-                                        <div className="grid grid-cols-1 gap-2 mb-6 overflow-y-auto" style={{maxHeight: 360}}>
-                                            {plugins.map(p => (
-                                                <label key={p.composer} className="flex items-center space-x-2">
-                                                    <input
-                                                        type="checkbox"
-                                                        value={p.composer}
-                                                        checked={selectedPlugins.includes(p.composer)}
-                                                        onChange={e => {
-                                                            const c = e.target.value;
-                                                            setSelectedPlugins(sel => sel.includes(c) ? sel.filter(x => x !== c) : [...sel, c]);
-                                                        }}
-                                                        className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-                                                    />
-                                                    <span className="text-gray-800 text-sm">
+                {error && <div
+                    className="mb-4 text-teal-700 bg-teal-50 p-3 rounded-lg border border-teal-100 text-sm">{error}</div>}
+                <AnimatePresence exitBeforeEnter>
+                    {/* Step 1: Plugins */}
+                    {step === 1 && (
+                        <motion.div key="1" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
+                                    transition={{duration: 0.3}}>
+                            <div className="flex flex-col items-center justify-start w-full pt-6"
+                                 style={{minHeight: '60vh'}}>
+                                <div className="w-full max-w-lg">
+                                    <div className="grid grid-cols-1 gap-2 mb-6 overflow-y-auto"
+                                         style={{maxHeight: 360}}>
+                                        {plugins.map(p => (
+                                            <label key={p.composer} className="flex items-center space-x-2">
+                                                <input
+                                                    type="checkbox"
+                                                    value={p.composer}
+                                                    checked={selectedPlugins.includes(p.composer)}
+                                                    onChange={e => {
+                                                        const c = e.target.value;
+                                                        setSelectedPlugins(sel => sel.includes(c) ? sel.filter(x => x !== c) : [...sel, c]);
+                                                    }}
+                                                    className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                                                />
+                                                <span className="text-gray-800 text-sm">
                                                         {PLUGIN_LABELS[p.name.replace(/^sylius\//, '')] || prettify(p.name)} ({p.version})
                                                     </span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                        <button
-                                            onClick={next}
-                                            disabled={!selectedPlugins.length}
-                                            className={`w-full py-2 rounded-lg font-medium transition ${
-                                                selectedPlugins.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                                            }`}
-                                        >Next →
-                                        </button>
+                                            </label>
+                                        ))}
                                     </div>
-                                </div>
-                            </motion.div>
-                        )}
-                        {/* Step 2: Fixtures (FixtureWizard) */}
-                        {step === 2 && (
-                            <motion.div key="2" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
-                                <div className="w-full min-h-[70vh] flex justify-center items-center" style={{padding: 0}}>
-                                    <div className="w-full max-w-5xl mx-auto flex justify-center items-center" style={{padding: 0}}>
-                                        <FixtureWizard onFixturesGenerated={handleFixturesGenerated} />
-                                    </div>
-                                </div>
-                                <div className="flex justify-between mt-6">
-                                    <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">← Back</button>
                                     <button
                                         onClick={next}
-                                        disabled={!fixtures.length}
-                                        className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            fixtures.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                        disabled={!selectedPlugins.length}
+                                        className={`w-full py-2 rounded-lg font-medium transition ${
+                                            selectedPlugins.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                                         }`}
                                     >Next →
                                     </button>
                                 </div>
-                            </motion.div>
-                        )}
-                        {/* Step 3: Logo Upload */}
-                        {step === 3 && (
-                            <motion.div key="3" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
-                                <h2 className="text-xl font-semibold mb-4 text-teal-700">3. Logo</h2>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={e => {
-                                        const file = e.target.files[0];
-                                        setLogoFile(file);
-                                        setLogoUrl(file ? URL.createObjectURL(file) : null);
-                                    }}
-                                    className="w-full mb-4 text-sm text-gray-700"
-                                />
-                                {logoUrl &&
-                                    <img src={logoUrl} alt="Logo" className="h-16 object-contain mx-auto mb-4"/>}
-                                <div className="flex justify-between">
-                                    <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">← Back</button>
-                                    <button onClick={next}
-                                            className="py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium shadow transition">Next
-                                        →
-                                    </button>
+                            </div>
+                        </motion.div>
+                    )}
+                    {/* Step 2: Fixtures (FixtureWizard) */}
+                    {step === 2 && (
+                        <motion.div key="2" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
+                                    transition={{duration: 0.3}}>
+                            <div className="w-full min-h-[70vh] flex justify-center items-center" style={{padding: 0}}>
+                                <div className="w-full max-w-5xl mx-auto flex justify-center items-center"
+                                     style={{padding: 0}}>
+                                    <FixtureWizard onFixturesGenerated={handleFixturesGenerated}/>
                                 </div>
-                            </motion.div>
-                        )}
-                        {/* Step 4: Deploy Target */}
-                        {step === 4 && (
-                            <motion.div key="4" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
-                                <h2 className="text-xl font-semibold mb-4 text-teal-700">4. Where to deploy?</h2>
-                                <div className="mb-4 space-y-2">
-                                    {targets.map(t => (
-                                        <label key={t} className="flex items-center space-x-2">
-                                            <input
-                                                type="radio"
-                                                name="target"
-                                                value={t}
-                                                checked={target === t}
-                                                onChange={() => {
-                                                    setTarget(t);
-                                                    setEnv('');
-                                                }}
-                                                className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-                                            />
-                                            <span className="text-gray-800 text-sm">{t}</span>
-                                        </label>
+                            </div>
+                            <div className="flex justify-between mt-6">
+                                <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
+                                    Back
+                                </button>
+                                <button
+                                    onClick={next}
+                                    disabled={!fixtures.length}
+                                    className={`py-2 px-4 rounded-lg font-medium transition ${
+                                        fixtures.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                    }`}
+                                >Next →
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                    {/* Step 3: Logo Upload */}
+                    {step === 3 && (
+                        <motion.div key="3" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
+                                    transition={{duration: 0.3}}>
+                            <h2 className="text-xl font-semibold mb-4 text-teal-700">3. Logo</h2>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={e => {
+                                    const file = e.target.files[0];
+                                    setLogoFile(file);
+                                    setLogoUrl(file ? URL.createObjectURL(file) : null);
+                                }}
+                                className="w-full mb-4 text-sm text-gray-700"
+                            />
+                            {logoUrl &&
+                                <img src={logoUrl} alt="Logo" className="h-16 object-contain mx-auto mb-4"/>}
+                            <div className="flex justify-between">
+                                <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
+                                    Back
+                                </button>
+                                <button onClick={next}
+                                        className="py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium shadow transition">Next
+                                    →
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                    {/* Step 4: Deploy Target */}
+                    {step === 4 && (
+                        <motion.div key="4" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
+                                    transition={{duration: 0.3}}>
+                            <h2 className="text-xl font-semibold mb-4 text-teal-700">4. Where to deploy?</h2>
+                            <div className="mb-4 space-y-2">
+                                {targets.map(t => (
+                                    <label key={t} className="flex items-center space-x-2">
+                                        <input
+                                            type="radio"
+                                            name="target"
+                                            value={t}
+                                            checked={target === t}
+                                            onChange={() => {
+                                                setTarget(t);
+                                                setEnv('');
+                                            }}
+                                            className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                                        />
+                                        <span className="text-gray-800 text-sm">{t}</span>
+                                    </label>
+                                ))}
+                            </div>
+                            {target === 'platform.sh' && (
+                                <select
+                                    value={env}
+                                    onChange={e => setEnv(e.target.value)}
+                                    className="w-full mb-4 border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                                >
+                                    <option value="">— choose environment —</option>
+                                    {envOptions.map(e => (
+                                        <option key={e} value={e}>{e}</option>
                                     ))}
-                                </div>
-                                {target === 'platform.sh' && (
-                                    <select
-                                        value={env}
-                                        onChange={e => setEnv(e.target.value)}
-                                        className="w-full mb-4 border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                                    >
-                                        <option value="">— choose environment —</option>
-                                        {envOptions.map(e => (
-                                            <option key={e} value={e}>{e}</option>
-                                        ))}
-                                    </select>
-                                )}
-                                <div className="flex justify-between items-center">
-                                    <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">← Back</button>
-                                    <button
-                                        onClick={handleDeploy}
-                                        disabled={loading || !target || (target === 'platform.sh' && !env)}
-                                        className={`py-2 px-4 rounded-lg font-medium transition flex items-center space-x-2 ${
-                                            !loading && target && (target !== 'platform.sh' || env)
-                                                ? 'bg-green-600 hover:bg-green-700 text-white'
-                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                                        }`}
-                                    >
-                                        {loading ? (
-                                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                                            </svg>
-                                        ) : 'Deploy'}
-                                    </button>
-                                </div>
-                            </motion.div>
-                        )}
-                        {/* Step 5: Summary & Deploy Button */}
-                        {step === 5 && (
-                            <motion.div key="5" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
-                                <h2 className="text-xl font-semibold mb-4 text-teal-700">5. Summary & Deploy</h2>
-                                <div className="mb-4">
-                                    <h3 className="font-semibold text-gray-800">Plugins:</h3>
-                                    <ul className="list-disc list-inside text-sm text-gray-700">
-                                        {selectedPlugins.map(c => {
-                                            const p = plugins.find(x => x.composer === c);
-                                            return <li key={c}>{PLUGIN_LABELS[p?.name?.replace(/^sylius\//, '')] || prettify(p?.name)} ({p?.version})</li>;
-                                        })}
-                                    </ul>
-                                </div>
-                                <div className="mb-4">
-                                    <h3 className="font-semibold text-gray-800">Deploy:</h3>
-                                    <p className="text-sm text-gray-700">{target}{target === 'platform.sh' && env ? ` (${env})` : ''}</p>
-                                </div>
-                                <div className="flex justify-center">
-                                    <button
-                                        disabled={deployStatus !== 'complete'}
-                                        onClick={() => window.open(deployUrl, '_blank')}
-                                        className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            deployStatus === 'complete'
-                                                ? 'bg-green-600 hover:bg-green-700 text-white'
-                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                                        } flex items-center space-x-2 mx-auto`}
-                                    >
-                                        {deployStatus === 'in_progress' && (
-                                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                                            </svg>
-                                        )}
-                                        <span>
+                                </select>
+                            )}
+                            <div className="flex justify-between items-center">
+                                <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
+                                    Back
+                                </button>
+                                <button
+                                    onClick={handleDeploy}
+                                    disabled={loading || !target || (target === 'platform.sh' && !env)}
+                                    className={`py-2 px-4 rounded-lg font-medium transition flex items-center space-x-2 ${
+                                        !loading && target && (target !== 'platform.sh' || env)
+                                            ? 'bg-green-600 hover:bg-green-700 text-white'
+                                            : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                    }`}
+                                >
+                                    {loading ? (
+                                        <svg className="animate-spin h-5 w-5 text-white"
+                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                    strokeWidth="4"/>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                        </svg>
+                                    ) : 'Deploy'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                    {/* Step 5: Summary & Deploy Button */}
+                    {step === 5 && (
+                        <motion.div key="5" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
+                                    transition={{duration: 0.3}}>
+                            <h2 className="text-xl font-semibold mb-4 text-teal-700">5. Summary & Deploy</h2>
+                            <div className="mb-4">
+                                <h3 className="font-semibold text-gray-800">Plugins:</h3>
+                                <ul className="list-disc list-inside text-sm text-gray-700">
+                                    {selectedPlugins.map(c => {
+                                        const p = plugins.find(x => x.composer === c);
+                                        return <li
+                                            key={c}>{PLUGIN_LABELS[p?.name?.replace(/^sylius\//, '')] || prettify(p?.name)} ({p?.version})</li>;
+                                    })}
+                                </ul>
+                            </div>
+                            <div className="mb-4">
+                                <h3 className="font-semibold text-gray-800">Deploy:</h3>
+                                <p className="text-sm text-gray-700">{target}{target === 'platform.sh' && env ? ` (${env})` : ''}</p>
+                            </div>
+                            <div className="flex justify-center">
+                                <button
+                                    disabled={deployStatus !== 'complete'}
+                                    onClick={() => window.open(deployUrl, '_blank')}
+                                    className={`py-2 px-4 rounded-lg font-medium transition ${
+                                        deployStatus === 'complete'
+                                            ? 'bg-green-600 hover:bg-green-700 text-white'
+                                            : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                    } flex items-center space-x-2 mx-auto`}
+                                >
+                                    {deployStatus === 'in_progress' && (
+                                        <svg className="animate-spin h-5 w-5 text-white"
+                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                    strokeWidth="4"/>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                        </svg>
+                                    )}
+                                    <span>
                                             {deployStatus === 'in_progress' && 'Deploying...'}
-                                            {deployStatus === 'complete' && 'Go to demo'}
-                                            {deployStatus === 'failed' && 'Deploy failed'}
+                                        {deployStatus === 'complete' && 'Go to demo'}
+                                        {deployStatus === 'failed' && 'Deploy failed'}
                                         </span>
-                                    </button>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
