@@ -69,6 +69,7 @@ const ConversationPanel = ({
                 handleSend={handleSend}
                 loading={loading}
                 disabled={state === 'done'}
+                autoFocus={true}
             />
         </div>
     );

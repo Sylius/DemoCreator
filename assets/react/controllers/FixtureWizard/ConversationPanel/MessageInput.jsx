@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 
 const MessageInput = ({ 
     input, 
@@ -6,9 +6,18 @@ const MessageInput = ({
     handleSend, 
     loading, 
     disabled = false,
-    placeholder = "Wpisz wiadomość, np. „Sprzedaję biżuterię, akcesoria sportowe itp." 
+    placeholder = "Wpisz wiadomość, np. „Sprzedaję biżuterię, akcesoria sportowe itp.",
+    autoFocus = false
 }) => {
     const canSend = !!input.trim() && !loading && !disabled;
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        if (autoFocus && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [autoFocus]);
+
     return (
         <form onSubmit={handleSend} className="relative flex items-center mt-3">
             {/* Arrow button inside input, left side */}
@@ -25,6 +34,7 @@ const MessageInput = ({
                 </svg>
             </button>
             <input
+                ref={inputRef}
                 type="text"
                 value={input}
                 onChange={e => setInput(e.target.value)}

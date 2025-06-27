@@ -279,11 +279,8 @@ export default function DemoWizard({
                             exit="exit"
                             transition={{duration: 0.35, type: 'tween'}}
                         >
-                            <div className="w-full min-h-[70vh] flex justify-center items-center" style={{padding: 0}}>
-                                <div className="w-full max-w-5xl mx-auto flex justify-center items-center"
-                                     style={{padding: 0}}>
-                                    <FixtureWizard onFixturesGenerated={handleFixturesGenerated}/>
-                                </div>
+                            <div className="w-full min-h-[70vh]" style={{padding: 0}}>
+                                <FixtureWizard onFixturesGenerated={handleFixturesGenerated}/>
                             </div>
                             <div className="flex justify-between mt-6">
                                 <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
