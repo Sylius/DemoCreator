@@ -118,17 +118,6 @@ export default function DemoWizard({
         }
     }, [step, deployStateId, env, deployStateUrlBase]);
 
-    useEffect(() => {
-        if (step === 2) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [step]);
-
     const next = () => setStep(s => s + 1);
     const back = () => setStep(s => s - 1);
 
@@ -188,8 +177,8 @@ export default function DemoWizard({
     };
 
     return (
-        <div className="w-full max-w-xl mx-auto py-10">
-            <div className="mb-8">
+        <div className="w-full min-h-screen max-w-xl mx-auto py-6 flex flex-col justify-between" style={{padding: 0}}>
+            <div className="mb-6">
                 <div className="flex items-center gap-2 mt-4 justify-center">
                     {steps.map((label, idx) => (
                         <span key={label} className={`h-2 w-2 rounded-full transition-colors duration-200 ${step === idx + 1 ? 'bg-teal-600' : 'bg-gray-200'}`}></span>
@@ -197,32 +186,19 @@ export default function DemoWizard({
                 </div>
                 <h2 className="text-2xl font-bold text-center mt-6 mb-2">{stepTitles[step-1]}</h2>
                 {stepDescriptions[step-1] && (
-                    <p className="text-gray-500 text-center mb-6">{stepDescriptions[step-1]}</p>
+                    <p className="text-gray-500 text-center mb-4">{stepDescriptions[step-1]}</p>
                 )}
             </div>
-            <div className="border-b border-gray-100 pb-0">
-                <div className="py-6">
+            <div className="border-b border-gray-100 pb-0 flex-1 overflow-y-auto" style={{minHeight: 0}}>
+                <div className="py-4">
                     {error && <div className="mb-4 text-teal-700 bg-teal-50 p-3 rounded-lg border border-teal-100 text-sm">{error}</div>}
                     <AnimatePresence exitBeforeEnter>
                         {/* Step 1: Plugins */}
                         {step === 1 && (
                             <motion.div key="1" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
-                                <h2 className="text-xl font-semibold mb-4 text-teal-700">1. Plugins</h2>
-                                {pluginsLoading ? (
-                                    <div className="flex items-center justify-center py-8">
-                                        <svg className="animate-spin h-8 w-8 text-teal-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                                        </svg>
-                                        <span className="ml-3 text-gray-600">Loading plugins...</span>
-                                    </div>
-                                ) : pluginsError ? (
-                                    <div className="text-red-600 bg-red-50 p-3 rounded-lg border border-red-100 text-sm mb-4">
-                                        {pluginsError}
-                                    </div>
-                                ) : (
-                                    <>
-                                        <div className="grid grid-cols-1 gap-2 mb-6 max-h-40 overflow-y-auto">
+                                <div className="flex flex-col items-center justify-center w-full" style={{minHeight: '60vh'}}>
+                                    <div className="w-full max-w-lg">
+                                        <div className="grid grid-cols-1 gap-2 mb-6 overflow-y-auto" style={{maxHeight: 360}}>
                                             {plugins.map(p => (
                                                 <label key={p.composer} className="flex items-center space-x-2">
                                                     <input
@@ -249,19 +225,23 @@ export default function DemoWizard({
                                             }`}
                                         >Next →
                                         </button>
-                                    </>
-                                )}
+                                    </div>
+                                </div>
                             </motion.div>
                         )}
                         {/* Step 2: Fixtures (FixtureWizard) */}
                         {step === 2 && (
                             <motion.div key="2" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
-                                <FixturesStep
-                                    fixtures={fixtures}
-                                    selectedFixtures={selectedFixtures}
-                                    setSelectedFixtures={setSelectedFixtures}
-                                    onFixturesGenerated={handleFixturesGenerated}
-                                />
+                                <div className="w-full min-h-[70vh] flex justify-center items-center" style={{padding: 0}}>
+                                    <div className="w-full max-w-5xl mx-auto flex justify-center items-center" style={{padding: 0}}>
+                                        <FixturesStep
+                                            fixtures={fixtures}
+                                            selectedFixtures={selectedFixtures}
+                                            setSelectedFixtures={setSelectedFixtures}
+                                            onFixturesGenerated={handleFixturesGenerated}
+                                        />
+                                    </div>
+                                </div>
                                 <div className="flex justify-between mt-6">
                                     <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">← Back</button>
                                     <button

@@ -6,7 +6,7 @@ import GptChatWindow from './controllers/GptChatWindow';
 function Layout({ children }) {
     const location = useLocation();
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white font-sans text-gray-900">
+        <div className="bg-gradient-to-br from-gray-50 to-white font-sans text-gray-900">
             <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-gray-200 shadow-sm">
                 <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-3">
                     <Link to="/" className="flex items-center gap-2 font-bold text-2xl tracking-tight text-gray-900 no-underline">
@@ -72,13 +72,15 @@ function HomeHero() {
 export default function App() {
     return (
         <BrowserRouter>
-            <Layout>
-                <Routes>
-                    <Route path="/wizard" element={<DemoWizard />} />
-                    <Route path="/chat" element={<GptChatWindow />} />
-                    <Route path="/" element={<HomeHero />} />
-                </Routes>
-            </Layout>
+            <div className="flex flex-col min-h-screen">
+                <Layout>
+                    <Routes>
+                        <Route path="/wizard" element={<DemoWizard />} />
+                        <Route path="/chat" element={<GptChatWindow />} />
+                        <Route path="/" element={<HomeHero />} />
+                    </Routes>
+                </Layout>
+            </div>
         </BrowserRouter>
     );
 }
