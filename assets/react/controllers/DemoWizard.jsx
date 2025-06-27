@@ -17,10 +17,7 @@ const steps = [
 
 export default function DemoWizard({
     apiUrl,
-    pluginsUrl,
-    fixturesUrl,
     logoUploadUrl,
-    targetsUrl,
     environmentsUrl,
     deployStateUrlBase
 }) {
@@ -42,18 +39,25 @@ export default function DemoWizard({
     const [deployStatus, setDeployStatus] = useState(null);
 
     useEffect(() => {
-        Promise.all([
-            fetch(pluginsUrl).then(r => r.json()),
-            fetch(fixturesUrl).then(r => r.json()),
-            fetch(targetsUrl).then(r => r.json()),
-        ])
-            .then(([p, f, t]) => {
-                setPlugins(p.plugins);
-                setFixtures(f.fixtures);
-                setTargets(t.targets);
+        fetch('/api/supported-plugins')
+            .then(r => r.json())
+            .then(data => {
+                // Flatten plugins to { name, version } for UI
+                const pluginsFlat = [];
+                (data.plugins || []).forEach(plugin => {
+                    (plugin.versions.length ? plugin.versions : [null]).forEach(version => {
+                        pluginsFlat.push({
+                            name: plugin.name,
+                            version: version || 'latest',
+                            composer: plugin.name // for compatibility
+                        });
+                    });
+                });
+                setPlugins(pluginsFlat);
             })
-            .catch(() => setError('Failed to load configuration'));
-    }, [pluginsUrl, fixturesUrl, targetsUrl]);
+            .catch(() => setError('Failed to load plugins'));
+        // TODO: fetch fixtures and targets dynamically
+    }, []);
 
     useEffect(() => {
         if (step === 4 && target === 'platform.sh') {

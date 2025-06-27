@@ -10,8 +10,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AppController extends AbstractController
 {
-    #[Route('/{appPath}', name: 'app', requirements: ['appPath' => '.*'], defaults: ['appPath' => null])]
-    public function app(): Response
+    #[Route(
+        '/{appPath}',
+        name: 'app',
+        requirements: ['appPath' => '(?!api($|/)).*'],
+        defaults: ['appPath' => null]
+    )]
+    public function app(?string $appPath = null): Response
     {
         return $this->render('app.html.twig');
     }
