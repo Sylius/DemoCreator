@@ -32,6 +32,24 @@ const stepDescriptions = [
     '',
 ];
 
+const PLUGIN_LABELS = {
+  'cms-plugin': 'CMS',
+  'customer-service-plugin': 'Customer Service',
+  'invoicing-plugin': 'Invoicing',
+  'loyalty-plugin': 'Loyalty',
+  'refund-plugin': 'Refund',
+  'return-plugin': 'Return',
+  // ...dodaj kolejne jeśli chcesz
+};
+
+function prettify(name) {
+  return name
+    .replace(/^sylius\//, '')
+    .replace(/-plugin$/, '')
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase());
+}
+
 function FixturesStep({ fixtures, selectedFixtures, setSelectedFixtures, onFixturesGenerated }) {
     // Render FixtureWizard and handle fixture selection
     return (
@@ -206,7 +224,9 @@ export default function DemoWizard({
                                                         }}
                                                         className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
                                                     />
-                                                    <span className="text-gray-800 text-sm">{p.name} ({p.version})</span>
+                                                    <span className="text-gray-800 text-sm">
+                                                        {PLUGIN_LABELS[p.name.replace(/^sylius\//, '')] || prettify(p.name)} ({p.version})
+                                                    </span>
                                                 </label>
                                             ))}
                                         </div>
@@ -333,7 +353,7 @@ export default function DemoWizard({
                                     <ul className="list-disc list-inside text-sm text-gray-700">
                                         {selectedPlugins.map(c => {
                                             const p = plugins.find(x => x.composer === c);
-                                            return <li key={c}>{p?.name} ({p?.version})</li>;
+                                            return <li key={c}>{PLUGIN_LABELS[p?.name?.replace(/^sylius\//, '')] || prettify(p?.name)} ({p?.version})</li>;
                                         })}
                                     </ul>
                                 </div>
