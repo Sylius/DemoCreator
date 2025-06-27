@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
+import FixtureWizard from './FixtureWizard';
+import { useSupportedPlugins } from '../hooks/useSupportedPlugins';
 
 const stepVariants = {
     hidden: {opacity: 0, x: 50},
@@ -15,6 +17,37 @@ const steps = [
     'Summary',
 ];
 
+const stepTitles = [
+    'Choose plugins',
+    'Describe your store',
+    'Upload your logo',
+    'Choose deployment target',
+    'Summary',
+];
+const stepDescriptions = [
+    'Select all plugins you want to use in your demo store.',
+    'Describe your store and its details.',
+    'Upload a logo for your demo store.',
+    'Select where you want to deploy your store.',
+    '',
+];
+
+function FixturesStep({ fixtures, selectedFixtures, setSelectedFixtures, onFixturesGenerated }) {
+    // Render FixtureWizard and handle fixture selection
+    return (
+        <div>
+            <h2 className="text-xl font-semibold mb-4 text-teal-700">2. Fixtures</h2>
+            <div className="mb-6">
+                <FixtureWizard onFixturesGenerated={onFixturesGenerated} />
+            </div>
+            {/* Optionally, show selected fixtures summary here */}
+            <div className="flex justify-between">
+                {/* Back/Next handled in parent */}
+            </div>
+        </div>
+    );
+}
+
 export default function DemoWizard({
     apiUrl,
     logoUploadUrl,
@@ -22,7 +55,7 @@ export default function DemoWizard({
     deployStateUrlBase
 }) {
     const [step, setStep] = useState(1);
-    const [plugins, setPlugins] = useState([]);
+    const { plugins, loading: pluginsLoading, error: pluginsError } = useSupportedPlugins();
     const [fixtures, setFixtures] = useState([]);
     const [targets, setTargets] = useState([]);
     const [selectedPlugins, setSelectedPlugins] = useState([]);
@@ -37,27 +70,6 @@ export default function DemoWizard({
     const [deployStateId, setDeployStateId] = useState(null);
     const [deployUrl, setDeployUrl] = useState(null);
     const [deployStatus, setDeployStatus] = useState(null);
-
-    useEffect(() => {
-        fetch('/api/supported-plugins')
-            .then(r => r.json())
-            .then(data => {
-                // Flatten plugins to { name, version } for UI
-                const pluginsFlat = [];
-                (data.plugins || []).forEach(plugin => {
-                    (plugin.versions.length ? plugin.versions : [null]).forEach(version => {
-                        pluginsFlat.push({
-                            name: plugin.name,
-                            version: version || 'latest',
-                            composer: plugin.name // for compatibility
-                        });
-                    });
-                });
-                setPlugins(pluginsFlat);
-            })
-            .catch(() => setError('Failed to load plugins'));
-        // TODO: fetch fixtures and targets dynamically
-    }, []);
 
     useEffect(() => {
         if (step === 4 && target === 'platform.sh') {
@@ -140,16 +152,24 @@ export default function DemoWizard({
         }
     };
 
+    // Callback to update fixtures from FixtureWizard
+    const handleFixturesGenerated = (newFixtures) => {
+        setFixtures(newFixtures);
+        setSelectedFixtures(newFixtures); // or custom logic
+    };
+
     return (
         <div className="w-full max-w-xl mx-auto py-10">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight mb-2 text-gray-900">Demo Creator</h1>
-                <p className="text-gray-500 text-base">Configure your Sylius demo store step by step.</p>
-                <div className="flex items-center gap-2 mt-4">
+                <div className="flex items-center gap-2 mt-4 justify-center">
                     {steps.map((label, idx) => (
                         <span key={label} className={`h-2 w-2 rounded-full transition-colors duration-200 ${step === idx + 1 ? 'bg-teal-600' : 'bg-gray-200'}`}></span>
                     ))}
                 </div>
+                <h2 className="text-2xl font-bold text-center mt-6 mb-2">{stepTitles[step-1]}</h2>
+                {stepDescriptions[step-1] && (
+                    <p className="text-gray-500 text-center mb-6">{stepDescriptions[step-1]}</p>
+                )}
             </div>
             <div className="border-b border-gray-100 pb-0">
                 <div className="py-6">
@@ -159,61 +179,65 @@ export default function DemoWizard({
                         {step === 1 && (
                             <motion.div key="1" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
                                 <h2 className="text-xl font-semibold mb-4 text-teal-700">1. Plugins</h2>
-                                <div className="grid grid-cols-1 gap-2 mb-6 max-h-40 overflow-y-auto">
-                                    {plugins.map(p => (
-                                        <label key={p.composer} className="flex items-center space-x-2">
-                                            <input
-                                                type="checkbox"
-                                                value={p.composer}
-                                                checked={selectedPlugins.includes(p.composer)}
-                                                onChange={e => {
-                                                    const c = e.target.value;
-                                                    setSelectedPlugins(sel => sel.includes(c) ? sel.filter(x => x !== c) : [...sel, c]);
-                                                }}
-                                                className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-                                            />
-                                            <span className="text-gray-800 text-sm">{p.name} ({p.version})</span>
-                                        </label>
-                                    ))}
-                                </div>
-                                <button
-                                    onClick={next}
-                                    disabled={!selectedPlugins.length}
-                                    className={`w-full py-2 rounded-lg font-medium transition ${
-                                        selectedPlugins.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                                    }`}
-                                >Next →
-                                </button>
+                                {pluginsLoading ? (
+                                    <div className="flex items-center justify-center py-8">
+                                        <svg className="animate-spin h-8 w-8 text-teal-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                        </svg>
+                                        <span className="ml-3 text-gray-600">Loading plugins...</span>
+                                    </div>
+                                ) : pluginsError ? (
+                                    <div className="text-red-600 bg-red-50 p-3 rounded-lg border border-red-100 text-sm mb-4">
+                                        {pluginsError}
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="grid grid-cols-1 gap-2 mb-6 max-h-40 overflow-y-auto">
+                                            {plugins.map(p => (
+                                                <label key={p.composer} className="flex items-center space-x-2">
+                                                    <input
+                                                        type="checkbox"
+                                                        value={p.composer}
+                                                        checked={selectedPlugins.includes(p.composer)}
+                                                        onChange={e => {
+                                                            const c = e.target.value;
+                                                            setSelectedPlugins(sel => sel.includes(c) ? sel.filter(x => x !== c) : [...sel, c]);
+                                                        }}
+                                                        className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                                                    />
+                                                    <span className="text-gray-800 text-sm">{p.name} ({p.version})</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                        <button
+                                            onClick={next}
+                                            disabled={!selectedPlugins.length}
+                                            className={`w-full py-2 rounded-lg font-medium transition ${
+                                                selectedPlugins.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                            }`}
+                                        >Next →
+                                        </button>
+                                    </>
+                                )}
                             </motion.div>
                         )}
-                        {/* Step 2: Fixtures */}
+                        {/* Step 2: Fixtures (FixtureWizard) */}
                         {step === 2 && (
                             <motion.div key="2" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
-                                <h2 className="text-xl font-semibold mb-4 text-teal-700">2. Fixtures</h2>
-                                <div className="grid grid-cols-1 gap-2 mb-6 max-h-32 overflow-y-auto">
-                                    {fixtures.map(f => (
-                                        <label key={f} className="flex items-center space-x-2">
-                                            <input
-                                                type="checkbox"
-                                                value={f}
-                                                checked={selectedFixtures.includes(f)}
-                                                onChange={e => {
-                                                    const v = e.target.value;
-                                                    setSelectedFixtures(sel => sel.includes(v) ? sel.filter(x => x !== v) : [...sel, v]);
-                                                }}
-                                                className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-                                            />
-                                            <span className="text-gray-800 text-sm">{f}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                                <div className="flex justify-between">
+                                <FixturesStep
+                                    fixtures={fixtures}
+                                    selectedFixtures={selectedFixtures}
+                                    setSelectedFixtures={setSelectedFixtures}
+                                    onFixturesGenerated={handleFixturesGenerated}
+                                />
+                                <div className="flex justify-between mt-6">
                                     <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">← Back</button>
                                     <button
                                         onClick={next}
-                                        disabled={!selectedFixtures.length}
+                                        disabled={!fixtures.length}
                                         className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            selectedFixtures.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                            fixtures.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                                         }`}
                                     >Next →
                                     </button>
