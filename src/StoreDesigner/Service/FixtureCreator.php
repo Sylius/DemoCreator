@@ -42,6 +42,7 @@ final readonly class FixtureCreator
             if ($functionName === 'generateFixtures') {
                 $data = $message->getFunctionCallData();
                 $fixtures = $this->fixtureParser->parse($data);
+                $this->storePresetManager->updateStoreDefinition($data);
                 $this->storePresetManager->updateFixtures(
                     $data['suiteName'],
                     $fixtures
