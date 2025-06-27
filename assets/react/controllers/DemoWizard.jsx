@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
+import { useNavigate, useParams } from 'react-router-dom';
 import FixtureWizard from './FixtureWizard';
 import {useSupportedPlugins} from '../hooks/useSupportedPlugins';
 import StoreDetailsPanel from './FixtureWizard/StoreDetailsPanel';
@@ -31,6 +32,14 @@ const steps = [
     'Logo',
     'Deploy',
     'Summary',
+];
+
+const stepPaths = [
+    'choose-plugins',
+    'describe-store',
+    'upload-logo',
+    'choose-deploy',
+    'summary'
 ];
 
 const stepTitles = [
@@ -72,7 +81,10 @@ export default function DemoWizard({
                                        environmentsUrl,
                                        deployStateUrlBase
                                    }) {
-    const [step, setStep] = useState(1);
+    const navigate = useNavigate();
+    const { step: stepParam } = useParams();
+    const initialStepIndex = stepPaths.indexOf(stepParam) !== -1 ? stepPaths.indexOf(stepParam) : 0;
+    const [step, setStep] = useState(initialStepIndex + 1);
     const [direction, setDirection] = useState(1); // 1 = next, -1 = back
     const {plugins, loading: pluginsLoading, error: pluginsError} = useSupportedPlugins();
     const [fixtures, setFixtures] = useState([]);
@@ -91,6 +103,20 @@ export default function DemoWizard({
     const [deployStatus, setDeployStatus] = useState(null);
     const [storeDetailsPanelState, setStoreDetailsPanelState] = useState(null); // for storing storeDetails
     const [fixtureWizardState, setFixtureWizardState] = useState({}); // for passing state from FixtureWizard
+
+    // Synchronize step with URL
+    useEffect(() => {
+        if (!stepParam || stepParam !== stepPaths[step - 1]) {
+            navigate(`/wizard/${stepPaths[step - 1]}`, { replace: true });
+        }
+    }, [step, stepParam, navigate]);
+
+    // Redirect /wizard to first step
+    useEffect(() => {
+        if (!stepParam) {
+            navigate(`/wizard/${stepPaths[0]}`, { replace: true });
+        }
+    }, [stepParam, navigate]);
 
     useEffect(() => {
         if (step === 4 && target === 'platform.sh') {
@@ -123,11 +149,11 @@ export default function DemoWizard({
 
     const next = () => {
         setDirection(1);
-        setStep(s => s + 1);
+        setStep(s => Math.min(s + 1, stepPaths.length));
     };
     const back = () => {
         setDirection(-1);
-        setStep(s => s - 1);
+        setStep(s => Math.max(s - 1, 1));
     };
 
     const uploadLogo = async () => {

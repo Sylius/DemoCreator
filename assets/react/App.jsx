@@ -74,7 +74,7 @@ export default function App() {
         <BrowserRouter>
             <Layout>
                 <Routes>
-                    <Route path="/wizard" element={<DemoWizard />} />
+                    <Route path="/wizard/:step?" element={<DemoWizard />} />
                     <Route path="/chat" element={<GptChatWindow />} />
                     <Route path="/" element={<HomeHero />} />
                 </Routes>
