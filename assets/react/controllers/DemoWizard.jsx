@@ -189,14 +189,14 @@ export default function DemoWizard({
                     <p className="text-gray-500 text-center mb-4">{stepDescriptions[step-1]}</p>
                 )}
             </div>
-            <div className="border-b border-gray-100 pb-0 flex-1 overflow-y-auto" style={{minHeight: 0}}>
+            <div className="border-b border-gray-100 pb-0 flex-1" style={{minHeight: 0}}>
                 <div className="py-4">
                     {error && <div className="mb-4 text-teal-700 bg-teal-50 p-3 rounded-lg border border-teal-100 text-sm">{error}</div>}
                     <AnimatePresence exitBeforeEnter>
                         {/* Step 1: Plugins */}
                         {step === 1 && (
                             <motion.div key="1" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
-                                <div className="flex flex-col items-center justify-center w-full" style={{minHeight: '60vh'}}>
+                                <div className="flex flex-col items-center justify-start w-full pt-6" style={{minHeight: '60vh'}}>
                                     <div className="w-full max-w-lg">
                                         <div className="grid grid-cols-1 gap-2 mb-6 overflow-y-auto" style={{maxHeight: 360}}>
                                             {plugins.map(p => (
@@ -234,12 +234,7 @@ export default function DemoWizard({
                             <motion.div key="2" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
                                 <div className="w-full min-h-[70vh] flex justify-center items-center" style={{padding: 0}}>
                                     <div className="w-full max-w-5xl mx-auto flex justify-center items-center" style={{padding: 0}}>
-                                        <FixturesStep
-                                            fixtures={fixtures}
-                                            selectedFixtures={selectedFixtures}
-                                            setSelectedFixtures={setSelectedFixtures}
-                                            onFixturesGenerated={handleFixturesGenerated}
-                                        />
+                                        <FixtureWizard onFixturesGenerated={handleFixturesGenerated} />
                                     </div>
                                 </div>
                                 <div className="flex justify-between mt-6">
