@@ -4,9 +4,24 @@ import FixtureWizard from './FixtureWizard';
 import {useSupportedPlugins} from '../hooks/useSupportedPlugins';
 
 const stepVariants = {
-    hidden: {opacity: 0, x: 50},
-    visible: {opacity: 1, x: 0},
-    exit: {opacity: 0, x: -50},
+    enter: (direction) => ({
+        opacity: 0,
+        x: direction > 0 ? 100 : -100,
+        position: 'absolute',
+        width: '100%'
+    }),
+    center: {
+        opacity: 1,
+        x: 0,
+        position: 'relative',
+        width: '100%'
+    },
+    exit: (direction) => ({
+        opacity: 0,
+        x: direction > 0 ? -100 : 100,
+        position: 'absolute',
+        width: '100%'
+    })
 };
 
 const steps = [
@@ -25,11 +40,11 @@ const stepTitles = [
     'Summary',
 ];
 const stepDescriptions = [
-    'Select all plugins you want to use in your demo store.',
-    'Describe your store and its details.',
+    'Select the plugins you want to include in your demo store.',
+    'Provide a description of your store and its details.',
     'Upload a logo for your demo store.',
-    'Select where you want to deploy your store.',
-    '',
+    'Choose where you want to deploy your store.',
+    'Review and confirm your settings before launching your demo store.'
 ];
 
 const PLUGIN_LABELS = {
@@ -73,6 +88,7 @@ export default function DemoWizard({
                                        deployStateUrlBase
                                    }) {
     const [step, setStep] = useState(1);
+    const [direction, setDirection] = useState(1); // 1 = next, -1 = back
     const {plugins, loading: pluginsLoading, error: pluginsError} = useSupportedPlugins();
     const [fixtures, setFixtures] = useState([]);
     const [targets, setTargets] = useState([]);
@@ -118,8 +134,14 @@ export default function DemoWizard({
         }
     }, [step, deployStateId, env, deployStateUrlBase]);
 
-    const next = () => setStep(s => s + 1);
-    const back = () => setStep(s => s - 1);
+    const next = () => {
+        setDirection(1);
+        setStep(s => s + 1);
+    };
+    const back = () => {
+        setDirection(-1);
+        setStep(s => s - 1);
+    };
 
     const uploadLogo = async () => {
         if (!logoFile) return;
@@ -177,7 +199,13 @@ export default function DemoWizard({
     };
 
     return (
-        <div className="w-full flex-1 max-w-xl mx-auto py-6 flex flex-col justify-between" style={{padding: 0}}>
+        <motion.div
+            initial={{ opacity: 0, scale: 0.98, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="w-full flex-1 max-w-xl mx-auto py-6 flex flex-col justify-between"
+            style={{padding: 0}}
+        >
             <div className="mb-6">
                 <div className="flex items-center gap-2 mt-4 justify-center">
                     {steps.map((label, idx) => (
@@ -190,14 +218,21 @@ export default function DemoWizard({
                     <p className="text-gray-500 text-center mb-4">{stepDescriptions[step - 1]}</p>
                 )}
             </div>
-            <div className="border-b border-gray-100 pb-0 flex-1" style={{minHeight: 0}}>
+            <div className="border-b border-gray-100 pb-0 flex-1 relative" style={{minHeight: 0}}>
                 {error && <div
                     className="mb-4 text-teal-700 bg-teal-50 p-3 rounded-lg border border-teal-100 text-sm">{error}</div>}
-                <AnimatePresence exitBeforeEnter>
+                <AnimatePresence custom={direction} initial={false} mode="wait">
                     {/* Step 1: Plugins */}
                     {step === 1 && (
-                        <motion.div key="1" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
-                                    transition={{duration: 0.3}}>
+                        <motion.div
+                            key="1"
+                            custom={direction}
+                            variants={stepVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{duration: 0.35, type: 'tween'}}
+                        >
                             <div className="flex flex-col items-center justify-start w-full pt-6"
                                  style={{minHeight: '60vh'}}>
                                 <div className="w-full max-w-lg">
@@ -235,8 +270,15 @@ export default function DemoWizard({
                     )}
                     {/* Step 2: Fixtures (FixtureWizard) */}
                     {step === 2 && (
-                        <motion.div key="2" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
-                                    transition={{duration: 0.3}}>
+                        <motion.div
+                            key="2"
+                            custom={direction}
+                            variants={stepVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{duration: 0.35, type: 'tween'}}
+                        >
                             <div className="w-full min-h-[70vh] flex justify-center items-center" style={{padding: 0}}>
                                 <div className="w-full max-w-5xl mx-auto flex justify-center items-center"
                                      style={{padding: 0}}>
@@ -260,8 +302,15 @@ export default function DemoWizard({
                     )}
                     {/* Step 3: Logo Upload */}
                     {step === 3 && (
-                        <motion.div key="3" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
-                                    transition={{duration: 0.3}}>
+                        <motion.div
+                            key="3"
+                            custom={direction}
+                            variants={stepVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{duration: 0.35, type: 'tween'}}
+                        >
                             <h2 className="text-xl font-semibold mb-4 text-teal-700">3. Logo</h2>
                             <input
                                 type="file"
@@ -288,8 +337,15 @@ export default function DemoWizard({
                     )}
                     {/* Step 4: Deploy Target */}
                     {step === 4 && (
-                        <motion.div key="4" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
-                                    transition={{duration: 0.3}}>
+                        <motion.div
+                            key="4"
+                            custom={direction}
+                            variants={stepVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{duration: 0.35, type: 'tween'}}
+                        >
                             <h2 className="text-xl font-semibold mb-4 text-teal-700">4. Where to deploy?</h2>
                             <div className="mb-4 space-y-2">
                                 {targets.map(t => (
@@ -348,8 +404,15 @@ export default function DemoWizard({
                     )}
                     {/* Step 5: Summary & Deploy Button */}
                     {step === 5 && (
-                        <motion.div key="5" variants={stepVariants} initial="hidden" animate="visible" exit="exit"
-                                    transition={{duration: 0.3}}>
+                        <motion.div
+                            key="5"
+                            custom={direction}
+                            variants={stepVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{duration: 0.35, type: 'tween'}}
+                        >
                             <h2 className="text-xl font-semibold mb-4 text-teal-700">5. Summary & Deploy</h2>
                             <div className="mb-4">
                                 <h3 className="font-semibold text-gray-800">Plugins:</h3>
@@ -394,6 +457,6 @@ export default function DemoWizard({
                     )}
                 </AnimatePresence>
             </div>
-        </div>
+        </motion.div>
     );
 }

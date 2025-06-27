@@ -8,35 +8,31 @@ const MessageInput = ({
     disabled = false,
     placeholder = "Wpisz wiadomość, np. „Sprzedaję biżuterię, akcesoria sportowe itp." 
 }) => {
+    const canSend = !!input.trim() && !loading && !disabled;
     return (
-        <form onSubmit={handleSend} style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <form onSubmit={handleSend} className="relative flex items-center mt-3">
+            {/* Arrow button inside input, left side */}
+            <button
+                type="submit"
+                disabled={!canSend}
+                className={`absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full w-8 h-8 transition-colors duration-150
+                    ${canSend ? 'bg-teal-600 hover:bg-teal-700 text-white shadow' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                tabIndex={-1} // so Enter in input submits, not button
+                style={{ pointerEvents: canSend ? 'auto' : 'none' }}
+            >
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 15V5M10 5l-4 4M10 5l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+            </button>
             <input
                 type="text"
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 disabled={loading || disabled}
                 placeholder={loading ? "Czekaj..." : placeholder}
-                style={{ 
-                    flex: 1, 
-                    padding: 8, 
-                    borderRadius: 4, 
-                    border: "1px solid #ccc" 
-                }}
+                className="pl-12 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-200 text-base transition"
+                style={{ minHeight: 44 }}
             />
-            <button 
-                type="submit" 
-                disabled={loading || !input.trim() || disabled} 
-                style={{ 
-                    padding: "8px 16px",
-                    borderRadius: 4,
-                    border: "1px solid #ccc",
-                    background: "#fff",
-                    cursor: loading || !input.trim() || disabled ? "not-allowed" : "pointer",
-                    opacity: loading || !input.trim() || disabled ? 0.6 : 1
-                }}
-            >
-                Wyślij
-            </button>
         </form>
     );
 };

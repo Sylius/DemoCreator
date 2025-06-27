@@ -5,7 +5,7 @@ import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-const MessageList = ({ messages, showFunctionMessages, height = 650 }) => {
+const MessageList = ({ messages, showFunctionMessages, height = 250 }) => {
     const chatEndRef = useRef(null);
 
     useEffect(() => {
