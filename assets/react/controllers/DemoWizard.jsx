@@ -118,6 +118,17 @@ export default function DemoWizard({
         }
     }, [step, deployStateId, env, deployStateUrlBase]);
 
+    useEffect(() => {
+        if (step === 2) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [step]);
+
     const next = () => setStep(s => s + 1);
     const back = () => setStep(s => s - 1);
 
