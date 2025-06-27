@@ -177,7 +177,7 @@ export default function DemoWizard({
     };
 
     return (
-        <div className="w-full min-h-screen max-w-xl mx-auto py-6 flex flex-col justify-between" style={{padding: 0}}>
+        <div className="w-full flex-1 max-w-xl mx-auto py-6 flex flex-col justify-between" style={{padding: 0}}>
             <div className="mb-6">
                 <div className="flex items-center gap-2 mt-4 justify-center">
                     {steps.map((label, idx) => (

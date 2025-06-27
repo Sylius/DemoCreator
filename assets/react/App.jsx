@@ -6,7 +6,7 @@ import GptChatWindow from './controllers/GptChatWindow';
 function Layout({ children }) {
     const location = useLocation();
     return (
-        <div className="bg-gradient-to-br from-gray-50 to-white font-sans text-gray-900">
+        <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-white font-sans text-gray-900">
             <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-gray-200 shadow-sm">
                 <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-3">
                     <Link to="/" className="flex items-center gap-2 font-bold text-2xl tracking-tight text-gray-900 no-underline">
@@ -25,8 +25,8 @@ function Layout({ children }) {
             <main className="flex-1 flex flex-col items-center px-4 py-8">
                 <div className="w-full max-w-4xl">{children}</div>
             </main>
-            <footer className="border-t border-gray-200 text-center text-sm text-gray-500 py-6 bg-white/70 mt-12">
-                &copy; {new Date().getFullYear()} Demo Creator. Powered by React & Tailwind CSS.
+            <footer className="border-t border-gray-200 text-center text-sm text-gray-500 py-6 bg-white/70">
+                &copy; {new Date().getFullYear()} Sylius Demo Creator. All rights reserved.
             </footer>
         </div>
     );
@@ -72,15 +72,13 @@ function HomeHero() {
 export default function App() {
     return (
         <BrowserRouter>
-            <div className="flex flex-col min-h-screen">
-                <Layout>
-                    <Routes>
-                        <Route path="/wizard" element={<DemoWizard />} />
-                        <Route path="/chat" element={<GptChatWindow />} />
-                        <Route path="/" element={<HomeHero />} />
-                    </Routes>
-                </Layout>
-            </div>
+            <Layout>
+                <Routes>
+                    <Route path="/wizard" element={<DemoWizard />} />
+                    <Route path="/chat" element={<GptChatWindow />} />
+                    <Route path="/" element={<HomeHero />} />
+                </Routes>
+            </Layout>
         </BrowserRouter>
     );
 }
