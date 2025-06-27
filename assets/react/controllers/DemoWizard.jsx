@@ -50,7 +50,7 @@ export default function DemoWizard({
                 setFixtures(f.fixtures);
                 setTargets(t.targets);
             })
-            .catch(() => setError('Nie udało się załadować konfiguracji'));
+            .catch(() => setError('Failed to load configuration'));
     }, [pluginsUrl, fixturesUrl, targetsUrl]);
 
     useEffect(() => {
@@ -58,7 +58,7 @@ export default function DemoWizard({
             fetch(environmentsUrl)
                 .then(r => r.json())
                 .then(data => setEnvOptions(data.environments || []))
-                .catch(() => setError('Błąd pobierania środowisk'));
+                .catch(() => setError('Failed to fetch environments'));
         }
     }, [step, target, environmentsUrl]);
 
@@ -80,7 +80,7 @@ export default function DemoWizard({
                     })
                     .catch(() => {
                         console.error('Error fetching deploy state');
-                        setError('Błąd sprawdzania statusu deploy');
+                        setError('Failed to check deploy status');
                         clearInterval(interval);
                     });
             }, 20000);

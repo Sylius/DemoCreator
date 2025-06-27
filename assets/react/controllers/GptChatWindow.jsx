@@ -96,7 +96,7 @@ const GptChatWindow = ({onNext}) => {
             try {
                 data = JSON.parse(rawResponse);
             } catch (parseError) {
-                setError(`Nieprawidłowa odpowiedź JSON z API:\n${rawResponse}`);
+                setError(`Invalid JSON response from API:\n${rawResponse}`);
                 setState('error');
                 setLoading(false);
                 return;
@@ -108,7 +108,7 @@ const GptChatWindow = ({onNext}) => {
             if (Array.isArray(data.messages)) {
                 setMessages(data.messages);
             } else {
-                setError("Brak 'messages' w odpowiedzi API");
+                setError("Missing 'messages' in API response");
             }
         } catch (err) {
             setError(err.message || "Unknown error");
@@ -125,8 +125,8 @@ const GptChatWindow = ({onNext}) => {
             2
         );
         navigator.clipboard.writeText(payload)
-            .then(() => alert("Rozmowa skopiowana do schowka!"))
-            .catch(() => alert("Nie udało się skopiować rozmowy."));
+            .then(() => alert("Conversation copied to clipboard!"))
+            .catch(() => alert("Failed to copy conversation."));
     };
 
     const retryRequest = async () => {
@@ -149,7 +149,7 @@ const GptChatWindow = ({onNext}) => {
             try {
                 data = JSON.parse(rawResponse);
             } catch (parseError) {
-                setError(`Nieprawidłowa odpowiedź JSON z API:\n${rawResponse}`);
+                setError(`Invalid JSON response from API:\n${rawResponse}`);
                 setState('error');
                 setLoading(false);
                 return;
@@ -161,7 +161,7 @@ const GptChatWindow = ({onNext}) => {
             if (Array.isArray(data.messages)) {
                 setMessages(data.messages);
             } else {
-                setError("Brak 'messages' w odpowiedzi API");
+                setError("Missing 'messages' in API response");
             }
         } catch (err) {
             setError(err.message || "Unknown error");
@@ -186,7 +186,7 @@ const GptChatWindow = ({onNext}) => {
             try {
                 data = JSON.parse(rawResponse);
             } catch (parseError) {
-                setError(`Nieprawidłowa odpowiedź JSON z API:\n${rawResponse}`);
+                setError(`Invalid JSON response from API:\n${rawResponse}`);
                 setState('error');
                 return;
             }
@@ -197,7 +197,7 @@ const GptChatWindow = ({onNext}) => {
             if (Array.isArray(data.messages)) {
                 setMessages(data.messages);
             } else {
-                setError("Brak 'messages' w odpowiedzi API");
+                setError("Missing 'messages' in API response");
             }
         } catch (err) {
             setError(err.message || "Unknown error");

@@ -17,7 +17,7 @@ function Layout({ children }) {
                         Demo Creator
                     </Link>
                     <nav className="flex gap-4 text-base">
-                        <NavLink to="/wizard" active={location.pathname.startsWith('/wizard')}>Kreator</NavLink>
+                        <NavLink to="/wizard" active={location.pathname.startsWith('/wizard')}>Creator</NavLink>
                         <NavLink to="/chat" active={location.pathname.startsWith('/chat')}>Chat</NavLink>
                     </nav>
                 </div>
@@ -55,14 +55,14 @@ function HomeHero() {
                 Sylius Demo Creator
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mb-6">
-                Nowoczesny kreator demo i chat GPT dla Sylius. Zbudowany z React + Tailwind, inspirowany najlepszymi trendami UI 2024.
+                Modern demo creator and GPT chat for Sylius. Built with React + Tailwind, inspired by the latest UI trends of 2024.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/wizard" className="px-6 py-3 rounded-xl bg-teal-600 text-white font-semibold shadow hover:bg-teal-700 transition text-lg no-underline hover:underline">
-                    Rozpocznij kreator
+                    Start the creator
                 </Link>
                 <Link to="/chat" className="px-6 py-3 rounded-xl bg-white border border-gray-200 text-teal-700 font-semibold shadow hover:bg-teal-50 hover:text-teal-900 transition text-lg no-underline hover:underline">
-                    Przejdź do chatu
+                    Go to chat
                 </Link>
             </div>
         </section>
