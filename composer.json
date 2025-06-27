@@ -13,7 +13,6 @@
         "openai-php/client": "^0.13.0",
         "openai-php/symfony": "^0.13.0",
         "platformsh/client": "*",
-        "symfony/asset-mapper": "7.2.*",
         "symfony/console": "7.2.*",
         "symfony/doctrine-messenger": "7.2.*",
         "symfony/dotenv": "7.2.*",
@@ -67,8 +66,7 @@
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd",
-            "importmap:install": "symfony-cmd"
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
         "demo-creator:update-store-presets": "bash bin/update-store-presets",
         "post-install-cmd": [
