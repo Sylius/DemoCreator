@@ -16,15 +16,9 @@ final class FixtureParser
     ) {
     }
 
-    /**
-     * @param array $jsonData
-     * @return string YAML string representing the fixtures.
-     */
-    public function parse(array $jsonData): string
+    public function parse(array $jsonData): array
     {
-        $fixturesArray = $this->buildSyliusFixtures($jsonData, false);
-
-        return Yaml::dump($fixturesArray, 10, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | Yaml::DUMP_NULL_AS_TILDE);
+        return $this->buildSyliusFixtures($jsonData, false);
     }
 
     public function generateFixturesFromArray(array $jsonData, string $yamlPath)

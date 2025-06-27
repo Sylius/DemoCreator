@@ -6,7 +6,6 @@ namespace App\StoreDesigner\Service;
 
 use App\StoreDesigner\Dto\StoreDetailsDto;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Filesystem\Filesystem;
 
 final readonly class FixtureCreator
 {
@@ -14,6 +13,7 @@ final readonly class FixtureCreator
         private GptClient $gptClient,
         private FixtureParser $fixtureParser,
         #[Autowire('%kernel.project_dir%/config/gpt/')] private string $configPath,
+        private StorePresetManager $storePresetManager,
     ) {
     }
 
@@ -40,8 +40,12 @@ final readonly class FixtureCreator
         if ($message->hasFunctionCall()) {
             $functionName = $message->getFunctionCallName();
             if ($functionName === 'generateFixtures') {
-                $fixtures = $this->fixtureParser->parse($message->getFunctionCallData());
-                $this->saveFixtures($fixtures);
+                $data = $message->getFunctionCallData();
+                $fixtures = $this->fixtureParser->parse($data);
+                $this->storePresetManager->updateFixtures(
+                    $data['suiteName'],
+                    $fixtures
+                );
             } else {
                 throw new \RuntimeException('Unsupported function call: ' . $functionName);
             }
@@ -66,22 +70,6 @@ final readonly class FixtureCreator
             'description' => 'It generates the final json fixtures based on the collectStoreInfo retrieved data',
             'parameters' => $fixturesSchema,
         ];
-    }
-
-    private function saveFixtures(string $fixtures): void
-    {
-        $filesystem = new Filesystem();
-        $fixturesPath = $this->configPath . 'fixtures.json';
-
-        // Ensure the directory exists
-        $filesystem->mkdir(dirname($fixturesPath));
-
-        // Save the fixtures to the file
-        $filesystem->dumpFile($fixturesPath, $fixtures);
-
-        if (!file_exists($fixturesPath)) {
-            throw new \RuntimeException('Failed to save fixtures to: ' . $fixturesPath);
-        }
     }
 
     private function getSystemMessage(): string
