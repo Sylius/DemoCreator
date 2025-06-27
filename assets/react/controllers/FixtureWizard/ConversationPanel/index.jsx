@@ -22,67 +22,7 @@ const ConversationPanel = ({
     const isDev = true; // For demonstration purposes, assume we're always in dev mode
 
     return (
-        <div className="flex flex-col flex-1 min-h-0" style={{position: 'relative', border: '1px solid #ccc', borderRadius: 8, background: '#fff', boxShadow: '0 2px 8px #0001', padding: 0}}>
-            {isDev && (
-                <button
-                    onClick={() => setShowDebug(d => !d)}
-                    style={{
-                        position: 'absolute',
-                        top: 12,
-                        right: 24,
-                        zIndex: 10,
-                        background: showDebug ? '#10b981' : '#eee',
-                        color: showDebug ? '#fff' : '#333',
-                        border: 'none',
-                        borderRadius: 6,
-                        padding: '4px 12px',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        boxShadow: '0 1px 4px #0001'
-                    }}
-                >
-                    {showDebug ? 'Hide debug' : 'Show debug'}
-                </button>
-            )}
-            {showDebug && (
-                <div>
-                    <div style={{
-                        background: '#f3f3f3',
-                        fontSize: 13,
-                        color: '#333',
-                        wordBreak: 'break-all',
-                    }}>
-                        <div><b>input:</b> {JSON.stringify(input)}</div>
-                        <div><b>loading:</b> {String(loading)}</div>
-                        <div><b>state:</b> {state}</div>
-                        <div><b>messages.length:</b> {messages.length}</div>
-                        <div><b>error:</b> {error ? String(error) : 'null'}</div>
-                    </div>
-                    <ConversationControls
-                        copyConversation={copyConversation}
-                        retryRequest={retryRequest}
-                        showFunctionMessages={showFunctionMessages}
-                        setShowFunctionMessages={setShowFunctionMessages}
-                        handleCreateFixtures={handleCreateFixtures}
-                        clearConversation={clearConversation}
-                        loading={loading}
-                        state={state}
-                    />
-                </div>
-            )}
-            {!showDebug && (
-                <ConversationControls
-                    copyConversation={copyConversation}
-                    retryRequest={retryRequest}
-                    showFunctionMessages={showFunctionMessages}
-                    setShowFunctionMessages={setShowFunctionMessages}
-                    handleCreateFixtures={handleCreateFixtures}
-                    clearConversation={clearConversation}
-                    loading={loading}
-                    state={state}
-                />
-            )}
+        <div className="flex flex-col flex-1 min-h-0">
             {state === 'done' && (
                 <div style={{display: "flex", alignItems: "center", marginBottom: 12}}>
                     <span style={{
@@ -116,6 +56,56 @@ const ConversationPanel = ({
                     autoFocus={true}
                 />
             </div>
+            {isDev && (
+                <div className="px-4 pb-4 pt-2 bg-white sticky bottom-0 z-10">
+                    <button
+                        onClick={() => setShowDebug(d => !d)}
+                        style={{
+                            position: 'absolute',
+                            top: 12,
+                            right: 24,
+                            zIndex: 10,
+                            background: showDebug ? '#10b981' : '#eee',
+                            color: showDebug ? '#fff' : '#333',
+                            border: 'none',
+                            borderRadius: 6,
+                            padding: '4px 12px',
+                            fontSize: 13,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            boxShadow: '0 1px 4px #0001'
+                        }}
+                    >
+                        {showDebug ? 'Hide debug' : 'Show debug'}
+                    </button>
+                </div>
+            )}
+            {showDebug && (
+                <div>
+                    <div style={{
+                        background: '#f3f3f3',
+                        fontSize: 13,
+                        color: '#333',
+                        wordBreak: 'break-all',
+                    }}>
+                        <div><b>input:</b> {JSON.stringify(input)}</div>
+                        <div><b>loading:</b> {String(loading)}</div>
+                        <div><b>state:</b> {state}</div>
+                        <div><b>messages.length:</b> {messages.length}</div>
+                        <div><b>error:</b> {error ? String(error) : 'null'}</div>
+                    </div>
+                    <ConversationControls
+                        copyConversation={copyConversation}
+                        retryRequest={retryRequest}
+                        showFunctionMessages={showFunctionMessages}
+                        setShowFunctionMessages={setShowFunctionMessages}
+                        handleCreateFixtures={handleCreateFixtures}
+                        clearConversation={clearConversation}
+                        loading={loading}
+                        state={state}
+                    />
+                </div>
+            )}
         </div>
     );
 };

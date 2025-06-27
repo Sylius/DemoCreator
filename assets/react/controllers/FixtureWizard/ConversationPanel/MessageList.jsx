@@ -24,7 +24,7 @@ const MessageList = ({ messages, showFunctionMessages, height = 250 }) => {
                     className={
                         msg.role === "user"
                             ? "self-end border border-gray-200 rounded-xl px-4 py-2 text-base text-gray-900 max-w-[80%]"
-                            : "self-start text-base text-gray-800 max-w-[80%]"
+                            : "self-start border border-gray-200 rounded-xl px-4 py-2 text-base text-gray-800 max-w-[80%]"
                     }
                     style={{ background: 'none', boxShadow: 'none' }}
                 >

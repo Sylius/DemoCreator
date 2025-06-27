@@ -4,7 +4,6 @@ const StoreDetailsSummary = ({ storeDetails }) => {
     if (!storeDetails) return null;
     return (
         <div style={{ background: "#f5f5f5", borderRadius: 8, padding: 16, marginBottom: 16, minWidth: 320 }}>
-            <h4 style={{ marginBottom: 12 }}>Aktualne dane sklepu</h4>
             <table style={{ width: "100%", fontSize: 15 }}>
                 <tbody>
                     <tr><td><strong>Branża:</strong></td><td>{storeDetails.industry || <em>Brak</em>}</td></tr>

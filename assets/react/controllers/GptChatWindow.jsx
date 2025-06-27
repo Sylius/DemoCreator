@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import StoreDetailsSummary from './StoreDetailsSummary';
+import StoreDetailsSummary from "./FixtureWizard/StoreDetailsPanel/StoreDetailsSummary";
 
 const GptChatWindow = ({onNext}) => {
     const [messages, setMessages] = useState(() => {
