@@ -65,22 +65,6 @@ function prettify(name) {
         .replace(/\b\w/g, l => l.toUpperCase());
 }
 
-function FixturesStep({fixtures, selectedFixtures, setSelectedFixtures, onFixturesGenerated}) {
-    // Render FixtureWizard and handle fixture selection
-    return (
-        <div>
-            <h2 className="text-xl font-semibold mb-4 text-teal-700">2. Fixtures</h2>
-            <div className="mb-6">
-                <FixtureWizard onFixturesGenerated={onFixturesGenerated}/>
-            </div>
-            {/* Optionally, show selected fixtures summary here */}
-            <div className="flex justify-between">
-                {/* Back/Next handled in parent */}
-            </div>
-        </div>
-    );
-}
-
 export default function DemoWizard({
                                        apiUrl,
                                        logoUploadUrl,

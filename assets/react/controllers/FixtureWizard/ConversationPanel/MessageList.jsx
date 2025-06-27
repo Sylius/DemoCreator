@@ -17,54 +17,46 @@ const MessageList = ({ messages, showFunctionMessages, height = 250 }) => {
     );
 
     return (
-        <div style={{
-            height,
-            overflowY: "auto",
-            marginBottom: 12,
-            background: "#f9f9f9",
-            padding: 8,
-            borderRadius: 4
-        }}>
+        <div className="flex-1 overflow-y-auto flex flex-col gap-2 pb-2" style={{minHeight: 0}}>
             {filteredMessages.map((msg, idx) => (
-                <div key={idx} style={{ margin: "8px 0", textAlign: msg.role === "user" ? "right" : "left" }}>
-                    <div style={{
-                        display: "inline-block",
-                        padding: "8px 12px",
-                        borderRadius: 16,
-                        background: msg.role === "user" ? "#d1e7dd" : "#e2e3e5",
-                        color: "#222",
-                        maxWidth: "80%"
-                    }}>
-                        {msg.role === "function" ? (
-                            <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
-                                <code>{JSON.stringify(JSON.parse(msg.content), null, 2)}</code>
-                            </pre>
-                        ) : (
-                            <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                rehypePlugins={[rehypeRaw]}
-                                components={{
-                                    code({ node, inline, className, children, ...props }) {
-                                        const match = /language-(\w+)/.exec(className || '');
-                                        return !inline && match ? (
-                                            <SyntaxHighlighter 
-                                                style={tomorrow} 
-                                                language={match[1]} 
-                                                PreTag="div" 
-                                                {...props}
-                                            >
-                                                {String(children).replace(/\n$/, '')}
-                                            </SyntaxHighlighter>
-                                        ) : (
-                                            <code className={className} {...props}>{children}</code>
-                                        );
-                                    }
-                                }}
-                            >
-                                {msg.content}
-                            </ReactMarkdown>
-                        )}
-                    </div>
+                <div
+                    key={idx}
+                    className={
+                        msg.role === "user"
+                            ? "self-end border border-gray-200 rounded-xl px-4 py-2 text-base text-gray-900 max-w-[80%]"
+                            : "self-start text-base text-gray-800 max-w-[80%]"
+                    }
+                    style={{ background: 'none', boxShadow: 'none' }}
+                >
+                    {msg.role === "function" ? (
+                        <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+                            <code>{JSON.stringify(JSON.parse(msg.content), null, 2)}</code>
+                        </pre>
+                    ) : (
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeRaw]}
+                            components={{
+                                code({ node, inline, className, children, ...props }) {
+                                    const match = /language-(\w+)/.exec(className || '');
+                                    return !inline && match ? (
+                                        <SyntaxHighlighter 
+                                            style={tomorrow} 
+                                            language={match[1]} 
+                                            PreTag="div" 
+                                            {...props}
+                                        >
+                                            {String(children).replace(/\n$/, '')}
+                                        </SyntaxHighlighter>
+                                    ) : (
+                                        <code className={className} {...props}>{children}</code>
+                                    );
+                                }
+                            }}
+                        >
+                            {msg.content}
+                        </ReactMarkdown>
+                    )}
                 </div>
             ))}
             <div ref={chatEndRef} />
