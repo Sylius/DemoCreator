@@ -46,7 +46,7 @@ const ConversationPanel = ({
                     <strong>Błąd:</strong> {error}
                 </div>
             )}
-            <div className="px-4 pb-4 pt-2 bg-white sticky bottom-0 z-10">
+            <div className="px-4 pb-4 pt-2 bg-white sticky bottom-0 z-10 rounded-3xl">
                 <MessageInput
                     input={input}
                     setInput={setInput}

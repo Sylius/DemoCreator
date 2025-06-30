@@ -2,9 +2,9 @@ import React, {useState, useEffect} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { WizardContext, useWizard } from './wizard-context';
-import FixtureWizard from './FixtureWizard';
+import DescribeStoreStage from './DescribeStoreStage';
 import {useSupportedPlugins} from '../hooks/useSupportedPlugins';
-import StoreDetailsPanel from './FixtureWizard/StoreDetailsPanel';
+import StoreDetailsPanel from './DescribeStoreStage/StoreDetailsPanel';
 
 const stepVariants = {
     enter: (direction) => ({
@@ -86,12 +86,10 @@ export default function DemoWizard({
     const {step: stepParam} = useParams();
     const initialStepIndex = stepPaths.indexOf(stepParam) !== -1 ? stepPaths.indexOf(stepParam) : 0;
     const [step, setStep] = useState(initialStepIndex + 1);
-    const [direction, setDirection] = useState(1); // 1 = next, -1 = back
+    const [direction, setDirection] = useState(1); // 1 = handleNext, -1 = back
     const {plugins, loading: pluginsLoading, error: pluginsError} = useSupportedPlugins();
-    const [fixtures, setFixtures] = useState([]);
     const [targets, setTargets] = useState([]);
     const [selectedPlugins, setSelectedPlugins] = useState([]);
-    const [selectedFixtures, setSelectedFixtures] = useState([]);
     const [logoFile, setLogoFile] = useState(null);
     const [logoUrl, setLogoUrl] = useState(null);
     const [target, setTarget] = useState('');
@@ -103,10 +101,12 @@ export default function DemoWizard({
     const [deployUrl, setDeployUrl] = useState(null);
     const [deployStatus, setDeployStatus] = useState(null);
     const [storeDetailsPanelState, setStoreDetailsPanelState] = useState(null); // for storing storeDetails
-    const [fixtureWizardState, setFixtureWizardState] = useState(null); // for passing state from FixtureWizard
+    const [describeStoreStage, setDescribeStoreStage] = useState(null);
+    const [isDescribeStoreStageReady, setIsDescribeStoreStageReady] = useState(false);
 
     // Synchronize step with URL
     useEffect(() => {
+        console.log(describeStoreStage);
         if (!stepParam || stepParam !== stepPaths[step - 1]) {
             navigate(`/wizard/${stepPaths[step - 1]}`, {replace: true});
         }
@@ -148,7 +148,14 @@ export default function DemoWizard({
         }
     }, [step, deployStateId, env, deployStateUrlBase]);
 
-    const next = () => {
+    // Reset describeStoreStageReady when step changes away from 2
+    useEffect(() => {
+        if (step !== 2 && isDescribeStoreStageReady) {
+            setIsDescribeStoreStageReady(false);
+        }
+    }, [step, isDescribeStoreStageReady]);
+
+    const handleNext = () => {
         setDirection(1);
         setStep(s => Math.min(s + 1, stepPaths.length));
     };
@@ -184,7 +191,6 @@ export default function DemoWizard({
             const payload = {
                 environment: target === 'platform.sh' ? env : undefined,
                 plugins: buildPluginPayload(),
-                fixtures: selectedFixtures,
                 logoUrl,
                 target,
             };
@@ -206,17 +212,12 @@ export default function DemoWizard({
         }
     };
 
-    // Handlers for context
-    const handleFixturesGenerated = (newFixtures) => {
-        setFixtures(newFixtures);
-        setSelectedFixtures(newFixtures);
-    };
     const handleStoreDetailsConfirm = () => {
         setStep(s => Math.min(s + 1, stepPaths.length));
     };
-    const handleStoreDetailsPanel = (details, state) => {
-        setStoreDetailsPanelState(details);
-        setFixtureWizardState(state);
+
+    const enableNextStepInDescribeStore = () => {
+        setIsDescribeStoreStageReady(true);
     };
 
     return (
@@ -224,7 +225,6 @@ export default function DemoWizard({
             initial={{ opacity: 0, scale: 0.98, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="w-full flex-1 max-w-xl mx-auto py-6 flex flex-col justify-between"
             style={{padding: 0}}
         >
             <div className="mb-0 sticky top-0 z-10">
@@ -277,7 +277,7 @@ export default function DemoWizard({
                                             ))}
                                         </div>
                                         <button
-                                            onClick={next}
+                                            onClick={handleNext}
                                             disabled={!selectedPlugins.length}
                                             className={`w-full py-2 rounded-lg font-medium transition ${
                                                 selectedPlugins.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
@@ -288,7 +288,7 @@ export default function DemoWizard({
                                 </div>
                             </motion.div>
                         )}
-                        {/* Step 2: Fixtures (FixtureWizard) with side panel */}
+                        {/* Step 2: Fixtures (DescribeStoreStage) with side panel */}
                         {step === 2 && (
                             <motion.div
                                 key="2"
@@ -301,28 +301,18 @@ export default function DemoWizard({
                             >
                                 <div className="flex flex-row w-full min-h-[70vh] gap-6">
                                     <div className="flex-1 flex flex-col min-h-0">
-                                        <FixtureWizard
-                                            onFixturesGenerated={handleFixturesGenerated}
-                                            onStoreDetailsPanel={handleStoreDetailsPanel}
-                                        />
+                                        <DescribeStoreStage onReadyToProceed={() => setIsDescribeStoreStageReady(true)}/>
                                     </div>
-                                    {/* Show StoreDetailsPanel only if state is awaiting_confirmation and storeDetailsPanelState is set */}
-                                    {fixtureWizardState === 'awaiting_confirmation' && storeDetailsPanelState && (
-                                        <StoreDetailsPanel
-                                            storeDetails={storeDetailsPanelState}
-                                            onConfirm={handleStoreDetailsConfirm}
-                                        />
-                                    )}
                                 </div>
                                 <div className="flex justify-between mt-6">
                                     <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
                                         Back
                                     </button>
                                     <button
-                                        onClick={next}
-                                        disabled={!fixtures.length}
+                                        onClick={handleNext}
+                                        disabled={!isDescribeStoreStageReady}
                                         className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            fixtures.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                            isDescribeStoreStageReady ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                                         }`}
                                     >Next →
                                     </button>
@@ -357,7 +347,7 @@ export default function DemoWizard({
                                     <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
                                         Back
                                     </button>
-                                    <button onClick={next}
+                                    <button onClick={handleNext}
                                             className="py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium shadow transition">Next
                                         →
                                     </button>

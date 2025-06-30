@@ -1,7 +1,6 @@
 import React from "react";
 
 const StoreDetailsSummary = ({ storeDetails }) => {
-    if (!storeDetails) return null;
     return (
         <div style={{ background: "#f5f5f5", borderRadius: 8, padding: 16, marginBottom: 16, minWidth: 320 }}>
             <table style={{ width: "100%", fontSize: 15 }}>

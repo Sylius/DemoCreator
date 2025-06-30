@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useConversation } from './hooks/useConversation';
 import ConversationPanel from './ConversationPanel';
 import StoreDetailsPanel from './StoreDetailsPanel';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const FixtureWizard = ({ onFixturesGenerated }) => {
+const DescribeStoreStage = ({ onReadyToProceed }) => {
     const {
         messages,
         input,
@@ -20,12 +20,18 @@ const FixtureWizard = ({ onFixturesGenerated }) => {
         copyConversation,
     } = useConversation();
 
-    // Callback do przejścia do kolejnego kroku
-    const handleConfirm = () => {
-        if (typeof onFixturesGenerated === 'function') {
-            onFixturesGenerated(storeDetails);
+    // Ensure callback is only called once per transition to 'awaiting_confirmation'
+    const hasCalledRef = useRef(false);
+    useEffect(() => {
+        if (state === 'awaiting_confirmation' && !hasCalledRef.current) {
+            hasCalledRef.current = true;
+            if (typeof onReadyToProceed === 'function') {
+                onReadyToProceed();
+            }
+        } else if (state !== 'awaiting_confirmation') {
+            hasCalledRef.current = false;
         }
-    };
+    }, [state, onReadyToProceed]);
 
     return (
         <div style={{
@@ -56,25 +62,22 @@ const FixtureWizard = ({ onFixturesGenerated }) => {
                     clearConversation={clearConversation}
                 />
             </div>
-            <AnimatePresence>
-                {state === 'awaiting_confirmation' && (
-                    <motion.div
-                        key="store-details-panel"
-                        initial={{ opacity: 0, x: 40 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 40 }}
-                        transition={{ duration: 0.4 }}
-                        style={{ position: 'relative', zIndex: 2 }}
-                    >
-                        <StoreDetailsPanel 
-                            storeDetails={storeDetails} 
-                            onConfirm={handleConfirm}
-                        />
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/*<AnimatePresence>*/}
+            {/*    {state === 'awaiting_confirmation' && (*/}
+            {/*        <motion.div*/}
+            {/*            key="store-details-panel"*/}
+            {/*            initial={{ opacity: 0, x: 40 }}*/}
+            {/*            animate={{ opacity: 1, x: 0 }}*/}
+            {/*            exit={{ opacity: 0, x: 40 }}*/}
+            {/*            transition={{ duration: 0.4 }}*/}
+            {/*            style={{ position: 'relative', zIndex: 2 }}*/}
+            {/*        >*/}
+            {/*            <StoreDetailsPanel storeDetails={storeDetails}/>*/}
+            {/*        </motion.div>*/}
+            {/*    )}*/}
+            {/*</AnimatePresence>*/}
         </div>
     );
 };
 
-export default FixtureWizard; 
+export default DescribeStoreStage; 
