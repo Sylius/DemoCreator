@@ -5,6 +5,8 @@ import { WizardContext, useWizard } from './wizard-context';
 import DescribeStoreStage from './DescribeStoreStage';
 import {useSupportedPlugins} from '../hooks/useSupportedPlugins';
 import StoreDetailsPanel from './DescribeStoreStage/StoreDetailsPanel';
+import StorePreviewStage from './StorePreviewStage';
+import { useConversation } from './DescribeStoreStage/hooks/useConversation';
 
 const stepVariants = {
     enter: (direction) => ({
@@ -30,6 +32,7 @@ const stepVariants = {
 const steps = [
     'Plugins',
     'Fixtures',
+    'Preview your store',
     'Logo',
     'Deploy',
     'Summary',
@@ -38,6 +41,7 @@ const steps = [
 const stepPaths = [
     'choose-plugins',
     'describe-store',
+    'preview-store',
     'upload-logo',
     'choose-deploy',
     'summary'
@@ -46,6 +50,7 @@ const stepPaths = [
 const stepTitles = [
     'Choose plugins',
     'Describe your store',
+    'Preview your store',
     'Upload your logo',
     'Choose deployment target',
     'Summary',
@@ -53,6 +58,7 @@ const stepTitles = [
 const stepDescriptions = [
     'Select the plugins you want to include in your demo store.',
     'Provide a description of your store and its details.',
+    'Generating your store, please wait...',
     'Upload a logo for your demo store.',
     'Choose where you want to deploy your store.',
     'Review and confirm your settings before launching your demo store.'
@@ -103,6 +109,11 @@ export default function DemoWizard({
     const [storeDetailsPanelState, setStoreDetailsPanelState] = useState(null); // for storing storeDetails
     const [describeStoreStage, setDescribeStoreStage] = useState(null);
     const [isDescribeStoreStageReady, setIsDescribeStoreStageReady] = useState(false);
+    const [isFixturesGenerating, setIsFixturesGenerating] = useState(false);
+    const [fixturesError, setFixturesError] = useState(null);
+    const [isFixturesReady, setIsFixturesReady] = useState(false);
+    const conversation = useConversation();
+    const { handleCreateFixtures } = conversation;
 
     // Synchronize step with URL
     useEffect(() => {
@@ -319,7 +330,7 @@ export default function DemoWizard({
                                 </div>
                             </motion.div>
                         )}
-                        {/* Step 3: Logo Upload */}
+                        {/* Step 3: Preview your store */}
                         {step === 3 && (
                             <motion.div
                                 key="3"
@@ -330,7 +341,46 @@ export default function DemoWizard({
                                 exit="exit"
                                 transition={{duration: 0.35, type: 'tween'}}
                             >
-                                <h2 className="text-xl font-semibold mb-4 text-teal-700">3. Logo</h2>
+                                <h2 className="text-xl font-semibold mb-4 text-teal-700">3. Preview your store</h2>
+                                <StorePreviewStage
+                                    isReady={isFixturesReady}
+                                    error={fixturesError}
+                                    onGenerate={() => {
+                                        if (!isFixturesReady && !isFixturesGenerating) {
+                                            setIsFixturesGenerating(true);
+                                            setFixturesError(null);
+                                            handleCreateFixtures()
+                                                .then(() => setIsFixturesReady(true))
+                                                .catch((err) => setFixturesError(err?.message || 'Unknown error'))
+                                                .finally(() => setIsFixturesGenerating(false));
+                                        }
+                                    }}
+                                />
+                                <div className="flex justify-between mt-6">
+                                    <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">← Back</button>
+                                    <button
+                                        onClick={handleNext}
+                                        disabled={!isFixturesReady}
+                                        className={`py-2 px-4 rounded-lg font-medium transition ${
+                                            isFixturesReady ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                        }`}
+                                    >Next →
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                        {/* Step 4: Logo Upload */}
+                        {step === 4 && (
+                            <motion.div
+                                key="4"
+                                custom={direction}
+                                variants={stepVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{duration: 0.35, type: 'tween'}}
+                            >
+                                <h2 className="text-xl font-semibold mb-4 text-teal-700">4. Logo</h2>
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -354,74 +404,7 @@ export default function DemoWizard({
                                 </div>
                             </motion.div>
                         )}
-                        {/* Step 4: Deploy Target */}
-                        {step === 4 && (
-                            <motion.div
-                                key="4"
-                                custom={direction}
-                                variants={stepVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                transition={{duration: 0.35, type: 'tween'}}
-                            >
-                                <h2 className="text-xl font-semibold mb-4 text-teal-700">4. Where to deploy?</h2>
-                                <div className="mb-4 space-y-2">
-                                    {targets.map(t => (
-                                        <label key={t} className="flex items-center space-x-2">
-                                            <input
-                                                type="radio"
-                                                name="target"
-                                                value={t}
-                                                checked={target === t}
-                                                onChange={() => {
-                                                    setTarget(t);
-                                                    setEnv('');
-                                                }}
-                                                className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-                                            />
-                                            <span className="text-gray-800 text-sm">{t}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                                {target === 'platform.sh' && (
-                                    <select
-                                        value={env}
-                                        onChange={e => setEnv(e.target.value)}
-                                        className="w-full mb-4 border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                                    >
-                                        <option value="">— choose environment —</option>
-                                        {envOptions.map(e => (
-                                            <option key={e} value={e}>{e}</option>
-                                        ))}
-                                    </select>
-                                )}
-                                <div className="flex justify-between items-center">
-                                    <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
-                                        Back
-                                    </button>
-                                    <button
-                                        onClick={handleDeploy}
-                                        disabled={loading || !target || (target === 'platform.sh' && !env)}
-                                        className={`py-2 px-4 rounded-lg font-medium transition flex items-center space-x-2 ${
-                                            !loading && target && (target !== 'platform.sh' || env)
-                                                ? 'bg-green-600 hover:bg-green-700 text-white'
-                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                                        }`}
-                                    >
-                                        {loading ? (
-                                            <svg className="animate-spin h-5 w-5 text-white"
-                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                        strokeWidth="4"/>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                                            </svg>
-                                        ) : 'Deploy'}
-                                    </button>
-                                </div>
-                            </motion.div>
-                        )}
-                        {/* Step 5: Summary & Deploy Button */}
+                        {/* Step 5: Deploy Target */}
                         {step === 5 && (
                             <motion.div
                                 key="5"
