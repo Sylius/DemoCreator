@@ -665,53 +665,36 @@ function GenerateStorePresetSection({
     const [timedOut, setTimedOut] = useState(false);
     const timeoutRef = React.useRef();
 
-    // Reset hasTried when component mounts to allow automatic generation
-    useEffect(() => {
-        setHasTried(false);
+    const handleGenerateFixtures = () => {
+        console.log('Manual fixtures generation started...');
+        setIsFixturesGenerating(true);
         setFixturesError(null);
         setTimedOut(false);
-    }, []);
-
-    // Try to generate fixtures on mount or retry
-    useEffect(() => {
-        console.log('GenerateStorePresetSection useEffect:', {
-            isFixturesReady,
-            isFixturesGenerating,
-            hasTried,
-            storeDetails: !!storeDetails,
-            storePresetName
-        });
+        setHasTried(true);
         
-        if (!isFixturesReady && !isFixturesGenerating && !hasTried) {
-            console.log('Starting fixtures generation...');
-            setIsFixturesGenerating(true);
-            setFixturesError(null);
-            setTimedOut(false);
-            setHasTried(true);
-            // Timeout after 60s
-            timeoutRef.current = setTimeout(() => {
-                setTimedOut(true);
+        // Timeout after 60s
+        timeoutRef.current = setTimeout(() => {
+            setTimedOut(true);
+            setIsFixturesGenerating(false);
+            setFixturesError('Timeout: Store preset generation took too long. Please try again.');
+        }, 60000);
+        
+        handleCreateFixtures(storeDetails)
+            .then(() => {
+                console.log('Fixtures generation completed successfully');
+                clearTimeout(timeoutRef.current);
+                setIsFixturesReady(true);
+            })
+            .catch((err) => {
+                console.error('Fixtures generation failed:', err);
+                clearTimeout(timeoutRef.current);
+                setFixturesError(err?.message || 'Unknown error');
+                setIsFixturesReady(false);
+            })
+            .finally(() => {
                 setIsFixturesGenerating(false);
-                setFixturesError('Timeout: Store preset generation took too long. Please try again.');
-            }, 60000);
-            handleCreateFixtures(storeDetails)
-                .then(() => {
-                    console.log('Fixtures generation completed successfully');
-                    clearTimeout(timeoutRef.current);
-                    setIsFixturesReady(true);
-                })
-                .catch((err) => {
-                    console.error('Fixtures generation failed:', err);
-                    clearTimeout(timeoutRef.current);
-                    setFixturesError(err?.message || 'Unknown error');
-                    setIsFixturesReady(false);
-                })
-                .finally(() => {
-                    setIsFixturesGenerating(false);
-                });
-        }
-        return () => clearTimeout(timeoutRef.current);
-    }, [isFixturesReady, isFixturesGenerating, hasTried, handleCreateFixtures, setFixturesError, setIsFixturesReady, setIsFixturesGenerating, storeDetails]);
+            });
+    };
 
     const handleRetry = () => {
         setHasTried(false);
@@ -734,14 +717,35 @@ function GenerateStorePresetSection({
                 className="py-1 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded text-xs mb-2"
                 style={{ alignSelf: 'flex-end' }}
             >
-                Debug: Trigger create-fixtures
+                Debug: Reset state
             </button>
+            
+            {!isFixturesReady && !isFixturesGenerating && !fixturesError && (
+                <>
+                    <div className="mb-4 text-center">
+                        <p className="text-gray-600 mb-4">Ready to generate your store preset</p>
+                        <button
+                            onClick={handleGenerateFixtures}
+                            disabled={!storeDetails}
+                            className={`py-3 px-8 rounded-lg font-medium shadow transition ${
+                                storeDetails 
+                                    ? 'bg-teal-600 hover:bg-teal-700 text-white' 
+                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            }`}
+                        >
+                            {storeDetails ? 'Generate Fixtures' : 'Complete store description first'}
+                        </button>
+                    </div>
+                </>
+            )}
+            
             {isFixturesGenerating && (
                 <>
                     <div className="mb-4">Generating your store preset, please wait...</div>
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
                 </>
             )}
+            
             {fixturesError && !isFixturesGenerating && (
                 <>
                     <div className="text-red-600 mb-2">{fixturesError}</div>
@@ -753,6 +757,7 @@ function GenerateStorePresetSection({
                     </button>
                 </>
             )}
+            
             {isFixturesReady && !fixturesError && !isFixturesGenerating && (
                 <DownloadStorePresetButton storePresetName={storePresetName} />
             )}
