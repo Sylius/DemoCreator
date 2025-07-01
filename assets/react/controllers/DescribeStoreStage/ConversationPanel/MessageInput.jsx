@@ -19,7 +19,13 @@ const MessageInput = ({
     }, [autoFocus]);
 
     return (
-        <form onSubmit={handleSend} className="relative flex items-center w-full p-0 bg-transparent" style={{marginTop: 0}}>
+        <form onSubmit={e => {
+            handleSend(e);
+            // Refocus input after sending
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 0);
+        }} className="relative flex items-center w-full p-0 bg-transparent" style={{marginTop: 0}}>
             <input
                 ref={inputRef}
                 type="text"

@@ -53,7 +53,7 @@ const stepTitles = [
     'Summary',
 ];
 const stepDescriptions = [
-    'Select the plugins you want to include in your demo store.',
+    'Plugins are optional. You can select any to include, or proceed without plugins.',
     'Provide a description of your store and its details.',
     'Generating your store, please wait...',
     'Upload a logo for your demo store.',
@@ -111,7 +111,7 @@ export default function DemoWizard({
     const [isFixturesReady, setIsFixturesReady] = useState(false);
     const conversation = useConversation();
     const { handleCreateFixtures } = conversation;
-    const suiteName = conversation?.storeDetails?.suiteName || 'preset';
+    const suiteName = conversation?.storeDetails?.industry || 'preset';
 
     // Synchronize step with URL
     useEffect(() => {
@@ -287,10 +287,7 @@ export default function DemoWizard({
                                         </div>
                                         <button
                                             onClick={handleNext}
-                                            disabled={!selectedPlugins.length}
-                                            className={`w-full py-2 rounded-lg font-medium transition ${
-                                                selectedPlugins.length ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                                            }`}
+                                            className="w-full py-2 rounded-lg font-medium transition bg-teal-600 hover:bg-teal-700 text-white"
                                         >Next →
                                         </button>
                                     </div>

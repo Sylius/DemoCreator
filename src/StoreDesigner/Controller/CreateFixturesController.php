@@ -58,6 +58,7 @@ final class CreateFixturesController extends AbstractController
         }
 
         try {
+            $this->storePresetManager->initializeStorePreset($data['suiteName']);
             $this->storePresetManager->updateStoreDefinition($data);
             $this->storePresetManager->updateFixtures($data['suiteName'], $this->fixtureParser->parse($data));
 
