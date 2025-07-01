@@ -510,6 +510,10 @@ function GenerateStorePresetSection({
     const [timedOut, setTimedOut] = useState(false);
     const timeoutRef = React.useRef();
 
+    // Dlaczego efekt nie odpala się drugi raz po cofnięciu i przejściu do przodu?
+    // Bo hasTried zostaje true, więc warunek w useEffect nie pozwala na ponowne wywołanie handleCreateFixtures.
+    // Rozwiązanie: przycisk debug/reset, który ustawia hasTried na false i resetuje błędy.
+
     // Try to generate fixtures on mount or retry
     useEffect(() => {
         if (!isFixturesReady && !isFixturesGenerating && !hasTried) {
@@ -524,13 +528,27 @@ function GenerateStorePresetSection({
                 setFixturesError('Timeout: Store preset generation took too long. Please try again.');
             }, 60000);
             handleCreateFixtures()
-                .then(() => {
+                .then((res) => {
                     clearTimeout(timeoutRef.current);
+                    if (res && res.status && res.status !== 200) {
+                        if (res.status === 400) {
+                            setFixturesError('Invalid data (400). Please check your input.');
+                        } else if (res.status === 404) {
+                            setFixturesError('Resource not found (404).');
+                        } else if (res.status === 500) {
+                            setFixturesError('Server error (500). Please try again later.');
+                        } else {
+                            setFixturesError(`Error: ${res.status} ${res.statusText}`);
+                        }
+                        setIsFixturesReady(false);
+                        return;
+                    }
                     setIsFixturesReady(true);
                 })
                 .catch((err) => {
                     clearTimeout(timeoutRef.current);
                     setFixturesError(err?.message || 'Unknown error');
+                    setIsFixturesReady(false);
                 })
                 .finally(() => {
                     setIsFixturesGenerating(false);
@@ -545,29 +563,43 @@ function GenerateStorePresetSection({
         setTimedOut(false);
     };
 
-    if (!isFixturesReady && !fixturesError) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[40vh]">
-                <div className="mb-4">Generating your store preset, please wait...</div>
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
-            </div>
-        );
-    }
-    if (fixturesError) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
-                <div className="text-red-600 mb-2">{fixturesError}</div>
-                <button
-                    onClick={handleRetry}
-                    className="py-2 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-medium shadow transition"
-                >
-                    Retry
-                </button>
-            </div>
-        );
-    }
-    if (isFixturesReady) {
-        return <DownloadStorePresetButton suiteName={suiteName} />;
-    }
-    return null;
+    const handleDebug = () => {
+        setHasTried(false);
+        setFixturesError(null);
+        setIsFixturesReady(false);
+        setTimedOut(false);
+    };
+
+    return (
+        <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+            {/* Debug button to manually trigger create-fixtures */}
+            <button
+                onClick={handleDebug}
+                className="py-1 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded text-xs mb-2"
+                style={{ alignSelf: 'flex-end' }}
+            >
+                Debug: Trigger create-fixtures
+            </button>
+            {!isFixturesReady && !fixturesError && (
+                <>
+                    <div className="mb-4">Generating your store preset, please wait...</div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
+                </>
+            )}
+            {fixturesError && (
+                <>
+                    <div className="text-red-600 mb-2">{fixturesError}</div>
+                    <button
+                        onClick={handleRetry}
+                        className="py-2 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-medium shadow transition"
+                    >
+                        Retry
+                    </button>
+                </>
+            )}
+            {isFixturesReady && !fixturesError && (
+                <DownloadStorePresetButton suiteName={suiteName} />
+            )}
+        </div>
+    );
 }

@@ -18,6 +18,8 @@ final class StorePresetManager
         private readonly Filesystem $filesystem,
         #[Autowire('%kernel.project_dir%/var/store-presets')]
         private string $storePresetsDir,
+        #[Autowire('%kernel.project_dir%/var')]
+        private string $varDir,
     ) {
         // Upewniamy się, że bazowa ścieżka nie ma końcowego slash-a
         $this->storePresetsDir = rtrim($this->storePresetsDir, '/\\');
@@ -259,5 +261,23 @@ final class StorePresetManager
         }
         $zip->close();
         return $tmpZip;
+    }
+
+    public function saveRawAssistantResponse(array $storeDefinition): void
+    {
+        $dir = $this->varDir . '/raw-store-definitions';
+        $this->filesystem->mkdir($dir, 0755);
+        $timestamp = (new \DateTimeImmutable())->format('Ymd_His');
+        $filePath = Path::join($dir, 'store_definition_' . $timestamp . '.json');
+        try {
+            $json = json_encode($storeDefinition, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+            $this->filesystem->dumpFile($filePath, $json);
+        } catch (IOException | \JsonException $e) {
+            throw new \RuntimeException(
+                "Nie można zapisać surowej odpowiedzi asystenta: {$e->getMessage()}",
+                0,
+                $e
+            );
+        }
     }
 }

@@ -30,7 +30,7 @@ final readonly class FixtureCreator
                 ],
             ],
             model: 'gpt-4o',
-            maxCompletionTokens: 4096,
+            maxCompletionTokens: 8192,
             functions: [
                 $this->getGenerateFixturesFunction(),
             ],

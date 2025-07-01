@@ -31,12 +31,13 @@ final class CreateFixturesController extends AbstractController
         StoreDetailsDto $storeDetailsDto,
     ): JsonResponse {
         $storeDefinition = $this->fixtureCreator->create($storeDetailsDto);
+        $this->storePresetManager->saveRawAssistantResponse($storeDefinition);
         $fixtures = $this->fixtureParser->parse($storeDefinition);
 
         $this->storePresetManager->updateStoreDefinition($storeDefinition);
         $this->storePresetManager->updateFixtures(
-            $storeDetailsDto['suiteName'],
-            $fixtures
+            $storeDefinition['suiteName'],
+            $fixtures,
         );
 
         return $this->json(
