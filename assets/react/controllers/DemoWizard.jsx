@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import DescribeStoreStage from './DescribeStoreStage';
@@ -91,9 +91,12 @@ export default function DemoWizard({
     const initialStepIndex = stepPaths.indexOf(stepParam) !== -1 ? stepPaths.indexOf(stepParam) : 0;
     const [step, setStep] = useState(initialStepIndex + 1);
     const [direction, setDirection] = useState(1); // 1 = handleNext, -1 = back
-    const {plugins, loading: pluginsLoading, error: pluginsError} = useSupportedPlugins();
+    const {plugins, loading: pluginsLoading, error: pluginsError, refetch} = useSupportedPlugins();
     const [targets, setTargets] = useState([]);
-    const [selectedPlugins, setSelectedPlugins] = useState([]);
+    const [selectedPlugins, setSelectedPlugins] = useState(() => {
+        const stored = localStorage.getItem('selectedPlugins');
+        return stored ? JSON.parse(stored) : [];
+    });
     const [logoFile, setLogoFile] = useState(null);
     const [logoUrl, setLogoUrl] = useState(null);
     const [target, setTarget] = useState('');
@@ -173,26 +176,63 @@ export default function DemoWizard({
         }
     }, [step, isDescribeStoreStageReady]);
 
-    const handleNext = () => {
-        // Jeśli jesteśmy na kroku 1 (pluginy), wyślij PATCH z wybranymi pluginami
-        if (step === 1) {
-            // Konwertuj wybrane pluginy do formatu { "sylius/plugin-name": "^1.0" }
-            const pluginsPayload = {};
-            selectedPlugins.forEach(pluginName => {
-                const plugin = plugins.find(p => p.composer === pluginName);
-                if (plugin) {
-                    pluginsPayload[plugin.name] = `^${plugin.version}`;
-                }
-            });
-            updatePreset({ plugins: pluginsPayload });
+    // Persist selected plugins to localStorage
+    useEffect(() => {
+        localStorage.setItem('selectedPlugins', JSON.stringify(selectedPlugins));
+    }, [selectedPlugins]);
+
+    // Reset fixtures state when entering step 3 (preview-store)
+    useEffect(() => {
+        if (step === 3) {
+            // Reset fixtures state to allow regeneration
+            setIsFixturesReady(false);
+            setFixturesError(null);
+            setIsFixturesGenerating(false);
+            // hasTried will be reset in GenerateStorePresetSection
         }
-        setDirection(1);
-        setStep(s => Math.min(s + 1, stepPaths.length));
-    };
-    const back = () => {
+    }, [step]);
+
+    const handleNext = useCallback(() => {
+        try {
+            // Jeśli jesteśmy na kroku 1 (pluginy), wyślij PATCH z wybranymi pluginami
+            if (step === 1) {
+                if (pluginsLoading) {
+                    setError('Please wait for plugins to load');
+                    return;
+                }
+                if (pluginsError) {
+                    setError('Please fix plugin loading error before proceeding');
+                    return;
+                }
+                
+                // Konwertuj wybrane pluginy do formatu { "sylius/plugin-name": "^1.0" }
+                const pluginsPayload = {};
+                selectedPlugins.forEach(pluginName => {
+                    const plugin = plugins.find(p => p.composer === pluginName);
+                    if (plugin) {
+                        pluginsPayload[plugin.name] = `^${plugin.version}`;
+                    }
+                });
+                updatePreset({ plugins: pluginsPayload });
+            }
+            
+            // Sprawdź czy można przejść dalej
+            if (step === 2 && !isDescribeStoreStageReady) {
+                setError('Please complete the store description before proceeding');
+                return;
+            }
+            
+            setError(null); // Clear any previous errors
+            setDirection(1);
+            setStep(s => Math.min(s + 1, stepPaths.length));
+        } catch (err) {
+            setError(`Failed to proceed: ${err.message}`);
+        }
+    }, [step, pluginsLoading, pluginsError, selectedPlugins, plugins, updatePreset, isDescribeStoreStageReady, setError, setDirection, setStep]);
+    const back = useCallback(() => {
         setDirection(-1);
         setStep(s => Math.max(s - 1, 1));
-    };
+    }, [setDirection, setStep]);
 
     const uploadLogo = async () => {
         if (!logoFile) return;
@@ -259,6 +299,29 @@ export default function DemoWizard({
         updatePreset({ fixtures });
     };
 
+    const resetWizard = useCallback(() => {
+        localStorage.clear(); // czyści wszystko
+        setSelectedPlugins([]);
+        setLogoFile(null);
+        setLogoUrl(null);
+        setTarget('');
+        setEnv('');
+        setStoreDetails(null);
+        setIsDescribeStoreStageReady(false);
+        setIsFixturesGenerating(false);
+        setFixturesError(null);
+        setIsFixturesReady(false);
+        setDeployStateId(null);
+        setDeployUrl(null);
+        setDeployStatus(null);
+        setError(null);
+        setLoading(false);
+        setStep(1);
+        navigate(`/wizard/${stepPaths[0]}`, {replace: true});
+        // Reload page to ensure complete reset
+        window.location.reload();
+    }, [navigate]);
+
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.98, y: 30 }}
@@ -267,15 +330,38 @@ export default function DemoWizard({
             style={{padding: 0}}
         >
             <div className="mb-0 sticky top-0 z-10">
-                <div className="flex items-center gap-2 mt-4 justify-center">
-                    {steps.map((label, idx) => (
-                        <span key={label}
-                              className={`h-2 w-2 rounded-full transition-colors duration-200 ${step === idx + 1 ? 'bg-teal-600' : 'bg-gray-200'}`}></span>
-                    ))}
+                <div className="flex items-center justify-between px-4 mt-4">
+                    <button
+                        onClick={resetWizard}
+                        className="text-gray-500 hover:text-gray-700 text-sm underline"
+                        title="Start over"
+                    >
+                        Start over
+                    </button>
+                    <div className="flex items-center gap-2">
+                        {steps.map((label, idx) => (
+                            <span key={label}
+                                  className={`h-2 w-2 rounded-full transition-colors duration-200 ${step === idx + 1 ? 'bg-teal-600' : 'bg-gray-200'}`}></span>
+                        ))}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                        {presetId && `ID: ${presetId.slice(-8)}`}
+                    </div>
                 </div>
                 <h2 className="text-2xl font-bold text-center mt-6 mb-2">{stepTitles[step - 1]}</h2>
                 {stepDescriptions[step - 1] && (
                     <p className="text-gray-500 text-center mb-4">{stepDescriptions[step - 1]}</p>
+                )}
+                {error && (
+                    <div className="mx-4 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-700 text-sm">{error}</p>
+                        <button 
+                            onClick={() => setError(null)} 
+                            className="text-red-500 hover:text-red-700 text-xs underline mt-1"
+                        >
+                            Dismiss
+                        </button>
+                    </div>
                 )}
             </div>
             <div className="flex-1 min-h-0 flex flex-col">
@@ -295,31 +381,57 @@ export default function DemoWizard({
                                 <div className="flex flex-col items-center justify-start w-full pt-6"
                                      style={{minHeight: '60vh'}}>
                                     <div className="w-full max-w-lg">
-                                        <div className="grid grid-cols-1 gap-2 mb-6 overflow-y-auto"
-                                             style={{maxHeight: 360}}>
-                                            {plugins.map(p => (
-                                                <label key={p.composer} className="flex items-center space-x-2">
-                                                    <input
-                                                        type="checkbox"
-                                                        value={p.composer}
-                                                        checked={selectedPlugins.includes(p.composer)}
-                                                        onChange={e => {
-                                                            const c = e.target.value;
-                                                            setSelectedPlugins(sel => sel.includes(c) ? sel.filter(x => x !== c) : [...sel, c]);
-                                                        }}
-                                                        className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-                                                    />
-                                                    <span className="text-gray-800 text-sm">
-                                                            {PLUGIN_LABELS[p.name.replace(/^sylius\//, '')] || prettify(p.name)} ({p.version})
-                                                        </span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                        <button
-                                            onClick={handleNext}
-                                            className="w-full py-2 rounded-lg font-medium transition bg-teal-600 hover:bg-teal-700 text-white"
-                                        >Next →
-                                        </button>
+                                        {pluginsLoading ? (
+                                            <div className="flex flex-col items-center justify-center py-8">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mb-4"></div>
+                                                <p className="text-gray-600">Loading plugins...</p>
+                                            </div>
+                                        ) : pluginsError ? (
+                                            <div className="text-red-600 mb-4 p-4 bg-red-50 rounded-lg">
+                                                <p className="font-medium">Failed to load plugins:</p>
+                                                <p className="text-sm">{pluginsError}</p>
+                                                <button 
+                                                    onClick={() => refetch()} 
+                                                    className="mt-2 text-blue-600 underline text-sm hover:text-blue-800"
+                                                >
+                                                    Try again
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="grid grid-cols-1 gap-2 mb-6 overflow-y-auto"
+                                                     style={{maxHeight: 360}}>
+                                                    {plugins.map(p => (
+                                                        <label key={p.composer} className="flex items-center space-x-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                value={p.composer}
+                                                                checked={selectedPlugins.includes(p.composer)}
+                                                                onChange={e => {
+                                                                    const c = e.target.value;
+                                                                    setSelectedPlugins(sel => sel.includes(c) ? sel.filter(x => x !== c) : [...sel, c]);
+                                                                }}
+                                                                className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                                                            />
+                                                            <span className="text-gray-800 text-sm">
+                                                                    {PLUGIN_LABELS[p.name.replace(/^sylius\//, '')] || prettify(p.name)} ({p.version})
+                                                                </span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                                <button
+                                                    onClick={handleNext}
+                                                    disabled={pluginsLoading}
+                                                    className={`w-full py-2 rounded-lg font-medium transition ${
+                                                        pluginsLoading 
+                                                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                                                            : 'bg-teal-600 hover:bg-teal-700 text-white'
+                                                    }`}
+                                                >
+                                                    {pluginsLoading ? 'Loading plugins...' : 'Next →'}
+                                                </button>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </motion.div>
@@ -372,7 +484,7 @@ export default function DemoWizard({
                                     setIsFixturesGenerating={setIsFixturesGenerating}
                                     isFixturesGenerating={isFixturesGenerating}
                                     handleCreateFixtures={handleCreateFixtures}
-                                    storePresetName={preset}
+                                    storePresetName={presetId}
                                     storeDetails={storeDetails}
                                 />
                                 <div className="flex justify-between mt-6">
@@ -487,15 +599,21 @@ function DownloadStorePresetButton({ storePresetName }) {
     const [downloadError, setDownloadError] = useState(null);
     const [downloading, setDownloading] = useState(false);
 
+    const isValidPresetName = typeof storePresetName === 'string' && storePresetName.length > 0 && storePresetName !== '[object Object]';
+
     const handleDownload = async (e) => {
         e.preventDefault();
         setDownloadError(null);
         setDownloading(true);
         try {
+            if (!isValidPresetName) {
+                throw new Error('Invalid preset ID. Cannot download.');
+            }
             const url = `/api/download-store-preset/${encodeURIComponent(storePresetName)}`;
             const res = await fetch(url);
             if (!res.ok) {
-                throw new Error(`Download failed: ${res.status} ${res.statusText}`);
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error || `Download failed: ${res.status} ${res.statusText}`);
             }
             const blob = await res.blob();
             const a = document.createElement('a');
@@ -518,10 +636,13 @@ function DownloadStorePresetButton({ storePresetName }) {
             <button
                 onClick={handleDownload}
                 className="py-2 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-medium shadow transition"
-                disabled={downloading}
+                disabled={downloading || !isValidPresetName}
             >
                 {downloading ? 'Downloading...' : 'Download ZIP'}
             </button>
+            {!isValidPresetName && (
+                <div className="text-red-600 text-sm mt-2">Invalid or missing preset ID. Cannot download.</div>
+            )}
             {downloadError && (
                 <div className="text-red-600 text-sm mt-2">{downloadError}</div>
             )}
@@ -544,13 +665,25 @@ function GenerateStorePresetSection({
     const [timedOut, setTimedOut] = useState(false);
     const timeoutRef = React.useRef();
 
-    // Dlaczego efekt nie odpala się drugi raz po cofnięciu i przejściu do przodu?
-    // Bo hasTried zostaje true, więc warunek w useEffect nie pozwala na ponowne wywołanie handleCreateFixtures.
-    // Rozwiązanie: przycisk debug/reset, który ustawia hasTried na false i resetuje błędy.
+    // Reset hasTried when component mounts to allow automatic generation
+    useEffect(() => {
+        setHasTried(false);
+        setFixturesError(null);
+        setTimedOut(false);
+    }, []);
 
     // Try to generate fixtures on mount or retry
     useEffect(() => {
+        console.log('GenerateStorePresetSection useEffect:', {
+            isFixturesReady,
+            isFixturesGenerating,
+            hasTried,
+            storeDetails: !!storeDetails,
+            storePresetName
+        });
+        
         if (!isFixturesReady && !isFixturesGenerating && !hasTried) {
+            console.log('Starting fixtures generation...');
             setIsFixturesGenerating(true);
             setFixturesError(null);
             setTimedOut(false);
@@ -562,24 +695,13 @@ function GenerateStorePresetSection({
                 setFixturesError('Timeout: Store preset generation took too long. Please try again.');
             }, 60000);
             handleCreateFixtures(storeDetails)
-                .then((res) => {
+                .then(() => {
+                    console.log('Fixtures generation completed successfully');
                     clearTimeout(timeoutRef.current);
-                    if (res && res.status && res.status !== 200) {
-                        if (res.status === 400) {
-                            setFixturesError('Invalid data (400). Please check your input.');
-                        } else if (res.status === 404) {
-                            setFixturesError('Resource not found (404).');
-                        } else if (res.status === 500) {
-                            setFixturesError('Server error (500). Please try again later.');
-                        } else {
-                            setFixturesError(`Error: ${res.status} ${res.statusText}`);
-                        }
-                        setIsFixturesReady(false);
-                        return;
-                    }
                     setIsFixturesReady(true);
                 })
                 .catch((err) => {
+                    console.error('Fixtures generation failed:', err);
                     clearTimeout(timeoutRef.current);
                     setFixturesError(err?.message || 'Unknown error');
                     setIsFixturesReady(false);
@@ -614,13 +736,13 @@ function GenerateStorePresetSection({
             >
                 Debug: Trigger create-fixtures
             </button>
-            {!isFixturesReady && !fixturesError && (
+            {isFixturesGenerating && (
                 <>
                     <div className="mb-4">Generating your store preset, please wait...</div>
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
                 </>
             )}
-            {fixturesError && (
+            {fixturesError && !isFixturesGenerating && (
                 <>
                     <div className="text-red-600 mb-2">{fixturesError}</div>
                     <button
@@ -631,7 +753,7 @@ function GenerateStorePresetSection({
                     </button>
                 </>
             )}
-            {isFixturesReady && !fixturesError && (
+            {isFixturesReady && !fixturesError && !isFixturesGenerating && (
                 <DownloadStorePresetButton storePresetName={storePresetName} />
             )}
         </div>

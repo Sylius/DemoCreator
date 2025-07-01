@@ -12,6 +12,7 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/StoreDesigner/Dto/'
 
 
     Platformsh\Client\Connection\Connector:

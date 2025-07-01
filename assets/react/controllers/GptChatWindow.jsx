@@ -173,6 +173,25 @@ const GptChatWindow = ({onNext}) => {
 
     const handleCreateFixtures = async (overrideStoreDetails) => {
         const details = overrideStoreDetails !== undefined ? overrideStoreDetails : storeDetails;
+        
+        // Validate storeDetails before sending request
+        if (!details || typeof details !== 'object') {
+            setError('Store details are missing or invalid. Please complete the store description first.');
+            setState('error');
+            return;
+        }
+        
+        // Check for required fields
+        const requiredFields = ['industry', 'locales', 'currencies', 'countries', 'categories'];
+        const missingFields = requiredFields.filter(field => !details[field] || 
+            (Array.isArray(details[field]) && details[field].length === 0));
+        
+        if (missingFields.length > 0) {
+            setError(`Missing required store details: ${missingFields.join(', ')}. Please complete the store description.`);
+            setState('error');
+            return;
+        }
+        
         setError(null);
         setLoading(true);
         const payload = { conversationId, messages, storeDetails: details, state, error };
