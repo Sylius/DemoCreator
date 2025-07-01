@@ -306,7 +306,6 @@ export default function DemoWizard({
         setStoreDetails(null);
         setIsDescribeStoreStageReady(false);
         setIsFixturesGenerating(false);
-        setFixturesError(null);
         setIsFixturesReady(false);
         setDeployStateId(null);
         setDeployUrl(null);
