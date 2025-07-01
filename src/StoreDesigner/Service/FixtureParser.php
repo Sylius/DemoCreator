@@ -129,7 +129,7 @@ final class FixtureParser
         if (!empty($inputData['taxRates'])) {
             $fixtures += $this->buildTaxRateFixture($inputData['taxRates']);
         }
-        $fixtures += $this->buildTaxons($inputData['products'], $inputData['categories']);
+        $fixtures += $this->buildTaxons($inputData['categories'], $inputData['locales']);
 
         if (!empty($inputData['products'])) {
             $fixtures += $this->buildProductFixtures($inputData['products'], 'tshirt', $withImages);
@@ -267,31 +267,17 @@ final class FixtureParser
         ];
     }
 
-    function buildTaxons(mixed $products, array $categories): array
+    function buildTaxons(array $categories, array $locales): array
     {
         $result = [];
 
         foreach ($categories as $category) {
-            $categoryName = 'taxon-' . $category['slug'];
-            $result[$categoryName]['options']['custom']['slug'] = $category;
+            $categoryName = 'taxon_' . $category['slug'];
             $result[$categoryName]['name'] = 'taxon';
+            $result[$categoryName]['options']['custom']['slug'] = $category;
+            $result[$categoryName]['options']['custom']['translations'] = $this->mapTranslations($category['translations'] ?? [], $locales);
         }
 
-        $result['menu_taxon'] = [
-            'name' => 'taxon',
-            'options' => [
-                'custom' => [
-                    'category' => [
-                        'code' => 'MENU_CATEGORY',
-                        'name' => 'Category',
-                        'translations' => [
-                            'en_US' => ['name' => 'Category'],
-                            'es_ES' => ['name' => 'C'],
-                        ],
-                    ],
-                ],
-            ],
-        ];
         return $result;
     }
 
@@ -306,6 +292,7 @@ final class FixtureParser
         foreach ($inputData as $productEntry) {
             unset($productEntry['price']);
             unset($productEntry['translations']);
+            unset($productEntry['img_prompt']);
 
             if ($withImages && !empty($productEntry['img_prompt'])) {
                 $productEntry['images'][] = [
