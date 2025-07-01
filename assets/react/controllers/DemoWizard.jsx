@@ -1,11 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
-import { WizardContext, useWizard } from './wizard-context';
 import DescribeStoreStage from './DescribeStoreStage';
 import {useSupportedPlugins} from '../hooks/useSupportedPlugins';
-import StoreDetailsPanel from './DescribeStoreStage/StoreDetailsPanel';
-import StorePreviewStage from './StorePreviewStage';
 import { useConversation } from './DescribeStoreStage/hooks/useConversation';
 
 const stepVariants = {
@@ -114,6 +111,7 @@ export default function DemoWizard({
     const [isFixturesReady, setIsFixturesReady] = useState(false);
     const conversation = useConversation();
     const { handleCreateFixtures } = conversation;
+    const suiteName = conversation?.storeDetails?.suiteName || 'preset';
 
     // Synchronize step with URL
     useEffect(() => {
@@ -342,6 +340,7 @@ export default function DemoWizard({
                                     setIsFixturesGenerating={setIsFixturesGenerating}
                                     isFixturesGenerating={isFixturesGenerating}
                                     handleCreateFixtures={handleCreateFixtures}
+                                    suiteName={suiteName}
                                 />
                                 <div className="flex justify-between mt-6">
                                     <button onClick={back} className="text-teal-600 hover:underline">← Back</button>
@@ -451,7 +450,7 @@ export default function DemoWizard({
     );
 }
 
-function DownloadStorePresetButton() {
+function DownloadStorePresetButton({ suiteName }) {
     const [downloadError, setDownloadError] = useState(null);
     const [downloading, setDownloading] = useState(false);
 
@@ -460,19 +459,20 @@ function DownloadStorePresetButton() {
         setDownloadError(null);
         setDownloading(true);
         try {
-            const res = await fetch('/api/download-store-preset');
+            const url = `/api/download-store-preset/${encodeURIComponent(suiteName)}`;
+            const res = await fetch(url);
             if (!res.ok) {
                 throw new Error(`Download failed: ${res.status} ${res.statusText}`);
             }
             const blob = await res.blob();
-            const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = 'store-preset.zip';
+            const downloadUrl = window.URL.createObjectURL(blob);
+            a.href = downloadUrl;
+            a.download = `${suiteName}.zip`;
             document.body.appendChild(a);
             a.click();
             a.remove();
-            window.URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(downloadUrl);
         } catch (err) {
             setDownloadError(err.message || 'Download failed');
         } finally {
@@ -503,7 +503,8 @@ function GenerateStorePresetSection({
     setIsFixturesReady,
     setIsFixturesGenerating,
     isFixturesGenerating,
-    handleCreateFixtures
+    handleCreateFixtures,
+    suiteName
 }) {
     const [hasTried, setHasTried] = useState(false);
     const [timedOut, setTimedOut] = useState(false);
@@ -566,7 +567,7 @@ function GenerateStorePresetSection({
         );
     }
     if (isFixturesReady) {
-        return <DownloadStorePresetButton />;
+        return <DownloadStorePresetButton suiteName={suiteName} />;
     }
     return null;
 }

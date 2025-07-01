@@ -31,4 +31,4 @@ const StorePreviewStage = ({ isReady, error, onGenerate }) => {
     );
 };
 
-export default StorePreviewStage; 
+export default StorePreviewStage;

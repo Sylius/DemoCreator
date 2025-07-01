@@ -12,8 +12,8 @@ final readonly class FixtureCreator
     public function __construct(
         private GptClient $gptClient,
         #[Autowire('%kernel.project_dir%/config/gpt/')] private string $configPath,
-        private StorePresetManager $storePresetManager,
-    ) {
+    )
+    {
     }
 
     public function create(StoreDetailsDto $storeDetailsDto): array
@@ -36,17 +36,16 @@ final readonly class FixtureCreator
             ],
         );
 
-        if ($message->hasFunctionCall()) {
-            $functionName = $message->getFunctionCallName();
-            if ($functionName === 'generateFixtures') {
-                $data = $message->getFunctionCallData();
-
-            } else {
-                throw new \RuntimeException('Unsupported function call: ' . $functionName);
-            }
-        } else {
+        if (!$message->hasFunctionCall()) {
             throw new \RuntimeException('No function call in the response from OpenAI');
         }
+
+        $functionName = $message->getFunctionCallName();
+        if ($functionName !== 'generateFixtures') {
+            throw new \RuntimeException('Unsupported function call: ' . $functionName);
+        }
+
+        return $message->getFunctionCallData();
     }
 
     private function getGenerateFixturesFunction(): array
