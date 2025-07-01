@@ -9,21 +9,28 @@ import { useStorePreset } from '../hooks/useStorePreset';
 const stepVariants = {
     enter: (direction) => ({
         opacity: 0,
-        x: direction > 0 ? 100 : -100,
+        x: direction > 0 ? 400 : -400,
         position: 'absolute',
-        width: '100%'
+        width: '100%',
+        top: 0,
+        left: 0,
+        zIndex: 1
     }),
     center: {
         opacity: 1,
         x: 0,
         position: 'relative',
-        width: '100%'
+        width: '100%',
+        zIndex: 2
     },
     exit: (direction) => ({
         opacity: 0,
-        x: direction > 0 ? -100 : 100,
+        x: direction > 0 ? -400 : 400,
         position: 'absolute',
-        width: '100%'
+        width: '100%',
+        top: 0,
+        left: 0,
+        zIndex: 1
     })
 };
 
@@ -361,8 +368,8 @@ export default function DemoWizard({
                 )}
             </div>
             <div className="flex-1 min-h-0 flex flex-col">
-                <div className="flex-1 overflow-y-auto min-h-0">
-                    <AnimatePresence custom={direction} initial={false} mode="wait">
+                <div className="flex-1 overflow-y-auto min-h-0 relative">
+                    <AnimatePresence custom={direction} initial={false} mode="wait" presenceAffectsLayout={false}>
                         {/* Step 1: Plugins */}
                         {step === 1 && (
                             <motion.div
@@ -372,7 +379,7 @@ export default function DemoWizard({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{duration: 0.35, type: 'tween'}}
+                                transition={{duration: 0.4, type: 'tween', ease: 'easeInOut'}}
                             >
                                 <div className="flex flex-col items-center justify-start w-full pt-6"
                                      style={{minHeight: '60vh'}}>
@@ -441,7 +448,7 @@ export default function DemoWizard({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{duration: 0.35, type: 'tween'}}
+                                transition={{duration: 0.4, type: 'tween', ease: 'easeInOut'}}
                             >
                                 <div className="flex flex-row w-full min-h-[70vh] gap-6">
                                     <div className="flex-1 flex flex-col min-h-0">
@@ -470,7 +477,15 @@ export default function DemoWizard({
                         )}
                         {/* Step 3: Download store-preset zip after generation */}
                         {step === 3 && (
-                            <motion.div key="3" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
+                            <motion.div
+                                key="3"
+                                custom={direction}
+                                variants={stepVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{duration: 0.4, type: 'tween', ease: 'easeInOut'}}
+                            >
                                 <div className="text-center mb-8">
                                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full mb-4">
                                         <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -567,7 +582,7 @@ export default function DemoWizard({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{duration: 0.35, type: 'tween'}}
+                                transition={{duration: 0.4, type: 'tween', ease: 'easeInOut'}}
                             >
                                 <h2 className="text-xl font-semibold mb-4 text-teal-700">4. Logo</h2>
                                 <input
@@ -602,7 +617,7 @@ export default function DemoWizard({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{duration: 0.35, type: 'tween'}}
+                                transition={{duration: 0.4, type: 'tween', ease: 'easeInOut'}}
                             >
                                 <h2 className="text-xl font-semibold mb-4 text-teal-700">5. Summary & Deploy</h2>
                                 <div className="mb-4">
