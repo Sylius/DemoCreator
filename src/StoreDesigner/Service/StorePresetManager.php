@@ -82,21 +82,21 @@ final class StorePresetManager
 
     public function updateStoreDefinition(array $data): void
     {
-        $suiteName = $data['suiteName'] ?? null;
-        if ($suiteName === null) {
-            throw new \InvalidArgumentException("Brak klucza 'suiteName' w danych.");
+        $storePresetName = $data['storePresetName'] ?? null;
+        if ($storePresetName === null) {
+            throw new \InvalidArgumentException("Brak klucza 'storePresetName' w danych.");
         }
 
         $data['updatedAt'] = (new \DateTimeImmutable())->format(DATE_ATOM);
 
         try {
-            $filePath = Path::join($this->getPresetDirectory($suiteName), 'store-definition.json');
+            $filePath = Path::join($this->getPresetDirectory($storePresetName), 'store-definition.json');
             $this->filesystem->mkdir(dirname($filePath), 0755);
             $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
             $this->filesystem->dumpFile($filePath, $json);
         } catch (IOException | \JsonException $e) {
             throw new \RuntimeException(
-                "Nie można zaktualizować definicji sklepu dla presetu '{$suiteName}': {$e->getMessage()}",
+                "Nie można zaktualizować definicji sklepu dla presetu '{$storePresetName}': {$e->getMessage()}",
                 0,
                 $e
             );
@@ -278,6 +278,19 @@ final class StorePresetManager
                 0,
                 $e
             );
+        }
+    }
+
+    public function initializeStorePreset(string $storePresetName): void
+    {
+        $this->validatePresetName($storePresetName);
+        $presetDir = $this->getPresetDirectory($storePresetName);
+        if (!$this->filesystem->exists($presetDir)) {
+            $this->filesystem->mkdir($presetDir, 0755);
+        }
+        $presetFilePath = $this->getPresetFilePath($storePresetName);
+        if (!$this->filesystem->exists($presetFilePath)) {
+            $this->createEmptyPreset($storePresetName);
         }
     }
 }

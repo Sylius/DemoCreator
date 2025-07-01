@@ -111,7 +111,7 @@ export default function DemoWizard({
     const [isFixturesReady, setIsFixturesReady] = useState(false);
     const conversation = useConversation();
     const { handleCreateFixtures } = conversation;
-    const suiteName = conversation?.storeDetails?.industry || 'preset';
+    const storePresetName = conversation?.storeDetails?.industry || 'preset';
 
     // Synchronize step with URL
     useEffect(() => {
@@ -337,7 +337,7 @@ export default function DemoWizard({
                                     setIsFixturesGenerating={setIsFixturesGenerating}
                                     isFixturesGenerating={isFixturesGenerating}
                                     handleCreateFixtures={handleCreateFixtures}
-                                    suiteName={suiteName}
+                                    storePresetName={storePresetName}
                                 />
                                 <div className="flex justify-between mt-6">
                                     <button onClick={back} className="text-teal-600 hover:underline">← Back</button>
@@ -447,7 +447,7 @@ export default function DemoWizard({
     );
 }
 
-function DownloadStorePresetButton({ suiteName }) {
+function DownloadStorePresetButton({ storePresetName }) {
     const [downloadError, setDownloadError] = useState(null);
     const [downloading, setDownloading] = useState(false);
 
@@ -456,7 +456,7 @@ function DownloadStorePresetButton({ suiteName }) {
         setDownloadError(null);
         setDownloading(true);
         try {
-            const url = `/api/download-store-preset/${encodeURIComponent(suiteName)}`;
+            const url = `/api/download-store-preset/${encodeURIComponent(storePresetName)}`;
             const res = await fetch(url);
             if (!res.ok) {
                 throw new Error(`Download failed: ${res.status} ${res.statusText}`);
@@ -465,7 +465,7 @@ function DownloadStorePresetButton({ suiteName }) {
             const a = document.createElement('a');
             const downloadUrl = window.URL.createObjectURL(blob);
             a.href = downloadUrl;
-            a.download = `${suiteName}.zip`;
+            a.download = `${storePresetName}.zip`;
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -501,7 +501,7 @@ function GenerateStorePresetSection({
     setIsFixturesGenerating,
     isFixturesGenerating,
     handleCreateFixtures,
-    suiteName
+    storePresetName
 }) {
     const [hasTried, setHasTried] = useState(false);
     const [timedOut, setTimedOut] = useState(false);
@@ -595,7 +595,7 @@ function GenerateStorePresetSection({
                 </>
             )}
             {isFixturesReady && !fixturesError && (
-                <DownloadStorePresetButton suiteName={suiteName} />
+                <DownloadStorePresetButton storePresetName={storePresetName} />
             )}
         </div>
     );

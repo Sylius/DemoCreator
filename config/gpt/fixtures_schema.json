@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
-        "suiteName": {
+        "storePresetName": {
             "type": "string"
         },
         "locales": {
@@ -307,7 +307,7 @@
         }
     },
     "required": [
-        "suiteName",
+        "storePresetName",
         "locales",
         "currencies",
         "countries",

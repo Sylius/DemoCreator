@@ -7,7 +7,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
-        "suiteName": {
+        "storePresetName": {
             "type": "string"
             // unique name for the fixture suite, snake_case, e.g. "moj_sklep"
         },
@@ -390,7 +390,7 @@
             }
         },
         "required": [
-            "suiteName",
+            "storePresetName",
             "locales",
             "currencies",
             "countries",

@@ -87,7 +87,7 @@ final class FixtureParser
     private function buildSyliusFixtures(array $inputData, bool $withImages): array
     {
         // domyślna nazwa suite
-        $suite = $inputData['suiteName'] ?? 'moj_sklep';
+        $suite = $inputData['storePresetName'] ?? 'moj_sklep';
 
         // --- LISTENERY
         $listeners = $inputData['listeners'] ?? ['orm_purger', 'images_purger', 'logger'];
