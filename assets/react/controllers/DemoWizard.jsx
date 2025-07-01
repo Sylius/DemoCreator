@@ -110,9 +110,8 @@ export default function DemoWizard({
     const [storeDetails, setStoreDetails] = useState(null);
     const [describeStoreStage, setDescribeStoreStage] = useState(null);
     const [isDescribeStoreStageReady, setIsDescribeStoreStageReady] = useState(false);
-    const [isFixturesGenerating, setIsFixturesGenerating] = useState(false);
-    const [fixturesError, setFixturesError] = useState(null);
     const [isFixturesReady, setIsFixturesReady] = useState(false);
+    const [isFixturesGenerating, setIsFixturesGenerating] = useState(false);
     const conversation = useConversation();
     const { handleCreateFixtures } = conversation;
     const {
@@ -186,9 +185,7 @@ export default function DemoWizard({
         if (step === 3) {
             // Reset fixtures state to allow regeneration
             setIsFixturesReady(false);
-            setFixturesError(null);
             setIsFixturesGenerating(false);
-            // hasTried will be reset in GenerateStorePresetSection
         }
     }, [step]);
 
@@ -475,20 +472,82 @@ export default function DemoWizard({
                         {/* Step 3: Download store-preset zip after generation */}
                         {step === 3 && (
                             <motion.div key="3" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
-                                <h2 className="text-lg font-medium mb-4 text-teal-700">3. Download your store preset</h2>
-                                <GenerateStorePresetSection
-                                    isFixturesReady={isFixturesReady}
-                                    fixturesError={fixturesError}
-                                    setFixturesError={setFixturesError}
-                                    setIsFixturesReady={setIsFixturesReady}
-                                    setIsFixturesGenerating={setIsFixturesGenerating}
-                                    isFixturesGenerating={isFixturesGenerating}
-                                    handleCreateFixtures={handleCreateFixtures}
-                                    storePresetName={presetId}
-                                    storeDetails={storeDetails}
-                                />
+                                <div className="text-center mb-8">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full mb-4">
+                                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                    </div>
+                                    <h2 className="text-3xl font-bold text-gray-800 mb-2">You're One Step Away!</h2>
+                                    <p className="text-lg text-gray-600 mb-6">Your dream store is about to come to life. Let's generate the fixtures and create your perfect e-commerce experience.</p>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                                    {/* Left side - Generation controls */}
+                                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                                        <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                            <svg className="w-5 h-5 text-teal-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Store Generation
+                                        </h3>
+                                        <GenerateStorePresetSection
+                                            onReady={() => setIsFixturesReady(true)}
+                                            onGenerating={(generating) => setIsFixturesGenerating(generating)}
+                                            storeDetails={storeDetails}
+                                            presetId={presetId}
+                                        />
+                                    </div>
+                                    
+                                    {/* Right side - Store preview */}
+                                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                                        <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                            <svg className="w-5 h-5 text-teal-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            Store Preview
+                                        </h3>
+                                        <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 p-8 text-center">
+                                            {isFixturesReady ? (
+                                                <div className="space-y-4">
+                                                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                                                        <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-lg font-semibold text-gray-800 mb-2">Store Ready!</h4>
+                                                        <p className="text-gray-600">Your store fixtures have been generated successfully. Download the preset to see your store in action.</p>
+                                                    </div>
+                                                </div>
+                                            ) : isFixturesGenerating ? (
+                                                <div className="space-y-4">
+                                                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-600 mx-auto"></div>
+                                                    <div>
+                                                        <h4 className="text-lg font-semibold text-gray-800 mb-2">Crafting Your Store...</h4>
+                                                        <p className="text-gray-600">We're generating your perfect store with all the products, categories, and configurations you specified.</p>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+                                                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-lg font-semibold text-gray-800 mb-2">Preview Coming Soon</h4>
+                                                        <p className="text-gray-600">Generate your store fixtures to see a preview of your e-commerce store with all the products and categories.</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <div className="flex justify-between mt-6">
-                                    <button onClick={back} className="text-teal-600 hover:underline">← Back</button>
+                                    <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">← Back</button>
                                     <button
                                         onClick={handleNext}
                                         disabled={!isFixturesReady}
@@ -651,33 +710,43 @@ function DownloadStorePresetButton({ storePresetName }) {
 }
 
 function GenerateStorePresetSection({
-    isFixturesReady,
-    fixturesError,
-    setFixturesError,
-    setIsFixturesReady,
-    setIsFixturesGenerating,
-    isFixturesGenerating,
-    handleCreateFixtures,
-    storePresetName,
-    storeDetails
+    onReady,
+    onGenerating,
+    storeDetails,
+    presetId
 }) {
-    const [hasTried, setHasTried] = useState(false);
+    const [isFixturesReady, setIsFixturesReady] = useState(false);
+    const [isFixturesGenerating, setIsFixturesGenerating] = useState(false);
+    const [fixturesError, setFixturesError] = useState(null);
     const [timedOut, setTimedOut] = useState(false);
     const timeoutRef = React.useRef();
+    const conversation = useConversation();
+    const { handleCreateFixtures } = conversation;
+
+    // Notify parent when ready
+    useEffect(() => {
+        if (isFixturesReady) {
+            onReady();
+        }
+    }, [isFixturesReady, onReady]);
+
+    // Notify parent about generating state
+    useEffect(() => {
+        onGenerating(isFixturesGenerating);
+    }, [isFixturesGenerating, onGenerating]);
 
     const handleGenerateFixtures = () => {
         console.log('Manual fixtures generation started...');
         setIsFixturesGenerating(true);
         setFixturesError(null);
         setTimedOut(false);
-        setHasTried(true);
         
-        // Timeout after 60s
+        // Timeout after 2 minutes
         timeoutRef.current = setTimeout(() => {
             setTimedOut(true);
             setIsFixturesGenerating(false);
             setFixturesError('Timeout: Store preset generation took too long. Please try again.');
-        }, 60000);
+        }, 120000);
         
         handleCreateFixtures(storeDetails)
             .then(() => {
@@ -697,32 +766,23 @@ function GenerateStorePresetSection({
     };
 
     const handleRetry = () => {
-        setHasTried(false);
         setFixturesError(null);
         setTimedOut(false);
+        setIsFixturesReady(false);
     };
 
-    const handleDebug = () => {
-        setHasTried(false);
+    const handleReset = () => {
         setFixturesError(null);
-        setIsFixturesReady(false);
         setTimedOut(false);
+        setIsFixturesReady(false);
+        setIsFixturesGenerating(false);
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
-            {/* Debug button to manually trigger create-fixtures */}
-            <button
-                onClick={handleDebug}
-                className="py-1 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded text-xs mb-2"
-                style={{ alignSelf: 'flex-end' }}
-            >
-                Debug: Reset state
-            </button>
-            
+        <div className="flex flex-col items-center justify-center gap-4">
             {!isFixturesReady && !isFixturesGenerating && !fixturesError && (
                 <>
-                    <div className="mb-4 text-center">
+                    <div className="text-center">
                         <p className="text-gray-600 mb-4">Ready to generate your store preset</p>
                         <button
                             onClick={handleGenerateFixtures}
@@ -741,14 +801,14 @@ function GenerateStorePresetSection({
             
             {isFixturesGenerating && (
                 <>
-                    <div className="mb-4">Generating your store preset, please wait...</div>
+                    <div className="mb-4 text-center">Crafting your perfect store...</div>
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
                 </>
             )}
             
             {fixturesError && !isFixturesGenerating && (
                 <>
-                    <div className="text-red-600 mb-2">{fixturesError}</div>
+                    <div className="text-red-600 mb-2 text-center">{fixturesError}</div>
                     <button
                         onClick={handleRetry}
                         className="py-2 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-medium shadow transition"
@@ -759,7 +819,17 @@ function GenerateStorePresetSection({
             )}
             
             {isFixturesReady && !fixturesError && !isFixturesGenerating && (
-                <DownloadStorePresetButton storePresetName={storePresetName} />
+                <div className="text-center">
+                    <div className="mb-4">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <p className="text-green-600 font-medium">Fixtures generated successfully!</p>
+                    </div>
+                    <DownloadStorePresetButton storePresetName={presetId} />
+                </div>
             )}
         </div>
     );

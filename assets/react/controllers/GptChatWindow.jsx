@@ -176,9 +176,7 @@ const GptChatWindow = ({onNext}) => {
         
         // Validate storeDetails before sending request
         if (!details || typeof details !== 'object') {
-            setError('Store details are missing or invalid. Please complete the store description first.');
-            setState('error');
-            return;
+            throw new Error('Store details are missing or invalid. Please complete the store description first.');
         }
         
         // Check for required fields
@@ -187,43 +185,68 @@ const GptChatWindow = ({onNext}) => {
             (Array.isArray(details[field]) && details[field].length === 0));
         
         if (missingFields.length > 0) {
-            setError(`Missing required store details: ${missingFields.join(', ')}. Please complete the store description.`);
-            setState('error');
-            return;
+            throw new Error(`Missing required store details: ${missingFields.join(', ')}. Please complete the store description.`);
         }
         
-        setError(null);
-        setLoading(true);
         const payload = { conversationId, messages, storeDetails: details, state, error };
+        
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+        
         try {
             const response = await fetch("/api/create-fixtures", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
+                signal: controller.signal,
             });
+            
+            clearTimeout(timeoutId);
+            
+            // Check if response is ok
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage;
+                try {
+                    const errorData = JSON.parse(errorText);
+                    errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+                } catch {
+                    errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                }
+                throw new Error(errorMessage);
+            }
+            
             const rawResponse = await response.text();
             let data;
             try {
                 data = JSON.parse(rawResponse);
             } catch (parseError) {
-                setError(`Invalid JSON response from API:\n${rawResponse}`);
-                setState('error');
-                return;
+                throw new Error(`Invalid JSON response from API:\n${rawResponse}`);
             }
-            if (data.error) setError(data.error); else setError(null);
+            
+            // Update local state
+            if (data.error) {
+                setError(data.error);
+                setState('error');
+            } else {
+                setError(null);
+            }
             if (data.state) setState(data.state);
             if (data.conversationId) setConversationId(data.conversationId);
             if (data.storeDetails) setStoreDetails(data.storeDetails);
             if (Array.isArray(data.messages)) {
                 setMessages(data.messages);
             } else {
-                setError("Missing 'messages' in API response");
+                throw new Error("Missing 'messages' in API response");
             }
+            
         } catch (err) {
-            setError(err.message || "Unknown error");
-            setState('error');
-        } finally {
-            setLoading(false);
+            clearTimeout(timeoutId);
+            if (err.name === 'AbortError') {
+                throw new Error('Request timeout: Generation took too long. Please try again.');
+            }
+            throw err;
         }
     };
 
