@@ -13,8 +13,8 @@ export function useStorePreset() {
       fetch('/api/store-presets', { method: 'POST' })
         .then(res => res.json())
         .then(data => {
-          setPresetId(data.presetId);
-          localStorage.setItem('presetId', data.presetId);
+          setPresetId(data.storePresetId);
+          localStorage.setItem('presetId', data.storePresetId);
         })
         .catch(e => setError(e.message))
         .finally(() => setLoading(false));

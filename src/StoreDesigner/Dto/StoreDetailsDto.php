@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Dto;
 
-final class StoreDetailsDto implements \JsonSerializable
+class StoreDetailsDto implements \JsonSerializable
 {
     public function __construct(
         public string $industry,

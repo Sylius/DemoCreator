@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import DescribeStoreStage from './DescribeStoreStage';
 import {useSupportedPlugins} from '../hooks/useSupportedPlugins';
 import { useConversation } from './DescribeStoreStage/hooks/useConversation';
+import { useStorePreset } from '../hooks/useStorePreset';
 
 const stepVariants = {
     enter: (direction) => ({
@@ -103,7 +104,7 @@ export default function DemoWizard({
     const [deployStateId, setDeployStateId] = useState(null);
     const [deployUrl, setDeployUrl] = useState(null);
     const [deployStatus, setDeployStatus] = useState(null);
-    const [storeDetailsPanelState, setStoreDetailsPanelState] = useState(null); // for storing storeDetails
+    const [storeDetails, setStoreDetails] = useState(null);
     const [describeStoreStage, setDescribeStoreStage] = useState(null);
     const [isDescribeStoreStageReady, setIsDescribeStoreStageReady] = useState(false);
     const [isFixturesGenerating, setIsFixturesGenerating] = useState(false);
@@ -111,7 +112,15 @@ export default function DemoWizard({
     const [isFixturesReady, setIsFixturesReady] = useState(false);
     const conversation = useConversation();
     const { handleCreateFixtures } = conversation;
-    const storePresetName = conversation?.storeDetails?.industry || 'preset';
+    const {
+        presetId,
+        preset,
+        loading: presetLoading,
+        error: presetError,
+        updatePreset,
+        getPreset,
+        deletePreset,
+    } = useStorePreset();
 
     // Synchronize step with URL
     useEffect(() => {
@@ -165,6 +174,18 @@ export default function DemoWizard({
     }, [step, isDescribeStoreStageReady]);
 
     const handleNext = () => {
+        // Jeśli jesteśmy na kroku 1 (pluginy), wyślij PATCH z wybranymi pluginami
+        if (step === 1) {
+            // Konwertuj wybrane pluginy do formatu { "sylius/plugin-name": "^1.0" }
+            const pluginsPayload = {};
+            selectedPlugins.forEach(pluginName => {
+                const plugin = plugins.find(p => p.composer === pluginName);
+                if (plugin) {
+                    pluginsPayload[plugin.name] = `^${plugin.version}`;
+                }
+            });
+            updatePreset({ plugins: pluginsPayload });
+        }
         setDirection(1);
         setStep(s => Math.min(s + 1, stepPaths.length));
     };
@@ -227,6 +248,15 @@ export default function DemoWizard({
 
     const enableNextStepInDescribeStore = () => {
         setIsDescribeStoreStageReady(true);
+    };
+
+    const handlePluginsSelected = (plugins) => {
+        setSelectedPlugins(plugins);
+        updatePreset({ plugins });
+    };
+
+    const handleFixturesGenerated = (fixtures) => {
+        updatePreset({ fixtures });
     };
 
     return (
@@ -307,7 +337,12 @@ export default function DemoWizard({
                             >
                                 <div className="flex flex-row w-full min-h-[70vh] gap-6">
                                     <div className="flex-1 flex flex-col min-h-0">
-                                        <DescribeStoreStage onReadyToProceed={() => setIsDescribeStoreStageReady(true)}/>
+                                        <DescribeStoreStage 
+                                            onReadyToProceed={() => setIsDescribeStoreStageReady(true)}
+                                            onStoreDetailsChange={setStoreDetails}
+                                            presetId={presetId} 
+                                            updatePreset={updatePreset}
+                                        />
                                     </div>
                                 </div>
                                 <div className="flex justify-between mt-6">
@@ -337,7 +372,8 @@ export default function DemoWizard({
                                     setIsFixturesGenerating={setIsFixturesGenerating}
                                     isFixturesGenerating={isFixturesGenerating}
                                     handleCreateFixtures={handleCreateFixtures}
-                                    storePresetName={storePresetName}
+                                    storePresetName={preset}
+                                    storeDetails={storeDetails}
                                 />
                                 <div className="flex justify-between mt-6">
                                     <button onClick={back} className="text-teal-600 hover:underline">← Back</button>
@@ -501,7 +537,8 @@ function GenerateStorePresetSection({
     setIsFixturesGenerating,
     isFixturesGenerating,
     handleCreateFixtures,
-    storePresetName
+    storePresetName,
+    storeDetails
 }) {
     const [hasTried, setHasTried] = useState(false);
     const [timedOut, setTimedOut] = useState(false);
@@ -524,7 +561,7 @@ function GenerateStorePresetSection({
                 setIsFixturesGenerating(false);
                 setFixturesError('Timeout: Store preset generation took too long. Please try again.');
             }, 60000);
-            handleCreateFixtures()
+            handleCreateFixtures(storeDetails)
                 .then((res) => {
                     clearTimeout(timeoutRef.current);
                     if (res && res.status && res.status !== 200) {
@@ -552,7 +589,7 @@ function GenerateStorePresetSection({
                 });
         }
         return () => clearTimeout(timeoutRef.current);
-    }, [isFixturesReady, isFixturesGenerating, hasTried, handleCreateFixtures, setFixturesError, setIsFixturesReady, setIsFixturesGenerating]);
+    }, [isFixturesReady, isFixturesGenerating, hasTried, handleCreateFixtures, setFixturesError, setIsFixturesReady, setIsFixturesGenerating, storeDetails]);
 
     const handleRetry = () => {
         setHasTried(false);

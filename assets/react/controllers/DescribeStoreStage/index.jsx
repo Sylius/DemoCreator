@@ -4,7 +4,7 @@ import ConversationPanel from './ConversationPanel';
 import StoreDetailsPanel from './StoreDetailsPanel';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const DescribeStoreStage = ({ onReadyToProceed }) => {
+const DescribeStoreStage = ({ onReadyToProceed, onStoreDetailsChange }) => {
     const {
         messages,
         input,
@@ -19,6 +19,13 @@ const DescribeStoreStage = ({ onReadyToProceed }) => {
         clearConversation,
         copyConversation,
     } = useConversation();
+
+    // Informuj rodzica o zmianie storeDetails
+    React.useEffect(() => {
+        if (typeof onStoreDetailsChange === 'function') {
+            onStoreDetailsChange(storeDetails);
+        }
+    }, [storeDetails, onStoreDetailsChange]);
 
     // Ensure callback is only called once per transition to 'awaiting_confirmation'
     const hasCalledRef = useRef(false);

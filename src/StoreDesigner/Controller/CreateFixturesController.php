@@ -28,8 +28,15 @@ final class CreateFixturesController extends AbstractController
     #[Route('/api/create-fixtures', name: 'api_create_fixtures', methods: ['POST'])]
     public function createFixtures(
         #[ValueResolver(StoreDetailsDtoResolver::class)]
-        StoreDetailsDto $storeDetailsDto,
+        ?StoreDetailsDto $storeDetailsDto,
     ): JsonResponse {
+        if (!$storeDetailsDto) {
+            return $this->json(
+                data: ['error' => 'Store details are required. Please complete the store description first.'],
+                status: Response::HTTP_BAD_REQUEST
+            );
+        }
+
         $storeDefinition = $this->fixtureCreator->create($storeDetailsDto);
         $this->storePresetManager->saveRawAssistantResponse($storeDefinition);
         $fixtures = $this->fixtureParser->parse($storeDefinition);

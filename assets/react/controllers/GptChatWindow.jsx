@@ -171,10 +171,11 @@ const GptChatWindow = ({onNext}) => {
         }
     };
 
-    const handleCreateFixtures = async () => {
+    const handleCreateFixtures = async (overrideStoreDetails) => {
+        const details = overrideStoreDetails !== undefined ? overrideStoreDetails : storeDetails;
         setError(null);
         setLoading(true);
-        const payload = { conversationId, messages, storeDetails, state, error };
+        const payload = { conversationId, messages, storeDetails: details, state, error };
         try {
             const response = await fetch("/api/create-fixtures", {
                 method: "POST",

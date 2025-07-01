@@ -10,23 +10,30 @@ use Symfony\Component\HttpKernel\Attribute\AsTargetedValueResolver;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-#[AsTargetedValueResolver(name: self::class)]
+#[AsTargetedValueResolver]
 class StoreDetailsDtoResolver implements ValueResolverInterface
 {
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR)['storeDetails'] ?? [];
+        $content = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $data = $content['storeDetails'] ?? [];
+        
+        // Jeśli storeDetails jest null lub puste, zwróć null zamiast próbować tworzyć DTO
+        if (empty($data) || $data === null) {
+            yield null;
+            return;
+        }
 
         yield new StoreDetailsDto(
-            industry: $data['industry'],
-            locales: $data['locales'],
-            currencies: $data['currencies'],
-            countries: $data['countries'],
-            categories: $data['categories'],
-            productsPerCat: $data['productsPerCat'],
-            descriptionStyle: $data['descriptionStyle'],
-            imageStyle: $data['imageStyle'],
-            zones: $data['zones'],
+            industry: $data['industry'] ?? null,
+            locales: $data['locales'] ?? [],
+            currencies: $data['currencies'] ?? [],
+            countries: $data['countries'] ?? [],
+            categories: $data['categories'] ?? [],
+            productsPerCat: $data['productsPerCat'] ?? 5,
+            descriptionStyle: $data['descriptionStyle'] ?? 'professional',
+            imageStyle: $data['imageStyle'] ?? 'realistic',
+            zones: $data['zones'] ?? [],
         );
     }
 }

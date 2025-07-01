@@ -166,6 +166,11 @@ export function useConversation() {
     };
 
     const handleCreateFixtures = async () => {
+        if (!storeDetails) {
+            setError('Store details are required. Please complete the store description first.');
+            return;
+        }
+        
         setError(null);
         setLoading(true);
         const payload = { conversationId, messages, storeDetails, state, error };

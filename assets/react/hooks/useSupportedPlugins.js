@@ -40,9 +40,9 @@ export function useSupportedPlugins() {
                 (data.plugins || []).forEach(plugin => {
                     (plugin.versions.length ? plugin.versions : [null]).forEach(version => {
                         pluginsFlat.push({
-                            name: plugin.name,
+                            name: plugin.name, // pełna nazwa z sylius/
                             version: version || 'latest',
-                            composer: plugin.name
+                            composer: plugin.name // używamy pełnej nazwy jako composer
                         });
                     });
                 });

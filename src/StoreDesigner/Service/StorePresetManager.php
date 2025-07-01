@@ -31,13 +31,14 @@ final class StorePresetManager
         $timestamp = (new \DateTimeImmutable())->format('Ymd_His');
         $uuid = Uuid::v4()->toRfc4122();
         $id = "{$timestamp}_{$uuid}";
-        $preset = $this->getDefaultPresetData($name);
+        $preset = $this->getDefaultPresetData($id);
 
         try {
-            $this->savePresetData($name, $preset);
+            $this->savePresetData($id, $preset);
+            return $id;
         } catch (IOException | \JsonException $e) {
             throw new \RuntimeException(
-                "Nie można utworzyć presetu '{$name}': {$e->getMessage()}",
+                "Nie można utworzyć presetu '{$id}': {$e->getMessage()}",
                 0,
                 $e
             );
