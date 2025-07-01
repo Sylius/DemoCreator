@@ -8,6 +8,10 @@ framework:
     #esi: true
     #fragments: true
 
+    http_client:
+        default_options:
+            timeout: 300 # 5 minutes timeout for all HTTP requests
+
 when@test:
     framework:
         test: true

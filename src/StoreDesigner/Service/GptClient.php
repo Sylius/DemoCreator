@@ -7,7 +7,6 @@ namespace App\StoreDesigner\Service;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use App\StoreDesigner\Service\GptResponse;
 
 final readonly class GptClient
 {
@@ -32,6 +31,7 @@ final readonly class GptClient
                     'function_call' => 'auto',
                     'max_completion_tokens' => $maxCompletionTokens,
                 ],
+                'timeout' => 300, // 5 minutes timeout
             ]);
             $body = $response->toArray(false);
             if ($body['error'] ?? null) {
@@ -48,4 +48,4 @@ final readonly class GptClient
             throw new \RuntimeException('OpenAI API error: ' . $e->getMessage(), 0, $e);
         }
     }
-} 
+}

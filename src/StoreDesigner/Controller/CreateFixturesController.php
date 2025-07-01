@@ -30,6 +30,10 @@ final class CreateFixturesController extends AbstractController
         #[ValueResolver(StoreDetailsDtoResolver::class)]
         ?StoreDetailsDto $storeDetailsDto,
     ): JsonResponse {
+        // Increase execution time limit for GPT generation
+        set_time_limit(300); // 5 minutes
+        ini_set('max_execution_time', '300');
+        
         if (!$storeDetailsDto) {
             return $this->json(
                 data: ['error' => 'Store details are required. Please complete the store description first.'],
@@ -37,20 +41,27 @@ final class CreateFixturesController extends AbstractController
             );
         }
 
-        $storeDefinition = $this->fixtureCreator->create($storeDetailsDto);
-        $this->storePresetManager->saveRawAssistantResponse($storeDefinition);
-        $fixtures = $this->fixtureParser->parse($storeDefinition);
+        try {
+            $storeDefinition = $this->fixtureCreator->create($storeDetailsDto);
+            $this->storePresetManager->saveRawAssistantResponse($storeDefinition);
+            $fixtures = $this->fixtureParser->parse($storeDefinition);
 
-        $this->storePresetManager->updateStoreDefinition($storeDefinition);
-        $this->storePresetManager->updateFixtures(
-            $storeDefinition['storePresetName'],
-            $fixtures,
-        );
+            $this->storePresetManager->updateStoreDefinition($storeDefinition);
+            $this->storePresetManager->updateFixtures(
+                $storeDefinition['storePresetName'],
+                $fixtures,
+            );
 
-        return $this->json(
-            data: ['message' => 'Fixtures created successfully'],
-            status: Response::HTTP_CREATED
-        );
+            return $this->json(
+                data: ['message' => 'Fixtures created successfully'],
+                status: Response::HTTP_CREATED
+            );
+        } catch (\Exception $e) {
+            return $this->json(
+                data: ['error' => 'Failed to create fixtures: ' . $e->getMessage()],
+                status: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     #[Route('/api/parse-fixtures', name: 'api_parse_fixtures', methods: ['POST'])]
@@ -78,5 +89,22 @@ final class CreateFixturesController extends AbstractController
                 status: Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
+    }
+
+    #[Route('/api/create-fixtures-progress/{presetId}', name: 'api_create_fixtures_progress', methods: ['GET'])]
+    public function createFixturesProgress(string $presetId): Response
+    {
+        // Set headers for Server-Sent Events
+        $response = new Response();
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Connection', 'keep-alive');
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Headers', 'Cache-Control');
+        
+        // Send initial progress
+        $response->setContent("data: " . json_encode(['status' => 'starting', 'message' => 'Initializing GPT generation...']) . "\n\n");
+        
+        return $response;
     }
 }
