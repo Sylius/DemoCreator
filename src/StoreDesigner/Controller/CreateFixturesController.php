@@ -34,7 +34,6 @@ final class CreateFixturesController extends AbstractController
         $this->storePresetManager->saveRawAssistantResponse($storeDefinition);
         $fixtures = $this->fixtureParser->parse($storeDefinition);
 
-        $this->storePresetManager->initializeStorePreset($storeDefinition['storePresetName']);
         $this->storePresetManager->updateStoreDefinition($storeDefinition);
         $this->storePresetManager->updateFixtures(
             $storeDefinition['storePresetName'],
@@ -59,7 +58,6 @@ final class CreateFixturesController extends AbstractController
         }
 
         try {
-            $this->storePresetManager->initializeStorePreset($data['storePresetName']);
             $this->storePresetManager->updateStoreDefinition($data);
             $this->storePresetManager->updateFixtures($data['storePresetName'], $this->fixtureParser->parse($data));
 

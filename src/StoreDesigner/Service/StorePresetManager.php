@@ -8,6 +8,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Yaml\Yaml;
 
 final class StorePresetManager
@@ -25,9 +26,11 @@ final class StorePresetManager
         $this->storePresetsDir = rtrim($this->storePresetsDir, '/\\');
     }
 
-    public function createEmptyPreset(string $name): void
+    public function create(): string
     {
-        $this->validatePresetName($name);
+        $timestamp = (new \DateTimeImmutable())->format('Ymd_His');
+        $uuid = Uuid::v4()->toRfc4122();
+        $id = "{$timestamp}_{$uuid}";
         $preset = $this->getDefaultPresetData($name);
 
         try {
@@ -192,6 +195,7 @@ final class StorePresetManager
     private function getDefaultPresetData(string $name): array
     {
         $now = (new \DateTimeImmutable())->format(DATE_ATOM);
+
         return [
             'name'       => $name,
             'plugins'    => [],
@@ -290,7 +294,7 @@ final class StorePresetManager
         }
         $presetFilePath = $this->getPresetFilePath($storePresetName);
         if (!$this->filesystem->exists($presetFilePath)) {
-            $this->createEmptyPreset($storePresetName);
+            $this->create();
         }
     }
 }
