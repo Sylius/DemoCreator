@@ -11,13 +11,12 @@ final readonly class FixtureCreator
 {
     public function __construct(
         private GptClient $gptClient,
-        private FixtureParser $fixtureParser,
         #[Autowire('%kernel.project_dir%/config/gpt/')] private string $configPath,
         private StorePresetManager $storePresetManager,
     ) {
     }
 
-    public function create(StoreDetailsDto $storeDetailsDto): void
+    public function create(StoreDetailsDto $storeDetailsDto): array
     {
         $message = $this->gptClient->chatCompletions(
             messages: [
@@ -41,12 +40,7 @@ final readonly class FixtureCreator
             $functionName = $message->getFunctionCallName();
             if ($functionName === 'generateFixtures') {
                 $data = $message->getFunctionCallData();
-                $fixtures = $this->fixtureParser->parse($data);
-                $this->storePresetManager->updateStoreDefinition($data);
-                $this->storePresetManager->updateFixtures(
-                    $data['suiteName'],
-                    $fixtures
-                );
+
             } else {
                 throw new \RuntimeException('Unsupported function call: ' . $functionName);
             }

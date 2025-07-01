@@ -330,39 +330,26 @@ export default function DemoWizard({
                                 </div>
                             </motion.div>
                         )}
-                        {/* Step 3: Preview your store */}
+                        {/* Step 3: Download store-preset zip after generation */}
                         {step === 3 && (
-                            <motion.div
-                                key="3"
-                                custom={direction}
-                                variants={stepVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                transition={{duration: 0.35, type: 'tween'}}
-                            >
-                                <h2 className="text-xl font-semibold mb-4 text-teal-700">3. Preview your store</h2>
-                                <StorePreviewStage
-                                    isReady={isFixturesReady}
-                                    error={fixturesError}
-                                    onGenerate={() => {
-                                        if (!isFixturesReady && !isFixturesGenerating) {
-                                            setIsFixturesGenerating(true);
-                                            setFixturesError(null);
-                                            handleCreateFixtures()
-                                                .then(() => setIsFixturesReady(true))
-                                                .catch((err) => setFixturesError(err?.message || 'Unknown error'))
-                                                .finally(() => setIsFixturesGenerating(false));
-                                        }
-                                    }}
+                            <motion.div key="3" variants={stepVariants} initial="hidden" animate="visible" exit="exit" transition={{duration: 0.3}}>
+                                <h2 className="text-lg font-medium mb-4 text-teal-700">3. Download your store preset</h2>
+                                <GenerateStorePresetSection
+                                    isFixturesReady={isFixturesReady}
+                                    fixturesError={fixturesError}
+                                    setFixturesError={setFixturesError}
+                                    setIsFixturesReady={setIsFixturesReady}
+                                    setIsFixturesGenerating={setIsFixturesGenerating}
+                                    isFixturesGenerating={isFixturesGenerating}
+                                    handleCreateFixtures={handleCreateFixtures}
                                 />
                                 <div className="flex justify-between mt-6">
-                                    <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">← Back</button>
+                                    <button onClick={back} className="text-teal-600 hover:underline">← Back</button>
                                     <button
                                         onClick={handleNext}
                                         disabled={!isFixturesReady}
-                                        className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            isFixturesReady ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                        className={`py-2 px-4 rounded-md font-medium transition ${
+                                            isFixturesReady ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         }`}
                                     >Next →
                                     </button>
@@ -462,4 +449,124 @@ export default function DemoWizard({
             </div>
         </motion.div>
     );
+}
+
+function DownloadStorePresetButton() {
+    const [downloadError, setDownloadError] = useState(null);
+    const [downloading, setDownloading] = useState(false);
+
+    const handleDownload = async (e) => {
+        e.preventDefault();
+        setDownloadError(null);
+        setDownloading(true);
+        try {
+            const res = await fetch('/api/download-store-preset');
+            if (!res.ok) {
+                throw new Error(`Download failed: ${res.status} ${res.statusText}`);
+            }
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'store-preset.zip';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            setDownloadError(err.message || 'Download failed');
+        } finally {
+            setDownloading(false);
+        }
+    };
+
+    return (
+        <div className="flex flex-col items-center gap-2">
+            <button
+                onClick={handleDownload}
+                className="py-2 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-medium shadow transition"
+                disabled={downloading}
+            >
+                {downloading ? 'Downloading...' : 'Download ZIP'}
+            </button>
+            {downloadError && (
+                <div className="text-red-600 text-sm mt-2">{downloadError}</div>
+            )}
+        </div>
+    );
+}
+
+function GenerateStorePresetSection({
+    isFixturesReady,
+    fixturesError,
+    setFixturesError,
+    setIsFixturesReady,
+    setIsFixturesGenerating,
+    isFixturesGenerating,
+    handleCreateFixtures
+}) {
+    const [hasTried, setHasTried] = useState(false);
+    const [timedOut, setTimedOut] = useState(false);
+    const timeoutRef = React.useRef();
+
+    // Try to generate fixtures on mount or retry
+    useEffect(() => {
+        if (!isFixturesReady && !isFixturesGenerating && !hasTried) {
+            setIsFixturesGenerating(true);
+            setFixturesError(null);
+            setTimedOut(false);
+            setHasTried(true);
+            // Timeout after 60s
+            timeoutRef.current = setTimeout(() => {
+                setTimedOut(true);
+                setIsFixturesGenerating(false);
+                setFixturesError('Timeout: Store preset generation took too long. Please try again.');
+            }, 60000);
+            handleCreateFixtures()
+                .then(() => {
+                    clearTimeout(timeoutRef.current);
+                    setIsFixturesReady(true);
+                })
+                .catch((err) => {
+                    clearTimeout(timeoutRef.current);
+                    setFixturesError(err?.message || 'Unknown error');
+                })
+                .finally(() => {
+                    setIsFixturesGenerating(false);
+                });
+        }
+        return () => clearTimeout(timeoutRef.current);
+    }, [isFixturesReady, isFixturesGenerating, hasTried, handleCreateFixtures, setFixturesError, setIsFixturesReady, setIsFixturesGenerating]);
+
+    const handleRetry = () => {
+        setHasTried(false);
+        setFixturesError(null);
+        setTimedOut(false);
+    };
+
+    if (!isFixturesReady && !fixturesError) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[40vh]">
+                <div className="mb-4">Generating your store preset, please wait...</div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
+            </div>
+        );
+    }
+    if (fixturesError) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+                <div className="text-red-600 mb-2">{fixturesError}</div>
+                <button
+                    onClick={handleRetry}
+                    className="py-2 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-medium shadow transition"
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
+    if (isFixturesReady) {
+        return <DownloadStorePresetButton />;
+    }
+    return null;
 }

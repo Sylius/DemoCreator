@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Controller;
 
-use App\StoreDesigner\Dto\ChatConversationDto;
 use App\StoreDesigner\Dto\StoreDetailsDto;
-use App\StoreDesigner\Resolver\ChatConversationDtoResolver;
 use App\StoreDesigner\Resolver\StoreDetailsDtoResolver;
-use App\StoreDesigner\Service\ChatConversationService;
 use App\StoreDesigner\Service\FixtureCreator;
 use App\StoreDesigner\Service\FixtureParser;
 use App\StoreDesigner\Service\StorePresetManager;
@@ -33,7 +30,14 @@ final class CreateFixturesController extends AbstractController
         #[ValueResolver(StoreDetailsDtoResolver::class)]
         StoreDetailsDto $storeDetailsDto,
     ): JsonResponse {
-        $this->fixtureCreator->create($storeDetailsDto);
+        $storeDefinition = $this->fixtureCreator->create($storeDetailsDto);
+        $fixtures = $this->fixtureParser->parse($storeDefinition);
+
+        $this->storePresetManager->updateStoreDefinition($storeDefinition);
+        $this->storePresetManager->updateFixtures(
+            $storeDetailsDto['suiteName'],
+            $fixtures
+        );
 
         return $this->json(
             data: ['message' => 'Fixtures created successfully'],
@@ -55,6 +59,7 @@ final class CreateFixturesController extends AbstractController
         try {
             $this->storePresetManager->updateStoreDefinition($data);
             $this->storePresetManager->updateFixtures($data['suiteName'], $this->fixtureParser->parse($data));
+
             return $this->json(
                 data: ['message' => 'Fixtures parsed and updated successfully'],
                 status: Response::HTTP_OK
