@@ -95,6 +95,35 @@ final class FixtureParser
         // --- FIXTURES
         $fixtures = [];
 
+        $fixtures['admin_user'] = [
+            'name'    => 'admin_user',
+            'options' => [
+                'custom' => [
+                    [
+                        'email'       => 'sylius@example.com',
+                        'username'    => 'sylius',
+                        'password'    => 'sylius',
+                        'enabled'     => true,
+                        'locale_code' => '%locale%',
+                        'first_name'  => 'John',
+                        'last_name'   => 'Doe',
+                        'avatar'      => '@SyliusCoreBundle/Resources/fixtures/adminAvatars/john.webp',
+                    ],
+                    [
+                        'email'       => 'api@example.com',
+                        'username'    => 'api',
+                        'password'    => 'sylius-api',
+                        'enabled'     => true,
+                        'locale_code' => '%locale%',
+                        'first_name'  => 'Luke',
+                        'last_name'   => 'Brushwood',
+                        'api'         => true,
+                        'avatar'      => '@SyliusCoreBundle/Resources/fixtures/adminAvatars/luke.webp',
+                    ],
+                ],
+            ],
+        ];
+
         if (!empty($inputData['locales'])) {
             $fixtures += $this->buildLocaleFixture($inputData['locales']);
         }
