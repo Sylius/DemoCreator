@@ -112,4 +112,25 @@ class StorePresetController extends AbstractController
             return $this->json(['error' => 'Failed to update definition: ' . $e->getMessage()], 500);
         }
     }
+
+    #[Route('/api/store-presets/{id}/generate-images', name: 'generate_store_preset_images', methods: ['PATCH'])]
+    public function generateImages(string $id): JsonResponse
+    {
+        $preset = $this->storePresetManager->getPreset($id);
+        if (!$preset) {
+            return $this->json(['error' => 'Preset not found'], 404);
+        }
+        try {
+            $result = $this->storePresetManager->generateProductImages($id);
+            return $this->json([
+                'message' => 'Images generated',
+                'count' => count($result['images'] ?? []),
+                'images' => $result['images'] ?? [],
+                'errors' => $result['errors'] ?? [],
+                'presetId' => $id
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->json(['error' => 'Failed to generate images: ' . $e->getMessage()], 500);
+        }
+    }
 } 

@@ -21,6 +21,7 @@ final class StorePresetManager
         private string $storePresetsDir,
         #[Autowire('%kernel.project_dir%/var')]
         private string $varDir,
+        private GptClient $gptClient,
     ) {
         // Upewniamy się, że bazowa ścieżka nie ma końcowego slash-a
         $this->storePresetsDir = rtrim($this->storePresetsDir, '/\\');
@@ -263,5 +264,42 @@ final class StorePresetManager
                 $e
             );
         }
+    }
+
+    public function generateProductImages(string $id): array
+    {
+        $this->validatePresetId($id);
+        $definitionPath = Path::join($this->getPresetDirectory($id), 'store-definition.json');
+        if (!$this->filesystem->exists($definitionPath)) {
+            throw new \RuntimeException("Brak store-definition.json dla presetu {$id}");
+        }
+        $definition = json_decode($this->filesystem->readFile($definitionPath), true, 512, JSON_THROW_ON_ERROR);
+        $products = $definition['products'] ?? [];
+        $imagesDir = Path::join($this->getPresetDirectory($id), 'fixtures');
+        $this->filesystem->mkdir($imagesDir, 0755);
+        $results = ['images' => [], 'errors' => []];
+        foreach ($products as $product) {
+            $imgPrompt = $product['img_prompt'] ?? null;
+            $images = $product['images'] ?? [];
+            if (!$imgPrompt || empty($images)) continue;
+            foreach ($images as $imgName) {
+                $fileName = $imgName . '.png';
+                $filePath = Path::join($imagesDir, $fileName);
+                try {
+                    $imageData = $this->gptClient->generateImage($imgPrompt);
+                    if (file_put_contents($filePath, $imageData) === false) {
+                        throw new \RuntimeException('Failed to save image to ' . $filePath);
+                    }
+                    $results['images'][] = $filePath;
+                } catch (\Throwable $e) {
+                    $results['errors'][] = [
+                        'product' => $product['name'] ?? '',
+                        'img' => $imgName,
+                        'error' => $e->getMessage()
+                    ];
+                }
+            }
+        }
+        return $results;
     }
 }

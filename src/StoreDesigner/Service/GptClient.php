@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
 final readonly class GptClient
 {
     public function __construct(
-        private HttpClientInterface $client,
+        private HttpClientInterface $httpClient,
         #[Autowire(env: 'OPENAI_API_KEY')] private string $openaiApiKey,
         private LoggerInterface $logger,
     ) {
@@ -43,7 +43,7 @@ final readonly class GptClient
                 'payload' => $payload
             ]);
 
-            $response = $this->client->request('POST', 'https://api.openai.com/v1/chat/completions', [
+            $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->openaiApiKey,
                     'Content-Type' => 'application/json',
@@ -160,5 +160,60 @@ final readonly class GptClient
         };
 
         throw new \RuntimeException($specificMessage);
+    }
+
+    /**
+     * Generuje obrazek na podstawie promptu i zwraca dane binarne (base64).
+     * @param string $prompt
+     * @return string binarne dane obrazka
+     * @throws \RuntimeException jeśli generowanie się nie powiedzie
+     */
+    public function generateImage(string $prompt): string
+    {
+        $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/images/generations', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->openaiApiKey,
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'model' => 'gpt-image-1',
+                'prompt' => $prompt,
+                'n' => 1,
+                'size' => '1024x1024',
+                'quality' => 'low',
+            ],
+        ]);
+        $statusCode = $response->getStatusCode();
+        $raw = $response->getContent(false); // zawsze string
+        $data = json_decode($raw, true);
+        if (!is_array($data)) {
+            $this->logger->error('OpenAI image error: Invalid JSON', [
+                'status' => $statusCode,
+                'response' => $raw,
+                'prompt' => $prompt
+            ]);
+            throw new \RuntimeException('OpenAI API error: Invalid JSON response: ' . $raw);
+        }
+        if ($statusCode !== 200) {
+            $this->logger->error('OpenAI image error', [
+                'status' => $statusCode,
+                'response' => $raw,
+                'prompt' => $prompt
+            ]);
+            throw new \RuntimeException('OpenAI API error: HTTP ' . $statusCode . ' - ' . ($data['error']['message'] ?? $raw));
+        }
+        $b64 = $data['data'][0]['b64_json'] ?? null;
+        if (!$b64) {
+            throw new \RuntimeException('OpenAI API error: No image data returned');
+        }
+        $imageData = base64_decode($b64);
+        if ($imageData === false) {
+            throw new \RuntimeException('OpenAI API error: Invalid base64 image data');
+        }
+        $this->logger->info('Image generated (base64)', [
+            'prompt' => $prompt,
+            'length' => strlen($imageData)
+        ]);
+        return $imageData;
     }
 }
