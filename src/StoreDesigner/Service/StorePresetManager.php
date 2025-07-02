@@ -45,39 +45,42 @@ final class StorePresetManager
         }
     }
 
-    public function updatePreset(string $name, array $data): void
+    public function updatePreset(string $id, array $data): void
     {
-        $this->validatePresetName($name);
+        $this->validatePresetId($id);
 
         try {
-            $preset = $this->loadOrInitializePreset($name);
+            $preset = $this->loadOrInitializePreset($id);
             $preset = array_merge($preset, $data);
             $preset['updatedAt'] = (new \DateTimeImmutable())->format(DATE_ATOM);
-
-            $this->savePresetData($name, $preset);
+            $preset['id'] = $id;
+            if (!isset($preset['name'])) {
+                $preset['name'] = $id;
+            }
+            $this->savePresetData($id, $preset);
         } catch (IOException | \JsonException $e) {
             throw new \RuntimeException(
-                "Nie można zaktualizować presetu '{$name}': {$e->getMessage()}",
+                "Nie można zaktualizować presetu '{$id}': {$e->getMessage()}",
                 0,
                 $e
             );
         }
     }
 
-    public function updatePlugins(string $name, array $plugins): void
+    public function updatePlugins(string $id, array $plugins): void
     {
-        $this->updatePreset($name, ['plugins' => $plugins]);
+        $this->updatePreset($id, ['plugins' => $plugins]);
     }
 
-    public function updateTheme(string $name, array $themeConfig): void
+    public function updateTheme(string $id, array $themeConfig): void
     {
-        $this->updatePreset($name, ['themes' => $themeConfig]);
+        $this->updatePreset($id, ['themes' => $themeConfig]);
     }
 
-    public function updateFixtures(string $name, array $fixtures): void
+    public function updateFixtures(string $id, array $fixtures): void
     {
-        $this->validatePresetName($name);
-        $dir = Path::join($this->getPresetDirectory($name), 'fixtures');
+        $this->validatePresetId($id);
+        $dir = Path::join($this->getPresetDirectory($id), 'fixtures');
         $filePath = Path::join($dir, 'fixtures.yaml');
         $this->filesystem->mkdir($dir, 0755);
         $yaml = Yaml::dump($fixtures, 10, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
@@ -86,36 +89,34 @@ final class StorePresetManager
 
     public function updateStoreDefinition(array $data): void
     {
-        $storePresetName = $data['storePresetName'] ?? null;
-        if ($storePresetName === null) {
-            throw new \InvalidArgumentException("Brak klucza 'storePresetName' w danych.");
+        if ($data['id'] ?? false) {
+            throw new \InvalidArgumentException("Brak klucza 'id' lub 'storePresetName' w danych.");
         }
-
         $data['updatedAt'] = (new \DateTimeImmutable())->format(DATE_ATOM);
 
         try {
-            $filePath = Path::join($this->getPresetDirectory($storePresetName), 'store-definition.json');
+            $filePath = Path::join($this->getPresetDirectory($data['id']), 'store-definition.json');
             $this->filesystem->mkdir(dirname($filePath), 0755);
             $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
             $this->filesystem->dumpFile($filePath, $json);
         } catch (IOException | \JsonException $e) {
             throw new \RuntimeException(
-                "Nie można zaktualizować definicji sklepu dla presetu '{$storePresetName}': {$e->getMessage()}",
+                "Nie można zaktualizować definicji sklepu dla presetu '{$data['id']}': {$e->getMessage()}",
                 0,
                 $e
             );
         }
     }
 
-    public function markReady(string $name, bool $ready = true): void
+    public function markReady(string $id, bool $ready = true): void
     {
-        $this->updatePreset($name, ['readyToUse' => $ready]);
+        $this->updatePreset($id, ['readyToUse' => $ready]);
     }
 
-    public function getPreset(string $name): ?array
+    public function getPreset(string $id): ?array
     {
-        $this->validatePresetName($name);
-        $filePath = $this->getPresetFilePath($name);
+        $this->validatePresetId($id);
+        $filePath = $this->getPresetFilePath($id);
 
         if (!$this->filesystem->exists($filePath)) {
             return null;
@@ -123,20 +124,25 @@ final class StorePresetManager
 
         try {
             $json = $this->filesystem->readFile($filePath);
-            return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            $preset = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            $preset['id'] = $id;
+            if (!isset($preset['name'])) {
+                $preset['name'] = $id;
+            }
+            return $preset;
         } catch (IOException | \JsonException $e) {
             throw new \RuntimeException(
-                "Nie można odczytać presetu '{$name}': {$e->getMessage()}",
+                "Nie można odczytać presetu '{$id}': {$e->getMessage()}",
                 0,
                 $e
             );
         }
     }
 
-    public function presetExists(string $name): bool
+    public function presetExists(string $id): bool
     {
-        $this->validatePresetName($name);
-        return $this->filesystem->exists($this->getPresetFilePath($name));
+        $this->validatePresetId($id);
+        return $this->filesystem->exists($this->getPresetFilePath($id));
     }
 
     public function listPresets(): array
@@ -154,7 +160,14 @@ final class StorePresetManager
                 $json = $this->filesystem->readFile($file);
                 $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
                 if (is_array($data)) {
-                    $presets[] = $data;
+                    $id = $data['id'] ?? $data['name'] ?? null;
+                    if ($id) {
+                        $data['id'] = $id;
+                        if (!isset($data['name'])) {
+                            $data['name'] = $id;
+                        }
+                        $presets[] = $data;
+                    }
                 }
             } catch (IOException | \JsonException $e) {
                 // Pomijamy uszkodzone pliki
@@ -164,17 +177,17 @@ final class StorePresetManager
         return $presets;
     }
 
-    public function deletePreset(string $name): void
+    public function deletePreset(string $id): void
     {
-        $this->validatePresetName($name);
-        $dir = $this->getPresetDirectory($name);
+        $this->validatePresetId($id);
+        $dir = $this->getPresetDirectory($id);
 
         if ($this->filesystem->exists($dir)) {
             try {
                 $this->filesystem->remove($dir);
             } catch (IOException $e) {
                 throw new \RuntimeException(
-                    "Nie można usunąć presetu '{$name}': {$e->getMessage()}",
+                    "Nie można usunąć presetu '{$id}': {$e->getMessage()}",
                     0,
                     $e
                 );
@@ -182,23 +195,28 @@ final class StorePresetManager
         }
     }
 
-    private function loadOrInitializePreset(string $name): array
+    private function loadOrInitializePreset(string $id): array
     {
-        $filePath = $this->getPresetFilePath($name);
+        $filePath = $this->getPresetFilePath($id);
         if (!$this->filesystem->exists($filePath)) {
-            return $this->getDefaultPresetData($name);
+            return $this->getDefaultPresetData($id);
         }
 
         $json = $this->filesystem->readFile($filePath);
-        return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        $preset = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        $preset['id'] = $id;
+        if (!isset($preset['name'])) {
+            $preset['name'] = $id;
+        }
+        return $preset;
     }
 
-    private function getDefaultPresetData(string $name): array
+    private function getDefaultPresetData(string $id): array
     {
         $now = (new \DateTimeImmutable())->format(DATE_ATOM);
-
         return [
-            'name'       => $name,
+            'id'         => $id,
+            'name'       => $id,
             'plugins'    => [],
             'themes'     => [],
             'fixtures'   => [],
@@ -208,36 +226,35 @@ final class StorePresetManager
         ];
     }
 
-    private function savePresetData(string $name, array $data): void
+    private function savePresetData(string $id, array $data): void
     {
-        $filePath = $this->getPresetFilePath($name);
+        $filePath = $this->getPresetFilePath($id);
         $dir = dirname($filePath);
         $this->filesystem->mkdir($dir, 0755);
-
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         $this->filesystem->dumpFile($filePath, $json);
     }
 
-    private function getPresetDirectory(string $name): string
+    private function getPresetDirectory(string $id): string
     {
-        return Path::join($this->storePresetsDir, $name);
+        return Path::join($this->storePresetsDir, $id);
     }
 
-    private function getPresetFilePath(string $name): string
+    private function getPresetFilePath(string $id): string
     {
-        return Path::join($this->getPresetDirectory($name), self::PRESET_FILENAME);
+        return Path::join($this->getPresetDirectory($id), self::PRESET_FILENAME);
     }
 
-    private function validatePresetName(string $name): void
+    private function validatePresetId(string $id): void
     {
-        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $name)) {
-            throw new \InvalidArgumentException("Nieprawidłowa nazwa presetu: '{$name}'.");
+        if (!preg_match('/^[a-zA-Z0-9_-]+(_[a-f0-9-]+)?$/', $id)) {
+            throw new \InvalidArgumentException("Nieprawidłowy identyfikator presetu: '{$id}'.");
         }
     }
 
     public function zipStorePreset(string $presetName): string
     {
-        $this->validatePresetName($presetName);
+        $this->validatePresetId($presetName);
         $dir = Path::join($this->storePresetsDir, $presetName);
         if (!is_dir($dir)) {
             throw new \RuntimeException(sprintf('Store preset "%s" does not exist', $presetName));
@@ -283,19 +300,6 @@ final class StorePresetManager
                 0,
                 $e
             );
-        }
-    }
-
-    public function initializeStorePreset(string $storePresetName): void
-    {
-        $this->validatePresetName($storePresetName);
-        $presetDir = $this->getPresetDirectory($storePresetName);
-        if (!$this->filesystem->exists($presetDir)) {
-            $this->filesystem->mkdir($presetDir, 0755);
-        }
-        $presetFilePath = $this->getPresetFilePath($storePresetName);
-        if (!$this->filesystem->exists($presetFilePath)) {
-            $this->create();
         }
     }
 }

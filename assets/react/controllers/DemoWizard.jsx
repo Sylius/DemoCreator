@@ -132,6 +132,20 @@ export default function DemoWizard({
         deletePreset,
     } = useStorePreset();
 
+    // Po załadowaniu komponentu spróbuj załadować storeDetails z localStorage jeśli są dostępne
+    useEffect(() => {
+        if (storeDetails == null) {
+            try {
+                const stored = localStorage.getItem('storeDetails');
+                if (stored) {
+                    setStoreDetails(JSON.parse(stored));
+                }
+            } catch (e) {
+                // ignore
+            }
+        }
+    }, []);
+
     // Synchronize step with URL with delay to allow animation
     useEffect(() => {
         console.log(describeStoreStage);

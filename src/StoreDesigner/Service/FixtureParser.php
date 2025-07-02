@@ -337,7 +337,7 @@ final class FixtureParser
 
         foreach ($formattedProducts as $productWithAttributes) {
             if (!isset($productWithAttributes['product_attributes']) || !is_array($productWithAttributes['product_attributes'])) {
-                throw new \RuntimeException('Brak product_attributes w produkcie');
+                continue;
             }
             foreach ($productWithAttributes['product_attributes'] as $attributeKey => $attributeValue) {
                 $attributes[$attributeKey] = [
@@ -350,16 +350,21 @@ final class FixtureParser
 
         $attributes = array_values($attributes);
 
-        return [
-            'product_attribute' => [
-                'name' => 'product_attribute',
-                'options' => ['custom' => $attributes],
-            ],
+        $fixtures = [
             "{$prefix}_product" => [
                 'name' => 'product',
                 'options' => ['custom' => $formattedProducts],
             ],
         ];
+
+        if (!empty($attributes)) {
+            $fixtures['product_attribute'] = [
+                'name' => 'product_attribute',
+                'options' => ['custom' => $attributes],
+            ];
+        }
+
+        return $fixtures;
     }
 
     private function mapTranslations(mixed $translations, array $locales): array

@@ -49,7 +49,6 @@ final readonly class ChatConversationService
             },
         ];
 
-        $model = 'gpt-4o';
         $maxCompletionTokens = 4096;
         $maxFunctionCalls = 5;
         $functionCallCount = 0;
@@ -61,10 +60,10 @@ final readonly class ChatConversationService
                 break;
             }
             $message = $this->gptClient->chatCompletions(
-                $messages,
-                $model,
-                $maxCompletionTokens,
-                [$this->getUpdateStoreDetailsFunction()],
+                messages: $messages,
+                model: 'gpt-4.1-mini',
+                maxCompletionTokens: $maxCompletionTokens,
+                functions: [$this->getUpdateStoreDetailsFunction()],
             );
             $messages[] = $message->toArray();
 

@@ -49,7 +49,7 @@ final readonly class GptClient
                     'Content-Type' => 'application/json',
                 ],
                 'json' => $payload,
-                'timeout' => 300, // 5 minutes timeout
+                'timeout' => 600, // 10 minutes timeout
             ]);
 
             $statusCode = $response->getStatusCode();

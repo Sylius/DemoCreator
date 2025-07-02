@@ -40,9 +40,9 @@ final class CreateFixturesController extends AbstractController
         ]);
 
         // Increase execution time limit for GPT generation
-        set_time_limit(300); // 5 minutes
-        ini_set('max_execution_time', '300');
-        
+        set_time_limit(600); // 10 minutes
+        ini_set('max_execution_time', '600');
+
         if (!$storeDetailsDto) {
             $this->logger->warning('Missing store details in fixtures creation request', [
                 'request_id' => $requestId
@@ -63,7 +63,7 @@ final class CreateFixturesController extends AbstractController
             
             $this->logger->info('Store definition created successfully', [
                 'request_id' => $requestId,
-                'store_preset_name' => $storeDefinition['storePresetName'] ?? 'unknown',
+                'store_preset_id' => $storeDefinition['id'] ?? $storeDefinition['storePresetName'] ?? 'unknown',
                 'definition_keys' => array_keys($storeDefinition)
             ]);
 
@@ -81,14 +81,15 @@ final class CreateFixturesController extends AbstractController
             ]);
 
             $this->storePresetManager->updateStoreDefinition($storeDefinition);
+            $presetId = $storeDefinition['id'] ?? $storeDefinition['storePresetName'];
             $this->storePresetManager->updateFixtures(
-                $storeDefinition['storePresetName'],
+                $presetId,
                 $fixtures,
             );
 
             $this->logger->info('Fixtures creation completed successfully', [
                 'request_id' => $requestId,
-                'store_preset_name' => $storeDefinition['storePresetName']
+                'store_preset_id' => $presetId
             ]);
 
             return $this->json(
@@ -123,7 +124,7 @@ final class CreateFixturesController extends AbstractController
 
         try {
             $this->storePresetManager->updateStoreDefinition($data);
-            $this->storePresetManager->updateFixtures($data['storePresetName'], $this->fixtureParser->parse($data));
+            $this->storePresetManager->updateFixtures($data['id'], $this->fixtureParser->parse($data));
 
             return $this->json(
                 data: ['message' => 'Fixtures parsed and updated successfully'],
