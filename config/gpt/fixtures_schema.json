@@ -26,9 +26,6 @@
         "menuTaxon": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -41,7 +38,8 @@
             },
             "required": [
                 "code",
-                "name"
+                "name",
+                "translations"
             ],
             "additionalProperties": false
         },
@@ -275,19 +273,7 @@
                     "images": {
                         "type": "array",
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "path": {
-                                    "type": "string"
-                                },
-                                "type": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "path"
-                            ],
-                            "additionalProperties": false
+                            "type": "string"
                         }
                     }
                 },

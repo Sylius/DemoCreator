@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import DemoWizard from './controllers/DemoWizard';
-import GptChatWindow from './controllers/GptChatWindow';
 
 function Layout({ children }) {
     const location = useLocation();
@@ -75,7 +74,6 @@ export default function App() {
             <Layout>
                 <Routes>
                     <Route path="/wizard/:step?" element={<DemoWizard />} />
-                    <Route path="/chat" element={<GptChatWindow />} />
                     <Route path="/" element={<HomeHero />} />
                 </Routes>
             </Layout>

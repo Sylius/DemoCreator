@@ -54,9 +54,7 @@ final class StorePresetManager
             $preset = array_merge($preset, $data);
             $preset['updatedAt'] = (new \DateTimeImmutable())->format(DATE_ATOM);
             $preset['id'] = $id;
-            if (!isset($preset['name'])) {
-                $preset['name'] = $id;
-            }
+            $preset['name'] = $data['name'] ?? $preset['name'] ?? '';
             $this->savePresetData($id, $preset);
         } catch (IOException | \JsonException $e) {
             throw new \RuntimeException(
@@ -85,13 +83,15 @@ final class StorePresetManager
         $this->filesystem->mkdir($dir, 0755);
         $yaml = Yaml::dump($fixtures, 10, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
         $this->filesystem->dumpFile($filePath, $yaml);
+        $this->updatePreset($id, ['name' => array_keys($fixtures['sylius_fixtures']['suites'])[0] ?? '']);
     }
 
     public function updateStoreDefinition(array $data): void
     {
-        if ($data['id'] ?? false) {
-            throw new \InvalidArgumentException("Brak klucza 'id' lub 'storePresetName' w danych.");
+        if (empty($data['id'] ?? null) || !is_string($data['id'])) {
+            throw new \InvalidArgumentException("Identyfikator presetu jest wymagany.");
         }
+
         $data['updatedAt'] = (new \DateTimeImmutable())->format(DATE_ATOM);
 
         try {
@@ -139,44 +139,6 @@ final class StorePresetManager
         }
     }
 
-    public function presetExists(string $id): bool
-    {
-        $this->validatePresetId($id);
-        return $this->filesystem->exists($this->getPresetFilePath($id));
-    }
-
-    public function listPresets(): array
-    {
-        if (!$this->filesystem->exists($this->storePresetsDir)) {
-            return [];
-        }
-
-        $pattern = Path::join($this->storePresetsDir, '*', self::PRESET_FILENAME);
-        $files = glob($pattern) ?: [];
-        $presets = [];
-
-        foreach ($files as $file) {
-            try {
-                $json = $this->filesystem->readFile($file);
-                $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-                if (is_array($data)) {
-                    $id = $data['id'] ?? $data['name'] ?? null;
-                    if ($id) {
-                        $data['id'] = $id;
-                        if (!isset($data['name'])) {
-                            $data['name'] = $id;
-                        }
-                        $presets[] = $data;
-                    }
-                }
-            } catch (IOException | \JsonException $e) {
-                // Pomijamy uszkodzone pliki
-            }
-        }
-
-        return $presets;
-    }
-
     public function deletePreset(string $id): void
     {
         $this->validatePresetId($id);
@@ -216,7 +178,7 @@ final class StorePresetManager
         $now = (new \DateTimeImmutable())->format(DATE_ATOM);
         return [
             'id'         => $id,
-            'name'       => $id,
+            'name'       => '',
             'plugins'    => [],
             'themes'     => [],
             'fixtures'   => [],

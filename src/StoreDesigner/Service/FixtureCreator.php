@@ -44,7 +44,8 @@ final readonly class FixtureCreator
                         'content' => json_encode($storeDetailsDto->jsonSerialize()),
                     ],
                 ],
-                model: 'gpt-4.1',
+//                model: 'gpt-4.1',
+                model: 'gpt-4.1-mini',
                 maxCompletionTokens: 8192,
                 functions: [
                     $functionDefinition,

@@ -165,26 +165,27 @@ export function useConversation() {
         }
     };
 
-    const handleCreateFixtures = async () => {
-        if (!storeDetails) {
+    const handleCreateFixtures = async (presetId, overrideStoreDetails) => {
+        const details = overrideStoreDetails !== undefined ? overrideStoreDetails : storeDetails;
+        if (!details) {
             setError('Store details are required. Please complete the store description first.');
             return;
         }
-        
+        if (!presetId) {
+            setError('Brak presetId!');
+            return;
+        }
         setError(null);
         setLoading(true);
-        const payload = { conversationId, messages, storeDetails, state, error };
-        
+        const payload = { storeDetails: details };
         try {
-            const response = await fetch("/api/create-fixtures", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const response = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/fixtures-generate`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
-            
             const rawResponse = await response.text();
             let data;
-            
             try {
                 data = JSON.parse(rawResponse);
             } catch (parseError) {
@@ -192,21 +193,11 @@ export function useConversation() {
                 setState('error');
                 return;
             }
-            
             if (data.error) setError(data.error); 
             else setError(null);
-            
-            if (data.state) setState(data.state);
-            if (data.conversationId) setConversationId(data.conversationId);
-            if (data.storeDetails) setStoreDetails(data.storeDetails);
-            
-            if (Array.isArray(data.messages)) {
-                setMessages(data.messages);
-            } else {
-                setError("Missing 'messages' in API response");
-            }
+            // Możesz tu dodać obsługę success, np. setState('fixtures_ready')
         } catch (err) {
-            setError(err.message || "Unknown error");
+            setError(err.message || 'Unknown error');
             setState('error');
         } finally {
             setLoading(false);

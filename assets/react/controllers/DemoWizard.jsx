@@ -787,7 +787,7 @@ function GenerateStorePresetSection({
             setFixturesError('Timeout: Store preset generation took too long. Please try again.');
         }, 120000);
         
-        handleCreateFixtures(storeDetails)
+        handleCreateFixtures(presetId, storeDetails)
             .then(() => {
                 console.log('Fixtures generation completed successfully');
                 clearTimeout(timeoutRef.current);
@@ -817,19 +817,20 @@ function GenerateStorePresetSection({
         setIsFixturesGenerating(false);
     };
 
-    // DEBUG: ręczne wywołanie /api/create-fixtures
+    // DEBUG: ręczne wywołanie PATCH /api/store-presets/{presetId}/fixtures
     const [debugResult, setDebugResult] = useState(null);
     const [debugLoading, setDebugLoading] = useState(false);
     const handleDebugCreateFixtures = async () => {
         setDebugLoading(true);
         setDebugResult(null);
         try {
+            if (!presetId) throw new Error('Brak presetId!');
             const payload = {
                 storeDetails: storeDetails || {},
                 debug: true,
             };
-            const res = await fetch('/api/create-fixtures', {
-                method: 'POST',
+            const res = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/fixtures-generate`, {
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
@@ -912,7 +913,7 @@ function GenerateStorePresetSection({
                     className="py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md text-xs font-mono border border-gray-300"
                     disabled={debugLoading}
                 >
-                    {debugLoading ? 'Debugging...' : 'Debug: Wywołaj /api/create-fixtures'}
+                    {debugLoading ? 'Debugging...' : 'Debug: Wywołaj /api/store-presets/{presetId}/fixtures'}
                 </button>
                 {debugResult && (
                     <div className="mt-2 text-xs text-left break-all max-w-md">

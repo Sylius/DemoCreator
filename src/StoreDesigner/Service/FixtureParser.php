@@ -230,7 +230,7 @@ final class FixtureParser
                 'options' => [
                     'custom' => [
                         'category' => [
-                            'code' => $menuTaxon['code'],
+                            'code' => 'MENU_CATEGORY',
                             'name' => $menuTaxon['name'],
                             'translations' => $this->mapTranslations($menuTaxon['translations'], $locales),
                         ],
@@ -252,6 +252,7 @@ final class FixtureParser
                             'locales' => $channel['locales'],
                             'currencies' => $channel['currencies'],
                             'enabled' => $channel['enabled'] ?? true,
+                            'menu_taxon' => 'MENU_CATEGORY',
                             'hostname' => $channel['hostname'] ?? '%env(resolve:SYLIUS_FIXTURES_HOSTNAME)%',
                             'theme_name' => $channel['theme_name'] ?? '%env(resolve:SYLIUS_FIXTURES_THEME_NAME)%',
                         ],
@@ -304,7 +305,8 @@ final class FixtureParser
             $categoryName = 'taxon_' . $category['slug'];
             $result[$categoryName]['name'] = 'taxon';
             $result[$categoryName]['options']['custom']['slug'] = $category;
-            $result[$categoryName]['options']['custom']['translations'] = $this->mapTranslations($category['translations'] ?? [], $locales);
+            $result[$categoryName]['options']['custom']['slug']['translations'] = $this->mapTranslations($category['translations'] ?? [], $locales);
+            $result[$categoryName]['options']['custom']['slug']['children'] = [];
         }
 
         return $result;
