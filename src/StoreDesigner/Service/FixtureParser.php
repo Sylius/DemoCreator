@@ -306,7 +306,6 @@ final class FixtureParser
             $result[$categoryName]['name'] = 'taxon';
             $result[$categoryName]['options']['custom']['slug'] = $category;
             $result[$categoryName]['options']['custom']['slug']['translations'] = $this->mapTranslations($category['translations'] ?? [], $locales);
-            $result[$categoryName]['options']['custom']['slug']['children'] = [];
         }
 
         return $result;
@@ -353,23 +352,17 @@ final class FixtureParser
 
         $attributes = array_values($attributes);
 
+        $result = [];
         if (!empty($attributes)) {
-            $attributesParsed = [
+            $result['product_attributes'] = [
                 'name' => 'product_attribute',
                 'options' => ['custom' => $attributes],
             ];
         }
 
-        $result = [];
-        if ($attributesParsed ?? false) {
-            $result[] = $attributesParsed;
-        }
-
-        $result[] = [
-            "{$prefix}_product" => [
+        $result["{$prefix}_product"] = [
                 'name' => 'product',
                 'options' => ['custom' => $formattedProducts],
-            ],
         ];
 
         return $result;
