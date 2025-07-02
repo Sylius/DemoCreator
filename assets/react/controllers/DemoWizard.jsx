@@ -9,7 +9,7 @@ import { useStorePreset } from '../hooks/useStorePreset';
 const stepVariants = {
     enter: (direction) => ({
         opacity: 0,
-        x: direction > 0 ? 400 : -400,
+        x: direction > 0 ? 300 : -300,
         position: 'absolute',
         width: '100%',
         top: 0,
@@ -25,7 +25,7 @@ const stepVariants = {
     },
     exit: (direction) => ({
         opacity: 0,
-        x: direction > 0 ? -400 : 400,
+        x: direction > 0 ? -300 : 300,
         position: 'absolute',
         width: '100%',
         top: 0,
@@ -131,11 +131,14 @@ export default function DemoWizard({
         deletePreset,
     } = useStorePreset();
 
-    // Synchronize step with URL
+    // Synchronize step with URL with delay to allow animation
     useEffect(() => {
         console.log(describeStoreStage);
         if (!stepParam || stepParam !== stepPaths[step - 1]) {
-            navigate(`/wizard/${stepPaths[step - 1]}`, {replace: true});
+            const timer = setTimeout(() => {
+                navigate(`/wizard/${stepPaths[step - 1]}`, {replace: true});
+            }, 100); // Small delay to allow animation to start
+            return () => clearTimeout(timer);
         }
     }, [step, stepParam, navigate]);
 
@@ -228,14 +231,20 @@ export default function DemoWizard({
             
             setError(null); // Clear any previous errors
             setDirection(1);
-            setStep(s => Math.min(s + 1, stepPaths.length));
+            // Use setTimeout to ensure direction is set before step change
+            setTimeout(() => {
+                setStep(s => Math.min(s + 1, stepPaths.length));
+            }, 0);
         } catch (err) {
             setError(`Failed to proceed: ${err.message}`);
         }
     }, [step, pluginsLoading, pluginsError, selectedPlugins, plugins, updatePreset, isDescribeStoreStageReady, setError, setDirection, setStep]);
     const back = useCallback(() => {
         setDirection(-1);
-        setStep(s => Math.max(s - 1, 1));
+        // Use setTimeout to ensure direction is set before step change
+        setTimeout(() => {
+            setStep(s => Math.max(s - 1, 1));
+        }, 0);
     }, [setDirection, setStep]);
 
     const uploadLogo = async () => {
@@ -278,7 +287,10 @@ export default function DemoWizard({
             setDeployStateId(data.deployStateId);
             setDeployUrl(data.url);
             setDeployStatus('in_progress');
-            setStep(5);
+            setDirection(1);
+            setTimeout(() => {
+                setStep(5);
+            }, 0);
         } catch (e) {
             setError(e.message);
         } finally {
@@ -287,7 +299,10 @@ export default function DemoWizard({
     };
 
     const handleStoreDetailsConfirm = () => {
-        setStep(s => Math.min(s + 1, stepPaths.length));
+        setDirection(1);
+        setTimeout(() => {
+            setStep(s => Math.min(s + 1, stepPaths.length));
+        }, 0);
     };
 
     const enableNextStepInDescribeStore = () => {
@@ -319,6 +334,7 @@ export default function DemoWizard({
         setDeployStatus(null);
         setError(null);
         setLoading(false);
+        setDirection(1);
         setStep(1);
         navigate(`/wizard/${stepPaths[0]}`, {replace: true});
         // Reload page to ensure complete reset
@@ -379,7 +395,7 @@ export default function DemoWizard({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{duration: 0.4, type: 'tween', ease: 'easeInOut'}}
+                                transition={{duration: 0.25, type: 'tween', ease: 'easeInOut'}}
                             >
                                 <div className="flex flex-col items-center justify-start w-full pt-6"
                                      style={{minHeight: '60vh'}}>
@@ -448,7 +464,7 @@ export default function DemoWizard({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{duration: 0.4, type: 'tween', ease: 'easeInOut'}}
+                                transition={{duration: 0.25, type: 'tween', ease: 'easeInOut'}}
                             >
                                 <div className="flex flex-row w-full min-h-[70vh] gap-6">
                                     <div className="flex-1 flex flex-col min-h-0">
@@ -457,20 +473,14 @@ export default function DemoWizard({
                                             onStoreDetailsChange={setStoreDetails}
                                             presetId={presetId} 
                                             updatePreset={updatePreset}
+                                            onNext={handleNext}
+                                            isReady={isDescribeStoreStageReady}
                                         />
                                     </div>
                                 </div>
                                 <div className="flex justify-between mt-6">
                                     <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
                                         Back
-                                    </button>
-                                    <button
-                                        onClick={handleNext}
-                                        disabled={!isDescribeStoreStageReady}
-                                        className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            isDescribeStoreStageReady ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                                        }`}
-                                    >Next →
                                     </button>
                                 </div>
                             </motion.div>
@@ -484,7 +494,7 @@ export default function DemoWizard({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{duration: 0.4, type: 'tween', ease: 'easeInOut'}}
+                                transition={{duration: 0.25, type: 'tween', ease: 'easeInOut'}}
                             >
                                 <div className="text-center mb-8">
                                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full mb-4">
@@ -582,7 +592,7 @@ export default function DemoWizard({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{duration: 0.4, type: 'tween', ease: 'easeInOut'}}
+                                transition={{duration: 0.25, type: 'tween', ease: 'easeInOut'}}
                             >
                                 <h2 className="text-xl font-semibold mb-4 text-teal-700">4. Logo</h2>
                                 <input
@@ -617,7 +627,7 @@ export default function DemoWizard({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{duration: 0.4, type: 'tween', ease: 'easeInOut'}}
+                                transition={{duration: 0.25, type: 'tween', ease: 'easeInOut'}}
                             >
                                 <h2 className="text-xl font-semibold mb-4 text-teal-700">5. Summary & Deploy</h2>
                                 <div className="mb-4">

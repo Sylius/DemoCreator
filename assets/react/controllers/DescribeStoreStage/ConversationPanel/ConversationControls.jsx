@@ -14,7 +14,7 @@ const ConversationControls = ({
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
             <button
                 onClick={copyConversation}
-                title="Kopiuj konwersację w JSON"
+                title="Copy conversation as JSON"
                 style={{
                     border: "none",
                     background: "transparent",
@@ -23,12 +23,12 @@ const ConversationControls = ({
                     color: "#007bff"
                 }}
             >
-                📋 Kopiuj JSON
+                📋 Copy JSON
             </button>
             
             <button
                 onClick={retryRequest}
-                title="Wyślij ponownie ostatni request"
+                title="Retry last request"
                 style={{
                     border: "none",
                     background: "transparent",
@@ -48,7 +48,7 @@ const ConversationControls = ({
                     onChange={e => setShowFunctionMessages(e.target.checked)}
                     style={{ marginRight: 4 }}
                 />
-                Pokaż funkcje
+                Show functions
             </label>
             
             {state === 'awaiting_confirmation' && (
@@ -63,7 +63,7 @@ const ConversationControls = ({
                         fontSize: "1rem",
                         color: "#007bff",
                         marginLeft: 12,
-                        opacity: loading ? 0.6 : 1
+                        opacity: loading ? 0.6 : 0.3
                     }}
                 >
                     Create Fixtures
@@ -72,7 +72,7 @@ const ConversationControls = ({
             
             <button
                 onClick={clearConversation}
-                title="Wyczyść konwersację"
+                title="Clear conversation"
                 style={{
                     border: "none",
                     background: "transparent",
@@ -82,7 +82,7 @@ const ConversationControls = ({
                     marginLeft: 12
                 }}
             >
-                🗑️ Wyczyść
+                🗑️ Clear
             </button>
         </div>
     );

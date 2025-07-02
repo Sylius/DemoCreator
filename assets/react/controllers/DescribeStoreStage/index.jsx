@@ -4,7 +4,7 @@ import ConversationPanel from './ConversationPanel';
 import StoreDetailsPanel from './StoreDetailsPanel';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const DescribeStoreStage = ({ onReadyToProceed, onStoreDetailsChange }) => {
+const DescribeStoreStage = ({ onReadyToProceed, onStoreDetailsChange, onNext, isReady }) => {
     const {
         messages,
         input,
@@ -67,6 +67,8 @@ const DescribeStoreStage = ({ onReadyToProceed, onStoreDetailsChange }) => {
                     retryRequest={retryRequest}
                     handleCreateFixtures={handleCreateFixtures}
                     clearConversation={clearConversation}
+                    onNext={onNext}
+                    isReady={isReady}
                 />
             </div>
             {/*<AnimatePresence>*/}

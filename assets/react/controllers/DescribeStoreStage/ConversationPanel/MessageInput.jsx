@@ -6,11 +6,17 @@ const MessageInput = ({
     handleSend, 
     loading, 
     disabled = false,
-    placeholder = "Wpisz wiadomość, np. „Sprzedaję biżuterię, akcesoria sportowe itp.",
+    messages = [],
     autoFocus = false
 }) => {
     const canSend = !!input.trim() && !loading && !disabled;
     const inputRef = useRef(null);
+    
+    // Show placeholder only when no messages yet
+    const hasMessages = messages.length > 0;
+    const placeholder = hasMessages 
+        ? "Type your message..." 
+        : "Type your message, e.g. \"I sell jewelry, sports accessories, etc.\"";
 
     useEffect(() => {
         if (autoFocus && inputRef.current) {
@@ -18,22 +24,42 @@ const MessageInput = ({
         }
     }, [autoFocus]);
 
+    // Keep focus on input during typing
+    const handleInputChange = (e) => {
+        setInput(e.target.value);
+        // Ensure focus stays on input
+        if (inputRef.current && document.activeElement !== inputRef.current) {
+            inputRef.current.focus();
+        }
+    };
+
     return (
         <form onSubmit={e => {
-            handleSend(e);
-            // Refocus input after sending
-            setTimeout(() => {
-                inputRef.current?.focus();
-            }, 0);
+            e.preventDefault();
+            if (canSend) {
+                handleSend(e);
+                // Refocus input after sending
+                setTimeout(() => {
+                    inputRef.current?.focus();
+                }, 0);
+            }
         }} className="relative flex items-center w-full p-0 bg-transparent" style={{marginTop: 0}}>
             <input
                 ref={inputRef}
                 type="text"
                 value={input}
-                onChange={e => setInput(e.target.value)}
+                onChange={handleInputChange}
+                onBlur={() => {
+                    // Prevent losing focus during typing
+                    setTimeout(() => {
+                        if (inputRef.current && !loading && !disabled) {
+                            inputRef.current.focus();
+                        }
+                    }, 0);
+                }}
                 disabled={loading || disabled}
-                placeholder={loading ? "Czekaj..." : placeholder}
-                className="w-full pr-12 pl-4 py-3 rounded-2xl bg-gray-50 border-none text-base focus:outline-none focus:ring-0 transition shadow-none"
+                placeholder={loading ? "Waiting..." : placeholder}
+                className="w-full pr-12 pl-4 py-3 rounded-2xl bg-gray-50 border-2 border-gray-200 text-base focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all shadow-sm"
                 style={{ minHeight: 48 }}
             />
             <button
