@@ -25,7 +25,7 @@ class StoreDetailsDtoResolver implements ValueResolverInterface
         }
 
         yield new StoreDetailsDto(
-            industry: $data['industry'] ?? null,
+            industry: $data['industry'] ?? 'general',
             locales: $data['locales'] ?? [],
             currencies: $data['currencies'] ?? [],
             countries: $data['countries'] ?? [],

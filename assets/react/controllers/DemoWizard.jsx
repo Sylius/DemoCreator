@@ -60,6 +60,7 @@ const stepTitles = [
     'Choose deployment target',
     'Summary',
 ];
+
 const stepDescriptions = [
     'Plugins are optional. You can select any to include, or proceed without plugins.',
     'Provide a description of your store and its details.',
@@ -802,6 +803,41 @@ function GenerateStorePresetSection({
         setIsFixturesGenerating(false);
     };
 
+    // DEBUG: ręczne wywołanie /api/create-fixtures
+    const [debugResult, setDebugResult] = useState(null);
+    const [debugLoading, setDebugLoading] = useState(false);
+    const handleDebugCreateFixtures = async () => {
+        setDebugLoading(true);
+        setDebugResult(null);
+        try {
+            const payload = {
+                storeDetails: storeDetails || {},
+                debug: true,
+            };
+            const res = await fetch('/api/create-fixtures', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            const text = await res.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                data = text;
+            }
+            if (!res.ok) {
+                setDebugResult({ error: data.error || data || 'Unknown error', status: res.status });
+            } else {
+                setDebugResult({ success: data });
+            }
+        } catch (e) {
+            setDebugResult({ error: e.message });
+        } finally {
+            setDebugLoading(false);
+        }
+    };
+
     return (
         <div className="flex flex-col items-center justify-center gap-4">
             {!isFixturesReady && !isFixturesGenerating && !fixturesError && (
@@ -855,6 +891,23 @@ function GenerateStorePresetSection({
                     <DownloadStorePresetButton storePresetName={presetId} />
                 </div>
             )}
+            <div className="mt-4">
+                <button
+                    type="button"
+                    onClick={handleDebugCreateFixtures}
+                    className="py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md text-xs font-mono border border-gray-300"
+                    disabled={debugLoading}
+                >
+                    {debugLoading ? 'Debugging...' : 'Debug: Wywołaj /api/create-fixtures'}
+                </button>
+                {debugResult && (
+                    <div className="mt-2 text-xs text-left break-all max-w-md">
+                        <pre className={debugResult.error ? 'text-red-600' : 'text-green-700'} style={{whiteSpace: 'pre-wrap', wordBreak: 'break-all'}}>
+                            {debugResult.error ? `Błąd: ${debugResult.error} (status: ${debugResult.status || ''})` : JSON.stringify(debugResult.success, null, 2)}
+                        </pre>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

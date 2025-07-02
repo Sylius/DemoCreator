@@ -59,7 +59,7 @@ const MessageInput = ({
                 }}
                 disabled={loading || disabled}
                 placeholder={loading ? "Waiting..." : placeholder}
-                className="w-full pr-12 pl-4 py-3 rounded-2xl bg-gray-50 border-2 border-gray-200 text-base focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all shadow-sm"
+                className="w-full pr-12 pl-4 py-3 rounded-2xl bg-gray-50 border-2 border-gray-200 text-base focus:outline-none focus:ring-0 focus:border-gray-300 transition-all shadow-sm"
                 style={{ minHeight: 48 }}
             />
             <button

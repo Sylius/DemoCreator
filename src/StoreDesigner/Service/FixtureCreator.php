@@ -6,46 +6,96 @@ namespace App\StoreDesigner\Service;
 
 use App\StoreDesigner\Dto\StoreDetailsDto;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Psr\Log\LoggerInterface;
 
 final readonly class FixtureCreator
 {
     public function __construct(
         private GptClient $gptClient,
         #[Autowire('%kernel.project_dir%/config/gpt/')] private string $configPath,
+        private LoggerInterface $logger,
     )
     {
     }
 
     public function create(StoreDetailsDto $storeDetailsDto): array
     {
-        $message = $this->gptClient->chatCompletions(
-            messages: [
-                [
-                    'role' => 'system',
-                    'content' => $this->getSystemMessage(),
+        $this->logger->info('Starting fixture creation', [
+            'store_details' => $storeDetailsDto->jsonSerialize()
+        ]);
+
+        try {
+            $systemMessage = $this->getSystemMessage();
+            $functionDefinition = $this->getGenerateFixturesFunction();
+            
+            $this->logger->debug('Fixture creation configuration', [
+                'system_message_length' => strlen($systemMessage),
+                'function_name' => $functionDefinition['name'] ?? 'unknown'
+            ]);
+
+            $message = $this->gptClient->chatCompletions(
+                messages: [
+                    [
+                        'role' => 'system',
+                        'content' => $systemMessage,
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => json_encode($storeDetailsDto->jsonSerialize()),
+                    ],
                 ],
-                [
-                    'role' => 'user',
-                    'content' => json_encode($storeDetailsDto->jsonSerialize()),
+                model: 'gpt-4o',
+                maxCompletionTokens: 8192,
+                functions: [
+                    $functionDefinition,
                 ],
-            ],
-            model: 'gpt-4o',
-            maxCompletionTokens: 8192,
-            functions: [
-                $this->getGenerateFixturesFunction(),
-            ],
-        );
+            );
 
-        if (!$message->hasFunctionCall()) {
-            throw new \RuntimeException('No function call in the response from OpenAI');
+            $this->logger->info('GPT response received for fixture creation', [
+                'has_function_call' => $message->hasFunctionCall(),
+                'function_name' => $message->getFunctionCallName(),
+                'is_truncated' => $message->isTruncated(),
+                'usage' => $message->getUsage()
+            ]);
+
+            if (!$message->hasFunctionCall()) {
+                $this->logger->error('No function call in GPT response', [
+                    'content' => $message->getContent(),
+                    'raw_response' => $message->getRaw()
+                ]);
+                throw new \RuntimeException('No function call in the response from OpenAI');
+            }
+
+            $functionName = $message->getFunctionCallName();
+            if ($functionName !== 'generateFixtures') {
+                $this->logger->error('Unexpected function call', [
+                    'expected' => 'generateFixtures',
+                    'received' => $functionName
+                ]);
+                throw new \RuntimeException('Unsupported function call: ' . $functionName);
+            }
+
+            $functionData = $message->getFunctionCallData();
+            if ($functionData === null) {
+                $this->logger->error('Failed to parse function call data', [
+                    'raw_function_call' => $message->getRaw()['function_call'] ?? null
+                ]);
+                throw new \RuntimeException('Failed to parse function call data from OpenAI response');
+            }
+
+            $this->logger->info('Fixture creation completed successfully', [
+                'data_keys' => array_keys($functionData)
+            ]);
+
+            return $functionData;
+        } catch (\Exception $e) {
+            $this->logger->error('Fixture creation failed', [
+                'error' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
-
-        $functionName = $message->getFunctionCallName();
-        if ($functionName !== 'generateFixtures') {
-            throw new \RuntimeException('Unsupported function call: ' . $functionName);
-        }
-
-        return $message->getFunctionCallData();
     }
 
     private function getGenerateFixturesFunction(): array

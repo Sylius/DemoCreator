@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
+use Psr\Log\LoggerInterface;
 
 final class CreateFixturesController extends AbstractController
 {
@@ -22,6 +23,7 @@ final class CreateFixturesController extends AbstractController
         private readonly FixtureCreator $fixtureCreator,
         private readonly FixtureParser $fixtureParser,
         private readonly StorePresetManager $storePresetManager,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -30,11 +32,21 @@ final class CreateFixturesController extends AbstractController
         #[ValueResolver(StoreDetailsDtoResolver::class)]
         ?StoreDetailsDto $storeDetailsDto,
     ): JsonResponse {
+        $requestId = uniqid('fixtures_', true);
+        
+        $this->logger->info('Starting fixtures creation request', [
+            'request_id' => $requestId,
+            'has_store_details' => $storeDetailsDto !== null
+        ]);
+
         // Increase execution time limit for GPT generation
         set_time_limit(300); // 5 minutes
         ini_set('max_execution_time', '300');
         
         if (!$storeDetailsDto) {
+            $this->logger->warning('Missing store details in fixtures creation request', [
+                'request_id' => $requestId
+            ]);
             return $this->json(
                 data: ['error' => 'Store details are required. Please complete the store description first.'],
                 status: Response::HTTP_BAD_REQUEST
@@ -42,9 +54,31 @@ final class CreateFixturesController extends AbstractController
         }
 
         try {
+            $this->logger->info('Creating store definition with GPT', [
+                'request_id' => $requestId,
+                'store_details' => $storeDetailsDto->jsonSerialize()
+            ]);
+
             $storeDefinition = $this->fixtureCreator->create($storeDetailsDto);
+            
+            $this->logger->info('Store definition created successfully', [
+                'request_id' => $requestId,
+                'store_preset_name' => $storeDefinition['storePresetName'] ?? 'unknown',
+                'definition_keys' => array_keys($storeDefinition)
+            ]);
+
             $this->storePresetManager->saveRawAssistantResponse($storeDefinition);
+            
+            $this->logger->info('Parsing fixtures from store definition', [
+                'request_id' => $requestId
+            ]);
+
             $fixtures = $this->fixtureParser->parse($storeDefinition);
+            
+            $this->logger->info('Fixtures parsed successfully', [
+                'request_id' => $requestId,
+                'fixtures_count' => count($fixtures)
+            ]);
 
             $this->storePresetManager->updateStoreDefinition($storeDefinition);
             $this->storePresetManager->updateFixtures(
@@ -52,11 +86,23 @@ final class CreateFixturesController extends AbstractController
                 $fixtures,
             );
 
+            $this->logger->info('Fixtures creation completed successfully', [
+                'request_id' => $requestId,
+                'store_preset_name' => $storeDefinition['storePresetName']
+            ]);
+
             return $this->json(
                 data: ['message' => 'Fixtures created successfully'],
                 status: Response::HTTP_CREATED
             );
         } catch (\Exception $e) {
+            $this->logger->error('Fixtures creation failed', [
+                'request_id' => $requestId,
+                'error' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return $this->json(
                 data: ['error' => 'Failed to create fixtures: ' . $e->getMessage()],
                 status: Response::HTTP_INTERNAL_SERVER_ERROR
