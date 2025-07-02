@@ -58,6 +58,9 @@ class StorePresetController extends AbstractController
         string $id,
         #[ValueResolver(StoreDetailsDtoResolver::class)] StoreDetailsDto $storeDetailsDto,
     ): JsonResponse {
+        set_time_limit(600);
+        ini_set('max_execution_time', '600');
+
         $preset = $this->storePresetManager->getPreset($id);
         if (!$preset) {
             return $this->json(['error' => 'Preset not found'], 404);
@@ -68,13 +71,17 @@ class StorePresetController extends AbstractController
             $fixtures = $this->fixtureParser->parse($storeDefinition);
             $this->storePresetManager->updateStoreDefinition(array_merge($storeDefinition, ['id' => $id]));
             $this->storePresetManager->updateFixtures($id, $fixtures);
-            return $this->json([
+            $response = $this->json([
                 'message' => 'Fixtures generated',
                 'fixturesCount' => count($fixtures),
                 'presetId' => $id
             ], 200);
+            $response->headers->set('X-Debug-Max-Execution-Time', ini_get('max_execution_time'));
+            return $response;
         } catch (\Throwable $e) {
-            return $this->json(['error' => 'Failed to generate fixtures: ' . $e->getMessage()], 500);
+            $response = $this->json(['error' => 'Failed to generate fixtures: ' . $e->getMessage()], 500);
+            $response->headers->set('X-Debug-Max-Execution-Time', ini_get('max_execution_time'));
+            return $response;
         }
     }
 

@@ -324,6 +324,7 @@ final class FixtureParser
             unset($productEntry['price']);
             unset($productEntry['translations']);
             unset($productEntry['img_prompt']);
+            unset($productEntry['images']);
 
             if ($withImages && !empty($productEntry['img_prompt'])) {
                 $productEntry['images'][] = [
@@ -352,21 +353,26 @@ final class FixtureParser
 
         $attributes = array_values($attributes);
 
-        $fixtures = [
+        if (!empty($attributes)) {
+            $attributesParsed = [
+                'name' => 'product_attribute',
+                'options' => ['custom' => $attributes],
+            ];
+        }
+
+        $result = [];
+        if ($attributesParsed ?? false) {
+            $result[] = $attributesParsed;
+        }
+
+        $result[] = [
             "{$prefix}_product" => [
                 'name' => 'product',
                 'options' => ['custom' => $formattedProducts],
             ],
         ];
 
-        if (!empty($attributes)) {
-            $fixtures['product_attribute'] = [
-                'name' => 'product_attribute',
-                'options' => ['custom' => $attributes],
-            ];
-        }
-
-        return $fixtures;
+        return $result;
     }
 
     private function mapTranslations(mixed $translations, array $locales): array
