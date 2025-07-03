@@ -323,11 +323,11 @@ final class FixtureParser
             unset($productEntry['price']);
             unset($productEntry['translations']);
             unset($productEntry['img_prompt']);
+            $imageNames = $productEntry['images'] ?? [];
             unset($productEntry['images']);
-
-            if ($withImages && !empty($productEntry['img_prompt'])) {
+            foreach ($imageNames as $name) {
                 $productEntry['images'][] = [
-                    'path' => sprintf('fixtures/images/%s_main.png', preg_replace('/[^A-Za-z0-9_\-]/', '_', $productEntry['name'])),
+                    'path' => '%kernel.project_dir%/store-preset/fixtures/' . $name . '.png',
                     'type' => 'main',
                 ];
             }

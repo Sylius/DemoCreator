@@ -116,6 +116,9 @@ class StorePresetController extends AbstractController
     #[Route('/api/store-presets/{id}/generate-images', name: 'generate_store_preset_images', methods: ['PATCH'])]
     public function generateImages(string $id): JsonResponse
     {
+        set_time_limit(600);
+        ini_set('max_execution_time', '600');
+
         $preset = $this->storePresetManager->getPreset($id);
         if (!$preset) {
             return $this->json(['error' => 'Preset not found'], 404);

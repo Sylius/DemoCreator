@@ -180,6 +180,7 @@ final readonly class GptClient
                 'prompt' => $prompt,
                 'n' => 1,
                 'size' => '1024x1024',
+//                'quality' => 'high', // 'low' or 'high' - low is faster but lower quality
                 'quality' => 'low',
             ],
         ]);

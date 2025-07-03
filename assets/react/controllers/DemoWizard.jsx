@@ -759,26 +759,37 @@ function GenerateStorePresetSection({
     const [fixturesError, setFixturesError] = useState(null);
     const [timedOut, setTimedOut] = useState(false);
     const timeoutRef = React.useRef();
+    
+    // Nowe stany dla generowania obrazów
+    const [isImagesReady, setIsImagesReady] = useState(false);
+    const [isImagesGenerating, setIsImagesGenerating] = useState(false);
+    const [imagesError, setImagesError] = useState(null);
+    
     const conversation = useConversation();
     const { handleCreateFixtures } = conversation;
 
-    // Notify parent when ready
+    // Notify parent when ready (teraz tylko gdy obrazy są gotowe)
     useEffect(() => {
-        if (isFixturesReady) {
+        if (isFixturesReady && isImagesReady) {
             onReady();
         }
-    }, [isFixturesReady, onReady]);
+    }, [isFixturesReady, isImagesReady, onReady]);
 
-    // Notify parent about generating state
+    // Notify parent about generating state (fixtures + images)
     useEffect(() => {
-        onGenerating(isFixturesGenerating);
-    }, [isFixturesGenerating, onGenerating]);
+        onGenerating(isFixturesGenerating || isImagesGenerating);
+    }, [isFixturesGenerating, isImagesGenerating, onGenerating]);
 
     const handleGenerateFixtures = () => {
         console.log('Manual fixtures generation started...');
         setIsFixturesGenerating(true);
         setFixturesError(null);
         setTimedOut(false);
+        
+        // Reset images state when regenerating fixtures
+        setIsImagesReady(false);
+        setIsImagesGenerating(false);
+        setImagesError(null);
         
         // Timeout after 2 minutes
         timeoutRef.current = setTimeout(() => {
@@ -804,10 +815,50 @@ function GenerateStorePresetSection({
             });
     };
 
+    const handleGenerateImages = async () => {
+        console.log('Image generation started...');
+        setIsImagesGenerating(true);
+        setImagesError(null);
+        
+        try {
+            if (!presetId) throw new Error('Brak presetId!');
+            
+            const res = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/generate-images`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({}),
+            });
+            
+            const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error(data.error || data.message || 'Failed to generate images');
+            }
+            
+            console.log('Images generation completed successfully');
+            setIsImagesReady(true);
+        } catch (err) {
+            console.error('Images generation failed:', err);
+            setImagesError(err?.message || 'Unknown error');
+            setIsImagesReady(false);
+        } finally {
+            setIsImagesGenerating(false);
+        }
+    };
+
     const handleRetry = () => {
         setFixturesError(null);
         setTimedOut(false);
         setIsFixturesReady(false);
+        // Reset images state when retrying fixtures
+        setIsImagesReady(false);
+        setIsImagesGenerating(false);
+        setImagesError(null);
+    };
+
+    const handleRetryImages = () => {
+        setImagesError(null);
+        setIsImagesReady(false);
     };
 
     const handleReset = () => {
@@ -815,6 +866,9 @@ function GenerateStorePresetSection({
         setTimedOut(false);
         setIsFixturesReady(false);
         setIsFixturesGenerating(false);
+        setIsImagesReady(false);
+        setIsImagesGenerating(false);
+        setImagesError(null);
     };
 
     // DEBUG: ręczne wywołanie PATCH /api/store-presets/{presetId}/fixtures
@@ -855,6 +909,7 @@ function GenerateStorePresetSection({
 
     return (
         <div className="flex flex-col items-center justify-center gap-4">
+            {/* Step 1: Generate Fixtures */}
             {!isFixturesReady && !isFixturesGenerating && !fixturesError && (
                 <>
                     <div className="text-center">
@@ -874,6 +929,7 @@ function GenerateStorePresetSection({
                 </>
             )}
             
+            {/* Step 1: Fixtures Generating */}
             {isFixturesGenerating && (
                 <>
                     <div className="mb-4 text-center">Crafting your perfect store...</div>
@@ -881,6 +937,7 @@ function GenerateStorePresetSection({
                 </>
             )}
             
+            {/* Step 1: Fixtures Error */}
             {fixturesError && !isFixturesGenerating && (
                 <>
                     <div className="text-red-600 mb-2 text-center">{fixturesError}</div>
@@ -893,7 +950,52 @@ function GenerateStorePresetSection({
                 </>
             )}
             
-            {isFixturesReady && !fixturesError && !isFixturesGenerating && (
+            {/* Step 2: Generate Images (po wygenerowaniu fixtures) */}
+            {isFixturesReady && !isImagesReady && !isImagesGenerating && !imagesError && (
+                <>
+                    <div className="text-center">
+                        <div className="mb-4">
+                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <p className="text-green-600 font-medium">Fixtures generated successfully!</p>
+                        </div>
+                        <p className="text-gray-600 mb-4">Now let's generate product images for your store</p>
+                        <button
+                            onClick={handleGenerateImages}
+                            className="py-3 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow transition"
+                        >
+                            Generate Images
+                        </button>
+                    </div>
+                </>
+            )}
+            
+            {/* Step 2: Images Generating */}
+            {isImagesGenerating && (
+                <>
+                    <div className="mb-4 text-center">Generating beautiful product images...</div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+                </>
+            )}
+            
+            {/* Step 2: Images Error */}
+            {imagesError && !isImagesGenerating && (
+                <>
+                    <div className="text-red-600 mb-2 text-center">{imagesError}</div>
+                    <button
+                        onClick={handleRetryImages}
+                        className="py-2 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium shadow transition"
+                    >
+                        Retry Images
+                    </button>
+                </>
+            )}
+            
+            {/* Step 3: Download ZIP (po wygenerowaniu obrazów) */}
+            {isFixturesReady && isImagesReady && !fixturesError && !imagesError && !isFixturesGenerating && !isImagesGenerating && (
                 <div className="text-center">
                     <div className="mb-4">
                         <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -901,11 +1003,13 @@ function GenerateStorePresetSection({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
-                        <p className="text-green-600 font-medium">Fixtures generated successfully!</p>
+                        <p className="text-green-600 font-medium">Store preset ready!</p>
+                        <p className="text-gray-600 text-sm">Fixtures and images generated successfully</p>
                     </div>
                     <DownloadStorePresetButton storePresetName={presetId} />
                 </div>
             )}
+            
             <div className="mt-4">
                 <button
                     type="button"
