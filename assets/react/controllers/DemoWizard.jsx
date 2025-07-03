@@ -1,10 +1,10 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
-import { useNavigate, useParams } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import DescribeStoreStage from './DescribeStoreStage';
 import {useSupportedPlugins} from '../hooks/useSupportedPlugins';
-import { useConversation } from './DescribeStoreStage/hooks/useConversation';
-import { useStorePreset } from '../hooks/useStorePreset';
+import {useConversation} from './DescribeStoreStage/hooks/useConversation';
+import {useStorePreset} from '../hooks/useStorePreset';
 
 const stepVariants = {
     enter: (direction) => ({
@@ -46,16 +46,16 @@ const steps = [
 const stepPaths = [
     'choose-plugins',
     'describe-store',
-    'preview-store',
+    'summary',
     'upload-logo',
     'choose-deploy',
-    'summary'
+    'summary-final'
 ];
 
 const stepTitles = [
     'Choose plugins',
     'Describe your store',
-    'Preview your store',
+    'Summary',
     'Upload your logo',
     'Choose deployment target',
     'Summary',
@@ -121,7 +121,7 @@ export default function DemoWizard({
     const [isFixturesReady, setIsFixturesReady] = useState(false);
     const [isFixturesGenerating, setIsFixturesGenerating] = useState(false);
     const conversation = useConversation();
-    const { handleCreateFixtures } = conversation;
+    const {handleCreateFixtures} = conversation;
     const {
         presetId,
         preset,
@@ -226,7 +226,7 @@ export default function DemoWizard({
                     setError('Please fix plugin loading error before proceeding');
                     return;
                 }
-                
+
                 // Konwertuj wybrane pluginy do formatu { "sylius/plugin-name": "^1.0" }
                 const pluginsPayload = {};
                 selectedPlugins.forEach(pluginName => {
@@ -235,15 +235,15 @@ export default function DemoWizard({
                         pluginsPayload[plugin.name] = `^${plugin.version}`;
                     }
                 });
-                updatePreset({ plugins: pluginsPayload });
+                updatePreset({plugins: pluginsPayload});
             }
-            
+
             // Sprawdź czy można przejść dalej
             if (step === 2 && !isDescribeStoreStageReady) {
                 setError('Please complete the store description before proceeding');
                 return;
             }
-            
+
             setError(null); // Clear any previous errors
             setDirection(1);
             // Use setTimeout to ensure direction is set before step change
@@ -326,11 +326,11 @@ export default function DemoWizard({
 
     const handlePluginsSelected = (plugins) => {
         setSelectedPlugins(plugins);
-        updatePreset({ plugins });
+        updatePreset({plugins});
     };
 
     const handleFixturesGenerated = (fixtures) => {
-        updatePreset({ fixtures });
+        updatePreset({fixtures});
     };
 
     const resetWizard = useCallback(() => {
@@ -358,9 +358,9 @@ export default function DemoWizard({
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
+            initial={{opacity: 0, scale: 0.98, y: 30}}
+            animate={{opacity: 1, scale: 1, y: 0}}
+            transition={{duration: 0.5, ease: 'easeOut'}}
             style={{padding: 0}}
         >
             <div className="mb-0 sticky top-0 z-10">
@@ -389,8 +389,8 @@ export default function DemoWizard({
                 {error && (
                     <div className="mx-4 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                         <p className="text-red-700 text-sm">{error}</p>
-                        <button 
-                            onClick={() => setError(null)} 
+                        <button
+                            onClick={() => setError(null)}
                             className="text-red-500 hover:text-red-700 text-xs underline mt-1"
                         >
                             Dismiss
@@ -417,15 +417,16 @@ export default function DemoWizard({
                                     <div className="w-full max-w-lg">
                                         {pluginsLoading ? (
                                             <div className="flex flex-col items-center justify-center py-8">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mb-4"></div>
+                                                <div
+                                                    className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mb-4"></div>
                                                 <p className="text-gray-600">Loading plugins...</p>
                                             </div>
                                         ) : pluginsError ? (
                                             <div className="text-red-600 mb-4 p-4 bg-red-50 rounded-lg">
                                                 <p className="font-medium">Failed to load plugins:</p>
                                                 <p className="text-sm">{pluginsError}</p>
-                                                <button 
-                                                    onClick={() => refetch()} 
+                                                <button
+                                                    onClick={() => refetch()}
                                                     className="mt-2 text-blue-600 underline text-sm hover:text-blue-800"
                                                 >
                                                     Try again
@@ -457,8 +458,8 @@ export default function DemoWizard({
                                                     onClick={handleNext}
                                                     disabled={pluginsLoading}
                                                     className={`w-full py-2 rounded-lg font-medium transition ${
-                                                        pluginsLoading 
-                                                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                                                        pluginsLoading
+                                                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                                             : 'bg-teal-600 hover:bg-teal-700 text-white'
                                                     }`}
                                                 >
@@ -483,10 +484,10 @@ export default function DemoWizard({
                             >
                                 <div className="flex flex-row w-full min-h-[70vh] gap-6">
                                     <div className="flex-1 flex flex-col min-h-0">
-                                        <DescribeStoreStage 
+                                        <DescribeStoreStage
                                             onReadyToProceed={() => setIsDescribeStoreStageReady(true)}
                                             onStoreDetailsChange={setStoreDetails}
-                                            presetId={presetId} 
+                                            presetId={presetId}
                                             updatePreset={updatePreset}
                                             onNext={handleNext}
                                             isReady={isDescribeStoreStageReady}
@@ -494,7 +495,8 @@ export default function DemoWizard({
                                     </div>
                                 </div>
                                 <div className="flex justify-between mt-6">
-                                    <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
+                                    <button onClick={back}
+                                            className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
                                         Back
                                     </button>
                                 </div>
@@ -511,82 +513,16 @@ export default function DemoWizard({
                                 exit="exit"
                                 transition={{duration: 0.25, type: 'tween', ease: 'easeInOut'}}
                             >
-                                <div className="text-center mb-8">
-                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full mb-4">
-                                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                        </svg>
-                                    </div>
-                                    <h2 className="text-3xl font-bold text-gray-800 mb-2">You're One Step Away!</h2>
-                                    <p className="text-lg text-gray-600 mb-6">Your dream store is about to come to life. Let's generate the fixtures and create your perfect e-commerce experience.</p>
-                                </div>
-                                
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                                    {/* Left side - Generation controls */}
-                                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                                        <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                                            <svg className="w-5 h-5 text-teal-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Store Generation
-                                        </h3>
-                                        <GenerateStorePresetSection
-                                            onReady={() => setIsFixturesReady(true)}
-                                            onGenerating={(generating) => setIsFixturesGenerating(generating)}
-                                            storeDetails={storeDetails}
-                                            presetId={presetId}
-                                        />
-                                    </div>
-                                    
-                                    {/* Right side - Store preview */}
-                                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                                        <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                                            <svg className="w-5 h-5 text-teal-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                            Store Preview
-                                        </h3>
-                                        <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 p-8 text-center">
-                                            {isFixturesReady ? (
-                                                <div className="space-y-4">
-                                                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                                                        <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                        </svg>
-                                                    </div>
-                                                    <div>
-                                                        <h4 className="text-lg font-semibold text-gray-800 mb-2">Store Ready!</h4>
-                                                        <p className="text-gray-600">Your store fixtures have been generated successfully. Download the preset to see your store in action.</p>
-                                                    </div>
-                                                </div>
-                                            ) : isFixturesGenerating ? (
-                                                <div className="space-y-4">
-                                                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-600 mx-auto"></div>
-                                                    <div>
-                                                        <h4 className="text-lg font-semibold text-gray-800 mb-2">Crafting Your Store...</h4>
-                                                        <p className="text-gray-600">We're generating your perfect store with all the products, categories, and configurations you specified.</p>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-4">
-                                                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
-                                                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                                        </svg>
-                                                    </div>
-                                                    <div>
-                                                        <h4 className="text-lg font-semibold text-gray-800 mb-2">Preview Coming Soon</h4>
-                                                        <p className="text-gray-600">Generate your store fixtures to see a preview of your e-commerce store with all the products and categories.</p>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                                
+                                <GenerateStorePresetSection
+                                    onReady={() => setIsFixturesReady(true)}
+                                    onGenerating={(generating) => setIsFixturesGenerating(generating)}
+                                    storeDetails={storeDetails}
+                                    presetId={presetId}
+                                />
                                 <div className="flex justify-between mt-6">
-                                    <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">← Back</button>
+                                    <button onClick={back}
+                                            className="text-teal-600 hover:underline rounded-lg px-4 py-2">← Back
+                                    </button>
                                     <button
                                         onClick={handleNext}
                                         disabled={!isFixturesReady}
@@ -623,7 +559,8 @@ export default function DemoWizard({
                                 {logoUrl &&
                                     <img src={logoUrl} alt="Logo" className="h-16 object-contain mx-auto mb-4"/>}
                                 <div className="flex justify-between">
-                                    <button onClick={back} className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
+                                    <button onClick={back}
+                                            className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
                                         Back
                                     </button>
                                     <button onClick={handleNext}
@@ -672,9 +609,11 @@ export default function DemoWizard({
                                         {deployStatus === 'in_progress' && (
                                             <svg className="animate-spin h-5 w-5 text-white"
                                                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                <circle className="opacity-25" cx="12" cy="12" r="10"
+                                                        stroke="currentColor"
                                                         strokeWidth="4"/>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                                <path className="opacity-75" fill="currentColor"
+                                                      d="M4 12a8 8 0 018-8v8z"/>
                                             </svg>
                                         )}
                                         <span>
@@ -693,7 +632,7 @@ export default function DemoWizard({
     );
 }
 
-function DownloadStorePresetButton({ storePresetName }) {
+function DownloadStorePresetButton({storePresetName}) {
     const [downloadError, setDownloadError] = useState(null);
     const [downloading, setDownloading] = useState(false);
 
@@ -749,24 +688,32 @@ function DownloadStorePresetButton({ storePresetName }) {
 }
 
 function GenerateStorePresetSection({
-    onReady,
-    onGenerating,
-    storeDetails,
-    presetId
-}) {
+                                        onReady,
+                                        onGenerating,
+                                        storeDetails,
+                                        presetId
+                                    }) {
     const [isFixturesReady, setIsFixturesReady] = useState(false);
     const [isFixturesGenerating, setIsFixturesGenerating] = useState(false);
     const [fixturesError, setFixturesError] = useState(null);
     const [timedOut, setTimedOut] = useState(false);
     const timeoutRef = React.useRef();
-    
+
     // Nowe stany dla generowania obrazów
     const [isImagesReady, setIsImagesReady] = useState(false);
     const [isImagesGenerating, setIsImagesGenerating] = useState(false);
     const [imagesError, setImagesError] = useState(null);
-    
+
     const conversation = useConversation();
-    const { handleCreateFixtures } = conversation;
+    const {handleCreateFixtures} = conversation;
+
+    // Automatyczne generowanie obrazów po fixtures
+    useEffect(() => {
+        if (isFixturesReady && !isImagesReady && !isImagesGenerating && !imagesError) {
+            handleGenerateImages();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isFixturesReady]);
 
     // Notify parent when ready (teraz tylko gdy obrazy są gotowe)
     useEffect(() => {
@@ -781,31 +728,23 @@ function GenerateStorePresetSection({
     }, [isFixturesGenerating, isImagesGenerating, onGenerating]);
 
     const handleGenerateFixtures = () => {
-        console.log('Manual fixtures generation started...');
         setIsFixturesGenerating(true);
         setFixturesError(null);
         setTimedOut(false);
-        
-        // Reset images state when regenerating fixtures
         setIsImagesReady(false);
         setIsImagesGenerating(false);
         setImagesError(null);
-        
-        // Timeout after 2 minutes
         timeoutRef.current = setTimeout(() => {
             setTimedOut(true);
             setIsFixturesGenerating(false);
             setFixturesError('Timeout: Store preset generation took too long. Please try again.');
         }, 120000);
-        
         handleCreateFixtures(presetId, storeDetails)
             .then(() => {
-                console.log('Fixtures generation completed successfully');
                 clearTimeout(timeoutRef.current);
                 setIsFixturesReady(true);
             })
             .catch((err) => {
-                console.error('Fixtures generation failed:', err);
                 clearTimeout(timeoutRef.current);
                 setFixturesError(err?.message || 'Unknown error');
                 setIsFixturesReady(false);
@@ -816,29 +755,22 @@ function GenerateStorePresetSection({
     };
 
     const handleGenerateImages = async () => {
-        console.log('Image generation started...');
         setIsImagesGenerating(true);
         setImagesError(null);
-        
         try {
             if (!presetId) throw new Error('Brak presetId!');
-            
+            // Tu w przyszłości można dodać polling statusu generowania obrazów
             const res = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/generate-images`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({}),
             });
-            
             const data = await res.json();
-            
             if (!res.ok) {
                 throw new Error(data.error || data.message || 'Failed to generate images');
             }
-            
-            console.log('Images generation completed successfully');
             setIsImagesReady(true);
         } catch (err) {
-            console.error('Images generation failed:', err);
             setImagesError(err?.message || 'Unknown error');
             setIsImagesReady(false);
         } finally {
@@ -850,7 +782,6 @@ function GenerateStorePresetSection({
         setFixturesError(null);
         setTimedOut(false);
         setIsFixturesReady(false);
-        // Reset images state when retrying fixtures
         setIsImagesReady(false);
         setIsImagesGenerating(false);
         setImagesError(null);
@@ -885,7 +816,7 @@ function GenerateStorePresetSection({
             };
             const res = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/fixtures-generate`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload),
             });
             const text = await res.text();
@@ -896,12 +827,12 @@ function GenerateStorePresetSection({
                 data = text;
             }
             if (!res.ok) {
-                setDebugResult({ error: data.error || data || 'Unknown error', status: res.status });
+                setDebugResult({error: data.error || data || 'Unknown error', status: res.status});
             } else {
-                setDebugResult({ success: data });
+                setDebugResult({success: data});
             }
         } catch (e) {
-            setDebugResult({ error: e.message });
+            setDebugResult({error: e.message});
         } finally {
             setDebugLoading(false);
         }
@@ -918,8 +849,8 @@ function GenerateStorePresetSection({
                             onClick={handleGenerateFixtures}
                             disabled={!storeDetails}
                             className={`py-3 px-8 rounded-lg font-medium shadow transition ${
-                                storeDetails 
-                                    ? 'bg-teal-600 hover:bg-teal-700 text-white' 
+                                storeDetails
+                                    ? 'bg-teal-600 hover:bg-teal-700 text-white'
                                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             }`}
                         >
@@ -928,7 +859,6 @@ function GenerateStorePresetSection({
                     </div>
                 </>
             )}
-            
             {/* Step 1: Fixtures Generating */}
             {isFixturesGenerating && (
                 <>
@@ -936,7 +866,6 @@ function GenerateStorePresetSection({
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
                 </>
             )}
-            
             {/* Step 1: Fixtures Error */}
             {fixturesError && !isFixturesGenerating && (
                 <>
@@ -949,38 +878,13 @@ function GenerateStorePresetSection({
                     </button>
                 </>
             )}
-            
-            {/* Step 2: Generate Images (po wygenerowaniu fixtures) */}
-            {isFixturesReady && !isImagesReady && !isImagesGenerating && !imagesError && (
-                <>
-                    <div className="text-center">
-                        <div className="mb-4">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                            <p className="text-green-600 font-medium">Fixtures generated successfully!</p>
-                        </div>
-                        <p className="text-gray-600 mb-4">Now let's generate product images for your store</p>
-                        <button
-                            onClick={handleGenerateImages}
-                            className="py-3 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow transition"
-                        >
-                            Generate Images
-                        </button>
-                    </div>
-                </>
-            )}
-            
-            {/* Step 2: Images Generating */}
-            {isImagesGenerating && (
+            {/* Step 2: Images Generating lub czekanie na zakończenie */}
+            {isFixturesReady && (!isImagesReady || isImagesGenerating) && !imagesError && (
                 <>
                     <div className="mb-4 text-center">Generating beautiful product images...</div>
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
                 </>
             )}
-            
             {/* Step 2: Images Error */}
             {imagesError && !isImagesGenerating && (
                 <>
@@ -993,23 +897,23 @@ function GenerateStorePresetSection({
                     </button>
                 </>
             )}
-            
-            {/* Step 3: Download ZIP (po wygenerowaniu obrazów) */}
+            {/* Step 3: Summary (bez pobierania ZIP) */}
             {isFixturesReady && isImagesReady && !fixturesError && !imagesError && !isFixturesGenerating && !isImagesGenerating && (
                 <div className="text-center">
                     <div className="mb-4">
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        <div
+                            className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
                             </svg>
                         </div>
                         <p className="text-green-600 font-medium">Store preset ready!</p>
                         <p className="text-gray-600 text-sm">Fixtures and images generated successfully</p>
+                        {/* Tu można dodać podsumowanie lub status, bez przycisku pobierania */}
                     </div>
-                    <DownloadStorePresetButton storePresetName={presetId} />
                 </div>
             )}
-            
             <div className="mt-4">
                 <button
                     type="button"
@@ -1021,7 +925,8 @@ function GenerateStorePresetSection({
                 </button>
                 {debugResult && (
                     <div className="mt-2 text-xs text-left break-all max-w-md">
-                        <pre className={debugResult.error ? 'text-red-600' : 'text-green-700'} style={{whiteSpace: 'pre-wrap', wordBreak: 'break-all'}}>
+                        <pre className={debugResult.error ? 'text-red-600' : 'text-green-700'}
+                             style={{whiteSpace: 'pre-wrap', wordBreak: 'break-all'}}>
                             {debugResult.error ? `Błąd: ${debugResult.error} (status: ${debugResult.status || ''})` : JSON.stringify(debugResult.success, null, 2)}
                         </pre>
                     </div>
