@@ -1,23 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useConversation } from './hooks/useConversation';
 import ConversationPanel from './ConversationPanel';
-import StoreDetailsPanel from './StoreDetailsPanel';
-import { motion, AnimatePresence } from 'framer-motion';
 
-const DescribeStoreStage = ({ onReadyToProceed, onStoreDetailsChange, onNext, isReady }) => {
+const DescribeStoreStage = ({ onStoreDetailsChange, onNext }) => {
     const {
         messages,
         input,
         loading,
         error,
-        state,
         storeDetails,
         setInput,
         handleSend,
-        retryRequest,
-        handleCreateFixtures,
-        clearConversation,
         copyConversation,
+        handleCreateFixtures,
     } = useConversation();
 
     // Informuj rodzica o zmianie storeDetails
@@ -26,19 +21,6 @@ const DescribeStoreStage = ({ onReadyToProceed, onStoreDetailsChange, onNext, is
             onStoreDetailsChange(storeDetails);
         }
     }, [storeDetails, onStoreDetailsChange]);
-
-    // Ensure callback is only called once per transition to 'awaiting_confirmation'
-    const hasCalledRef = useRef(false);
-    useEffect(() => {
-        if (state === 'awaiting_confirmation' && !hasCalledRef.current) {
-            hasCalledRef.current = true;
-            if (typeof onReadyToProceed === 'function') {
-                onReadyToProceed();
-            }
-        } else if (state !== 'awaiting_confirmation') {
-            hasCalledRef.current = false;
-        }
-    }, [state, onReadyToProceed]);
 
     return (
         <div style={{
@@ -62,17 +44,13 @@ const DescribeStoreStage = ({ onReadyToProceed, onStoreDetailsChange, onNext, is
                     handleSend={handleSend}
                     loading={loading}
                     error={error}
-                    state={state}
                     copyConversation={copyConversation}
-                    retryRequest={retryRequest}
                     handleCreateFixtures={handleCreateFixtures}
-                    clearConversation={clearConversation}
                     onNext={onNext}
-                    isReady={isReady}
                 />
             </div>
         </div>
     );
 };
 
-export default DescribeStoreStage; 
+export default DescribeStoreStage;

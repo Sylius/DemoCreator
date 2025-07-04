@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import {useState, useContext} from 'react';
 import ConversationControls from './ConversationControls';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
-
+import {WizardContext} from '../../../hooks/WizardProvider';
 const ConversationPanel = ({
                                messages,
                                input,
@@ -10,11 +10,9 @@ const ConversationPanel = ({
                                handleSend,
                                loading,
                                error,
-                               state,
+                               conversationState,
                                copyConversation,
-                               retryRequest,
                                handleCreateFixtures,
-                               clearConversation,
                                onNext,
                                isReady
                            }) => {
@@ -22,10 +20,11 @@ const ConversationPanel = ({
     const [showDebug, setShowDebug] = useState(false);
     // const isDev = typeof process !== 'undefined' && process.env.NODE_ENV !== 'production';
     const isDev = true; // For demonstration purposes, assume we're always in dev mode
+    const { wiz, dispatch } = useContext(WizardContext);
 
     return (
         <div className="flex flex-col flex-1 min-h-0 bg-gray-50">
-            {state === 'done' && (
+            {conversationState === 'done' && (
                 <div className="flex items-center justify-center py-4 px-4 mb-4 bg-green-50 border-2 border-green-200 rounded-xl mx-2">
                     <span className="w-3 h-3 rounded-full bg-green-500 mr-3"></span>
                     <strong className="text-green-700 text-sm font-medium">All data collected!</strong>
@@ -37,9 +36,9 @@ const ConversationPanel = ({
                 height={undefined}
                 loading={loading}
             />
-            
+
             {/* Large centered Next button when ready */}
-            {isReady && (
+            {wiz.fixtures.ready && (
                 <div className="flex justify-center items-center py-6 px-4">
                     <button
                         onClick={onNext}
@@ -51,7 +50,7 @@ const ConversationPanel = ({
             )}
             {error && (
                 <div className="mx-2 mb-4 p-3 bg-red-50 border-2 border-red-200 rounded-xl">
-                    <strong className="text-red-700 text-sm">Error:</strong> 
+                    <strong className="text-red-700 text-sm">Error:</strong>
                     <span className="text-red-600 text-sm ml-1">{error}</span>
                 </div>
             )}
@@ -61,7 +60,7 @@ const ConversationPanel = ({
                     setInput={setInput}
                     handleSend={handleSend}
                     loading={loading}
-                    disabled={state === 'done'}
+                    disabled={conversationState === 'done'}
                     messages={messages}
                     autoFocus={true}
                 />
@@ -100,19 +99,17 @@ const ConversationPanel = ({
                     }}>
                         <div><b>input:</b> {JSON.stringify(input)}</div>
                         <div><b>loading:</b> {String(loading)}</div>
-                        <div><b>state:</b> {state}</div>
+                        <div><b>conversationState:</b> {conversationState}</div>
                         <div><b>messages.length:</b> {messages.length}</div>
                         <div><b>error:</b> {error ? String(error) : 'null'}</div>
                     </div>
                     <ConversationControls
                         copyConversation={copyConversation}
-                        retryRequest={retryRequest}
                         showFunctionMessages={showFunctionMessages}
                         setShowFunctionMessages={setShowFunctionMessages}
                         handleCreateFixtures={handleCreateFixtures}
-                        clearConversation={clearConversation}
                         loading={loading}
-                        state={state}
+                        conversationState={conversationState}
                     />
                 </div>
             )}

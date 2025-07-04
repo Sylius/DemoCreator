@@ -1,8 +1,9 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import {BrowserRouter, Routes, Route, Link, useLocation} from 'react-router-dom';
 import DemoWizard from './controllers/DemoWizard';
+import {WizardProvider} from "./hooks/WizardProvider";
 
-function Layout({ children }) {
+function Layout({children}) {
     const location = useLocation();
     return (
         <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-white font-sans text-gray-900">
@@ -31,7 +32,7 @@ function Layout({ children }) {
     );
 }
 
-function NavLink({ to, active, children }) {
+function NavLink({to, active, children}) {
     return (
         <Link
             to={to}
@@ -57,7 +58,8 @@ function HomeHero() {
                 Craft your Sylius store in seconds with our intuitive demo creator.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/wizard" className="px-6 py-3 rounded-xl bg-teal-600 text-white font-semibold shadow hover:bg-teal-700 transition text-lg no-underline hover:underline">
+                <Link to="/wizard"
+                      className="px-6 py-3 rounded-xl bg-teal-600 text-white font-semibold shadow hover:bg-teal-700 transition text-lg no-underline hover:underline">
                     Begin!
                 </Link>
                 {/*<Link to="/chat" className="px-6 py-3 rounded-xl bg-white border border-gray-200 text-teal-700 font-semibold shadow hover:bg-teal-50 hover:text-teal-900 transition text-lg no-underline hover:underline">*/}
@@ -71,12 +73,14 @@ function HomeHero() {
 export default function App() {
     return (
         <BrowserRouter>
-            <Layout>
-                <Routes>
-                    <Route path="/wizard/:step?" element={<DemoWizard />} />
-                    <Route path="/" element={<HomeHero />} />
-                </Routes>
-            </Layout>
+            <WizardProvider>
+                <Layout>
+                    <Routes>
+                        <Route path="/wizard/:step?" element={<DemoWizard/>}/>
+                        <Route path="/" element={<HomeHero/>}/>
+                    </Routes>
+                </Layout>
+            </WizardProvider>
         </BrowserRouter>
     );
 }

@@ -21,6 +21,7 @@ const initialState = {
         url: null,
         status: null,
     },
+    state: 'collecting',
     storeDetails: null,
     error: null,
 };
@@ -31,6 +32,8 @@ function reducer(state, action) {
             return {...state, step: action.step, direction: action.direction};
         case 'SET_SELECTED_PLUGINS':
             return {...state, selectedPlugins: action.selectedPlugins};
+        case 'SET_WIZARD_STATE':
+            return {...state, ...action.state};
         case 'START_FIXTURES':
             return {
                 ...state,

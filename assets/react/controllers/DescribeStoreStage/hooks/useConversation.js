@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import {useWizardState} from "../../../hooks/useWizardState";
 
 export function useConversation() {
     const [messages, setMessages] = useState(() => {
@@ -57,6 +58,8 @@ export function useConversation() {
     }, [messages]);
 
     const handleSend = async (e, auto = false) => {
+        const [wiz, dispatch] = useWizardState();
+
         if (!auto) e?.preventDefault();
         if (!auto && !input.trim()) return;
         
@@ -99,7 +102,10 @@ export function useConversation() {
             if (data.error) setError(data.error); 
             else setError(null);
             
-            if (data.state) setState(data.state);
+            if (data.state) {
+                setState(data.state);
+                dispatch({ type: 'SET_WIZARD_STATE', state: data.state });
+            }
             if (data.conversationId) setConversationId(data.conversationId);
             if (data.storeDetails) setStoreDetails(data.storeDetails);
             
@@ -247,4 +253,4 @@ export function useConversation() {
         clearConversation,
         copyConversation,
     };
-} 
+}

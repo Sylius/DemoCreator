@@ -77,7 +77,7 @@ final readonly class ChatConversationService
                         'name' => $name,
                         'content' => json_encode($storeDetails, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
                     ];
-                    $state = ChatConversationState::AwaitingConfirmation;
+                    $state = ChatConversationState::Ready;
                 } else {
                     $error = "Unknown function: $name";
                     $state = ChatConversationState::Error;
@@ -106,7 +106,7 @@ final readonly class ChatConversationService
             return ChatConversationState::Generating;
         }
         if ($storeDetails && $storeDetails->industry && $storeDetails->locales && $storeDetails->currencies && $storeDetails->countries && $storeDetails->productsPerCat) {
-            return ChatConversationState::AwaitingConfirmation;
+            return ChatConversationState::Ready;
         }
 
         return ChatConversationState::Collecting;

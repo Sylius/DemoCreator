@@ -411,7 +411,6 @@ export default function DemoWizard({
                                             presetId={presetId}
                                             updatePreset={updatePreset}
                                             onNext={handleNext}
-                                            isReady={wiz.isDescribeStoreStageReady}
                                         />
                                     </div>
                                 </div>

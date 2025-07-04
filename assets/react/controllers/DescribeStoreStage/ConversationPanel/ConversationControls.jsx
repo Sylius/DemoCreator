@@ -51,7 +51,7 @@ const ConversationControls = ({
                 Show functions
             </label>
             
-            {state === 'awaiting_confirmation' && (
+            {state === 'ready' && (
                 <button
                     onClick={handleCreateFixtures}
                     disabled={loading}
