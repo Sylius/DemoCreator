@@ -1,4 +1,5 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useEffect, useCallback} from 'react';
+import { useWizardState } from '../hooks/useWizardState';
 import {motion, AnimatePresence} from 'framer-motion';
 import {useNavigate, useParams} from 'react-router-dom';
 import DescribeStoreStage from './DescribeStoreStage';
@@ -87,35 +88,16 @@ function prettify(name) {
 }
 
 export default function DemoWizard({
-                                       apiUrl,
-                                       logoUploadUrl,
-                                       environmentsUrl,
-                                       deployStateUrlBase
-                                   }) {
+    apiUrl,
+    logoUploadUrl,
+    environmentsUrl,
+    deployStateUrlBase
+}) {
     const navigate = useNavigate();
     const {step: stepParam} = useParams();
     const initialStepIndex = stepPaths.indexOf(stepParam) !== -1 ? stepPaths.indexOf(stepParam) : 0;
-    const [step, setStep] = useState(initialStepIndex + 1);
-    const [direction, setDirection] = useState(1); // 1 = handleNext, -1 = back
+    const [wiz, dispatch] = useWizardState();
     const {plugins, loading: pluginsLoading, error: pluginsError, refetch} = useSupportedPlugins();
-    const [targets, setTargets] = useState([]);
-    const [selectedPlugins, setSelectedPlugins] = useState(() => {
-        const stored = localStorage.getItem('selectedPlugins');
-        return stored ? JSON.parse(stored) : [];
-    });
-    const [target, setTarget] = useState('');
-    const [envOptions, setEnvOptions] = useState([]);
-    const [env, setEnv] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [deployStateId, setDeployStateId] = useState(null);
-    const [deployUrl, setDeployUrl] = useState(null);
-    const [deployStatus, setDeployStatus] = useState(null);
-    const [storeDetails, setStoreDetails] = useState(null);
-    const [describeStoreStage, setDescribeStoreStage] = useState(null);
-    const [isDescribeStoreStageReady, setIsDescribeStoreStageReady] = useState(false);
-    const [isFixturesReady, setIsFixturesReady] = useState(false);
-    const [isFixturesGenerating, setIsFixturesGenerating] = useState(false);
     const conversation = useConversation();
     const {handleCreateFixtures} = conversation;
     const {
@@ -128,30 +110,17 @@ export default function DemoWizard({
         deletePreset,
     } = useStorePreset();
 
-    // Po załadowaniu komponentu spróbuj załadować storeDetails z localStorage jeśli są dostępne
-    useEffect(() => {
-        if (storeDetails == null) {
-            try {
-                const stored = localStorage.getItem('storeDetails');
-                if (stored) {
-                    setStoreDetails(JSON.parse(stored));
-                }
-            } catch (e) {
-                // ignore
-            }
-        }
-    }, []);
+    // No need to load storeDetails from localStorage; useWizardState persists state.
 
     // Synchronize step with URL with delay to allow animation
     useEffect(() => {
-        console.log(describeStoreStage);
-        if (!stepParam || stepParam !== stepPaths[step - 1]) {
+        if (!stepParam || stepParam !== stepPaths[wiz.step - 1]) {
             const timer = setTimeout(() => {
-                navigate(`/wizard/${stepPaths[step - 1]}`, {replace: true});
+                navigate(`/wizard/${stepPaths[wiz.step - 1]}`, {replace: true});
             }, 100); // Small delay to allow animation to start
             return () => clearTimeout(timer);
         }
-    }, [step, stepParam, navigate]);
+    }, [wiz.step, stepParam, navigate]);
 
     // Redirect /wizard to first step
     useEffect(() => {
@@ -161,71 +130,66 @@ export default function DemoWizard({
     }, [stepParam, navigate]);
 
     useEffect(() => {
-        if (step === 4 && target === 'platform.sh') {
+        if (wiz.step === 4 && wiz.target === 'platform.sh') {
             fetch(environmentsUrl)
                 .then(r => r.json())
-                .then(data => setEnvOptions(data.environments || []))
-                .catch(() => setError('Failed to fetch environments'));
+                .then(data => dispatch({ type: 'SET_ENV_OPTIONS', envOptions: data.environments || [] }))
+                .catch(() => dispatch({ type: 'SET_ERROR', error: 'Failed to fetch environments' }));
         }
-    }, [step, target, environmentsUrl]);
+    }, [wiz.step, wiz.target, environmentsUrl, dispatch]);
 
     useEffect(() => {
-        if (step === 5 && deployStateId) {
+        if (wiz.step === 5 && wiz.deployStateId) {
             const interval = setInterval(() => {
-                fetch(`${deployStateUrlBase}/${env}/${deployStateId}`)
+                fetch(`${deployStateUrlBase}/${wiz.env}/${wiz.deployStateId}`)
                     .then(r => r.json())
                     .then(data => {
-                        setDeployStatus(data.status);
+                        dispatch({ type: 'SET_DEPLOY_STATUS', deployStatus: data.status });
                         if (data.status !== 'in_progress') {
                             clearInterval(interval);
                         }
                     })
                     .catch(() => {
-                        setError('Failed to check deploy status');
+                        dispatch({ type: 'SET_ERROR', error: 'Failed to check deploy status' });
                         clearInterval(interval);
                     });
             }, 20000);
             return () => clearInterval(interval);
         }
-    }, [step, deployStateId, env, deployStateUrlBase]);
+    }, [wiz.step, wiz.deployStateId, wiz.env, deployStateUrlBase, dispatch]);
 
     // Reset describeStoreStageReady when step changes away from 2
     useEffect(() => {
-        if (step !== 2 && isDescribeStoreStageReady) {
-            setIsDescribeStoreStageReady(false);
+        if (wiz.step !== 2 && wiz.isDescribeStoreStageReady) {
+            dispatch({ type: 'SET_DESCRIBE_STORE_STAGE_READY', isDescribeStoreStageReady: false });
         }
-    }, [step, isDescribeStoreStageReady]);
-
-    // Persist selected plugins to localStorage
-    useEffect(() => {
-        localStorage.setItem('selectedPlugins', JSON.stringify(selectedPlugins));
-    }, [selectedPlugins]);
+    }, [wiz.step, wiz.isDescribeStoreStageReady, dispatch]);
 
     // Reset fixtures state when entering step 3 (preview-store)
     useEffect(() => {
-        if (step === 3) {
+        if (wiz.step === 3) {
             // Reset fixtures state to allow regeneration
-            setIsFixturesReady(false);
-            setIsFixturesGenerating(false);
+            dispatch({ type: 'SET_FIXTURES_READY', isFixturesReady: false });
+            dispatch({ type: 'SET_FIXTURES_GENERATING', isFixturesGenerating: false });
         }
-    }, [step]);
+    }, [wiz.step, dispatch]);
 
     const handleNext = useCallback(() => {
         try {
             // Jeśli jesteśmy na kroku 1 (pluginy), wyślij PATCH z wybranymi pluginami
-            if (step === 1) {
+            if (wiz.step === 1) {
                 if (pluginsLoading) {
-                    setError('Please wait for plugins to load');
+                    dispatch({ type: 'SET_ERROR', error: 'Please wait for plugins to load' });
                     return;
                 }
                 if (pluginsError) {
-                    setError('Please fix plugin loading error before proceeding');
+                    dispatch({ type: 'SET_ERROR', error: 'Please fix plugin loading error before proceeding' });
                     return;
                 }
 
                 // Konwertuj wybrane pluginy do formatu { "sylius/plugin-name": "^1.0" }
                 const pluginsPayload = {};
-                selectedPlugins.forEach(pluginName => {
+                wiz.selectedPlugins.forEach(pluginName => {
                     const plugin = plugins.find(p => p.composer === pluginName);
                     if (plugin) {
                         pluginsPayload[plugin.name] = `^${plugin.version}`;
@@ -235,41 +199,34 @@ export default function DemoWizard({
             }
 
             // Sprawdź czy można przejść dalej
-            if (step === 2 && !isDescribeStoreStageReady) {
-                setError('Please complete the store description before proceeding');
+            if (wiz.step === 2 && !wiz.isDescribeStoreStageReady) {
+                dispatch({ type: 'SET_ERROR', error: 'Please complete the store description before proceeding' });
                 return;
             }
 
-            setError(null); // Clear any previous errors
-            setDirection(1);
-            // Use setTimeout to ensure direction is set before step change
-            setTimeout(() => {
-                setStep(s => Math.min(s + 1, stepPaths.length));
-            }, 0);
+            dispatch({ type: 'SET_ERROR', error: null }); // Clear any previous errors
+            dispatch({ type: 'SET_STEP', step: Math.min(wiz.step + 1, stepPaths.length), direction: 1 });
         } catch (err) {
-            setError(`Failed to proceed: ${err.message}`);
+            dispatch({ type: 'SET_ERROR', error: `Failed to proceed: ${err.message}` });
         }
-    }, [step, pluginsLoading, pluginsError, selectedPlugins, plugins, updatePreset, isDescribeStoreStageReady, setError, setDirection, setStep]);
+    }, [wiz.step, wiz.selectedPlugins, pluginsLoading, pluginsError, plugins, updatePreset, wiz.isDescribeStoreStageReady, dispatch]);
     const back = useCallback(() => {
-        setDirection(-1);
-        // Use setTimeout to ensure direction is set before step change
-        setTimeout(() => {
-            setStep(s => Math.max(s - 1, 1));
-        }, 0);
-    }, [setDirection, setStep]);
+        dispatch({ type: 'SET_STEP', step: Math.max(wiz.step - 1, 1), direction: -1 });
+    }, [wiz.step, dispatch]);
 
+    // The following handlers dispatch to wizard state instead of using useState/setXxx
     const buildPluginPayload = () => {
         const map = {};
-        selectedPlugins.forEach(composer => {
+        wiz.selectedPlugins.forEach(composer => {
             const plugin = plugins.find(p => p.composer === composer);
             if (plugin) map[composer] = plugin.version;
         });
         return map;
     };
 
-    const handleDeploy = async () => {
-        setLoading(true);
-        setError(null);
+    const handleDeploy = async (payload) => {
+        dispatch({ type: 'SET_LOADING', loading: true });
+        dispatch({ type: 'SET_ERROR', error: null });
         try {
             const res = await fetch(apiUrl, {
                 method: 'POST',
@@ -278,33 +235,27 @@ export default function DemoWizard({
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.message);
-            setDeployStateId(data.deployStateId);
-            setDeployUrl(data.url);
-            setDeployStatus('in_progress');
-            setDirection(1);
-            setTimeout(() => {
-                setStep(5);
-            }, 0);
+            dispatch({ type: 'SET_DEPLOY_STATE_ID', deployStateId: data.deployStateId });
+            dispatch({ type: 'SET_DEPLOY_URL', deployUrl: data.url });
+            dispatch({ type: 'SET_DEPLOY_STATUS', deployStatus: 'in_progress' });
+            dispatch({ type: 'SET_STEP', step: 5, direction: 1 });
         } catch (e) {
-            setError(e.message);
+            dispatch({ type: 'SET_ERROR', error: e.message });
         } finally {
-            setLoading(false);
+            dispatch({ type: 'SET_LOADING', loading: false });
         }
     };
 
     const handleStoreDetailsConfirm = () => {
-        setDirection(1);
-        setTimeout(() => {
-            setStep(s => Math.min(s + 1, stepPaths.length));
-        }, 0);
+        dispatch({ type: 'SET_STEP', step: Math.min(wiz.step + 1, stepPaths.length), direction: 1 });
     };
 
     const enableNextStepInDescribeStore = () => {
-        setIsDescribeStoreStageReady(true);
+        dispatch({ type: 'SET_DESCRIBE_STORE_STAGE_READY', isDescribeStoreStageReady: true });
     };
 
     const handlePluginsSelected = (plugins) => {
-        setSelectedPlugins(plugins);
+        dispatch({ type: 'SET_SELECTED_PLUGINS', selectedPlugins: plugins });
         updatePreset({plugins});
     };
 
@@ -313,25 +264,12 @@ export default function DemoWizard({
     };
 
     const resetWizard = useCallback(() => {
-        localStorage.clear(); // czyści wszystko
-        setSelectedPlugins([]);
-        setTarget('');
-        setEnv('');
-        setStoreDetails(null);
-        setIsDescribeStoreStageReady(false);
-        setIsFixturesGenerating(false);
-        setIsFixturesReady(false);
-        setDeployStateId(null);
-        setDeployUrl(null);
-        setDeployStatus(null);
-        setError(null);
-        setLoading(false);
-        setDirection(1);
-        setStep(1);
+        // localStorage.clear(); // No need, useWizardState persists state
+        dispatch({ type: 'RESET_WIZARD' });
         navigate(`/wizard/${stepPaths[0]}`, {replace: true});
         // Reload page to ensure complete reset
         window.location.reload();
-    }, [navigate]);
+    }, [navigate, dispatch]);
 
     return (
         <motion.div
@@ -352,22 +290,22 @@ export default function DemoWizard({
                     <div className="flex items-center gap-2">
                         {steps.map((label, idx) => (
                             <span key={label}
-                                  className={`h-2 w-2 rounded-full transition-colors duration-200 ${step === idx + 1 ? 'bg-teal-600' : 'bg-gray-200'}`}></span>
+                                  className={`h-2 w-2 rounded-full transition-colors duration-200 ${wiz.step === idx + 1 ? 'bg-teal-600' : 'bg-gray-200'}`}></span>
                         ))}
                     </div>
                     <div className="text-sm text-gray-500">
                         {presetId && `ID: ${presetId.slice(-8)}`}
                     </div>
                 </div>
-                <h2 className="text-2xl font-bold text-center mt-6 mb-2">{stepTitles[step - 1]}</h2>
-                {stepDescriptions[step - 1] && (
-                    <p className="text-gray-500 text-center mb-4">{stepDescriptions[step - 1]}</p>
+                <h2 className="text-2xl font-bold text-center mt-6 mb-2">{stepTitles[wiz.step - 1]}</h2>
+                {stepDescriptions[wiz.step - 1] && (
+                    <p className="text-gray-500 text-center mb-4">{stepDescriptions[wiz.step - 1]}</p>
                 )}
-                {error && (
+                {wiz.error && (
                     <div className="mx-4 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-red-700 text-sm">{error}</p>
+                        <p className="text-red-700 text-sm">{wiz.error}</p>
                         <button
-                            onClick={() => setError(null)}
+                            onClick={() => dispatch({ type: 'SET_ERROR', error: null })}
                             className="text-red-500 hover:text-red-700 text-xs underline mt-1"
                         >
                             Dismiss
@@ -377,12 +315,12 @@ export default function DemoWizard({
             </div>
             <div className="flex-1 min-h-0 flex flex-col">
                 <div className="flex-1 overflow-y-auto min-h-0 relative">
-                    <AnimatePresence custom={direction} initial={false} mode="wait" presenceAffectsLayout={false}>
+                    <AnimatePresence custom={wiz.direction} initial={false} mode="wait" presenceAffectsLayout={false}>
                         {/* Step 1: Plugins */}
-                        {step === 1 && (
+                        {wiz.step === 1 && (
                             <motion.div
                                 key="1"
-                                custom={direction}
+                                custom={wiz.direction}
                                 variants={stepVariants}
                                 initial="enter"
                                 animate="center"
@@ -418,16 +356,22 @@ export default function DemoWizard({
                                                             <input
                                                                 type="checkbox"
                                                                 value={p.composer}
-                                                                checked={selectedPlugins.includes(p.composer)}
+                                                                checked={wiz.selectedPlugins.includes(p.composer)}
                                                                 onChange={e => {
                                                                     const c = e.target.value;
-                                                                    setSelectedPlugins(sel => sel.includes(c) ? sel.filter(x => x !== c) : [...sel, c]);
+                                                                    let updated;
+                                                                    if (wiz.selectedPlugins.includes(c)) {
+                                                                        updated = wiz.selectedPlugins.filter(x => x !== c);
+                                                                    } else {
+                                                                        updated = [...wiz.selectedPlugins, c];
+                                                                    }
+                                                                    handlePluginsSelected(updated);
                                                                 }}
                                                                 className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
                                                             />
                                                             <span className="text-gray-800 text-sm">
-                                                                    {PLUGIN_LABELS[p.name.replace(/^sylius\//, '')] || prettify(p.name)} ({p.version})
-                                                                </span>
+                                                                {PLUGIN_LABELS[p.name.replace(/^sylius\//, '')] || prettify(p.name)} ({p.version})
+                                                            </span>
                                                         </label>
                                                     ))}
                                                 </div>
@@ -449,10 +393,10 @@ export default function DemoWizard({
                             </motion.div>
                         )}
                         {/* Step 2: Fixtures (DescribeStoreStage) with side panel */}
-                        {step === 2 && (
+                        {wiz.step === 2 && (
                             <motion.div
                                 key="2"
-                                custom={direction}
+                                custom={wiz.direction}
                                 variants={stepVariants}
                                 initial="enter"
                                 animate="center"
@@ -462,12 +406,12 @@ export default function DemoWizard({
                                 <div className="flex flex-row w-full min-h-[70vh] gap-6">
                                     <div className="flex-1 flex flex-col min-h-0">
                                         <DescribeStoreStage
-                                            onReadyToProceed={() => setIsDescribeStoreStageReady(true)}
-                                            onStoreDetailsChange={setStoreDetails}
+                                            onReadyToProceed={() => dispatch({ type: 'SET_DESCRIBE_STORE_STAGE_READY', isDescribeStoreStageReady: true })}
+                                            onStoreDetailsChange={details => dispatch({ type: 'SET_STORE_DETAILS', storeDetails: details })}
                                             presetId={presetId}
                                             updatePreset={updatePreset}
                                             onNext={handleNext}
-                                            isReady={isDescribeStoreStageReady}
+                                            isReady={wiz.isDescribeStoreStageReady}
                                         />
                                     </div>
                                 </div>
@@ -480,10 +424,10 @@ export default function DemoWizard({
                             </motion.div>
                         )}
                         {/* Step 3: Download store-preset zip after generation */}
-                        {step === 3 && (
+                        {wiz.step === 3 && (
                             <motion.div
                                 key="3"
-                                custom={direction}
+                                custom={wiz.direction}
                                 variants={stepVariants}
                                 initial="enter"
                                 animate="center"
@@ -491,9 +435,9 @@ export default function DemoWizard({
                                 transition={{duration: 0.25, type: 'tween', ease: 'easeInOut'}}
                             >
                                 <GenerateStorePresetSection
-                                    onReady={() => setIsFixturesReady(true)}
-                                    onGenerating={(generating) => setIsFixturesGenerating(generating)}
-                                    storeDetails={storeDetails}
+                                    onReady={() => dispatch({ type: 'SET_FIXTURES_READY', isFixturesReady: true })}
+                                    onGenerating={(generating) => dispatch({ type: 'SET_FIXTURES_GENERATING', isFixturesGenerating: generating })}
+                                    storeDetails={wiz.storeDetails}
                                     presetId={presetId}
                                 />
                                 <div className="flex justify-between mt-6">
@@ -502,9 +446,9 @@ export default function DemoWizard({
                                     </button>
                                     <button
                                         onClick={handleNext}
-                                        disabled={!isFixturesReady}
+                                        disabled={!wiz.isFixturesReady}
                                         className={`py-2 px-4 rounded-md font-medium transition ${
-                                            isFixturesReady ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                            wiz.isFixturesReady ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         }`}
                                     >Next →
                                     </button>
@@ -512,10 +456,10 @@ export default function DemoWizard({
                             </motion.div>
                         )}
                         {/* Step 4: Deploy Target */}
-                        {step === 4 && (
+                        {wiz.step === 4 && (
                             <motion.div
                                 key="5"
-                                custom={direction}
+                                custom={wiz.direction}
                                 variants={stepVariants}
                                 initial="enter"
                                 animate="center"
@@ -526,7 +470,7 @@ export default function DemoWizard({
                                 <div className="mb-4">
                                     <h3 className="font-semibold text-gray-800">Plugins:</h3>
                                     <ul className="list-disc list-inside text-sm text-gray-700">
-                                        {selectedPlugins.map(c => {
+                                        {wiz.selectedPlugins.map(c => {
                                             const p = plugins.find(x => x.composer === c);
                                             return <li
                                                 key={c}>{PLUGIN_LABELS[p?.name?.replace(/^sylius\//, '')] || prettify(p?.name)} ({p?.version})</li>;
@@ -535,19 +479,19 @@ export default function DemoWizard({
                                 </div>
                                 <div className="mb-4">
                                     <h3 className="font-semibold text-gray-800">Deploy:</h3>
-                                    <p className="text-sm text-gray-700">{target}{target === 'platform.sh' && env ? ` (${env})` : ''}</p>
+                                    <p className="text-sm text-gray-700">{wiz.target}{wiz.target === 'platform.sh' && wiz.env ? ` (${wiz.env})` : ''}</p>
                                 </div>
                                 <div className="flex justify-center">
                                     <button
-                                        disabled={deployStatus !== 'complete'}
-                                        onClick={() => window.open(deployUrl, '_blank')}
+                                        disabled={wiz.deployStatus !== 'complete'}
+                                        onClick={() => window.open(wiz.deployUrl, '_blank')}
                                         className={`py-2 px-4 rounded-lg font-medium transition ${
-                                            deployStatus === 'complete'
+                                            wiz.deployStatus === 'complete'
                                                 ? 'bg-green-600 hover:bg-green-700 text-white'
                                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                                         } flex items-center space-x-2 mx-auto`}
                                     >
-                                        {deployStatus === 'in_progress' && (
+                                        {wiz.deployStatus === 'in_progress' && (
                                             <svg className="animate-spin h-5 w-5 text-white"
                                                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle className="opacity-25" cx="12" cy="12" r="10"
@@ -558,10 +502,10 @@ export default function DemoWizard({
                                             </svg>
                                         )}
                                         <span>
-                                                {deployStatus === 'in_progress' && 'Deploying...'}
-                                            {deployStatus === 'complete' && 'Go to demo'}
-                                            {deployStatus === 'failed' && 'Deploy failed'}
-                                            </span>
+                                            {wiz.deployStatus === 'in_progress' && 'Deploying...'}
+                                            {wiz.deployStatus === 'complete' && 'Go to demo'}
+                                            {wiz.deployStatus === 'failed' && 'Deploy failed'}
+                                        </span>
                                     </button>
                                 </div>
                             </motion.div>
