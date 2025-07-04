@@ -71,20 +71,6 @@ const DescribeStoreStage = ({ onReadyToProceed, onStoreDetailsChange, onNext, is
                     isReady={isReady}
                 />
             </div>
-            {/*<AnimatePresence>*/}
-            {/*    {state === 'awaiting_confirmation' && (*/}
-            {/*        <motion.div*/}
-            {/*            key="store-details-panel"*/}
-            {/*            initial={{ opacity: 0, x: 40 }}*/}
-            {/*            animate={{ opacity: 1, x: 0 }}*/}
-            {/*            exit={{ opacity: 0, x: 40 }}*/}
-            {/*            transition={{ duration: 0.4 }}*/}
-            {/*            style={{ position: 'relative', zIndex: 2 }}*/}
-            {/*        >*/}
-            {/*            <StoreDetailsPanel storeDetails={storeDetails}/>*/}
-            {/*        </motion.div>*/}
-            {/*    )}*/}
-            {/*</AnimatePresence>*/}
         </div>
     );
 };

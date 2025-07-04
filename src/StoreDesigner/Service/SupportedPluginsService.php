@@ -40,40 +40,53 @@ class SupportedPluginsService
 
     private function fetchFromGitHub(): array
     {
-        $url = 'https://api.github.com/repos/Sylius/StoreAssembler/contents/config/plugins/sylius';
-        $response = $this->httpClient->request('GET', $url, [
+        $baseUrl = 'https://api.github.com/repos/Sylius/StoreAssembler/contents/config/plugins';
+        // Fetch vendor directories
+        $response = $this->httpClient->request('GET', $baseUrl, [
             'headers' => [
                 'Accept' => 'application/vnd.github.v3+json',
-                'User-Agent' => 'Sylius-DemoCreator/1.0'
-            ]
+                'User-Agent' => 'Sylius-DemoCreator/1.0',
+            ],
         ]);
-        
-        $data = $response->toArray();
+        $vendors = $response->toArray();
         $plugins = [];
 
-        foreach ($data as $item) {
-            if ($item['type'] === 'dir') {
-                $pluginName = $item['name'];
-                
-                // Get versions (subdirectories)
-                $versionsResp = $this->httpClient->request('GET', $item['url'], [
+        foreach ($vendors as $vendorDir) {
+            if ($vendorDir['type'] !== 'dir') {
+                continue;
+            }
+            $vendorName = $vendorDir['name'];
+            // Fetch plugin directories under this vendor
+            $pluginsResp = $this->httpClient->request('GET', $vendorDir['url'], [
+                'headers' => [
+                    'Accept' => 'application/vnd.github.v3+json',
+                    'User-Agent' => 'Sylius-DemoCreator/1.0',
+                ],
+            ]);
+            $pluginDirs = $pluginsResp->toArray();
+
+            foreach ($pluginDirs as $pluginDir) {
+                if ($pluginDir['type'] !== 'dir') {
+                    continue;
+                }
+                $pluginName = $pluginDir['name'];
+                // Fetch version directories for this plugin
+                $versionsResp = $this->httpClient->request('GET', $pluginDir['url'], [
                     'headers' => [
                         'Accept' => 'application/vnd.github.v3+json',
-                        'User-Agent' => 'Sylius-DemoCreator/1.0'
-                    ]
+                        'User-Agent' => 'Sylius-DemoCreator/1.0',
+                    ],
                 ]);
-                
                 $versionsData = $versionsResp->toArray();
                 $versions = [];
-                
                 foreach ($versionsData as $ver) {
                     if ($ver['type'] === 'dir') {
                         $versions[] = $ver['name'];
                     }
                 }
-                
+
                 $plugins[] = [
-                    'name' => $pluginName,
+                    'name' => sprintf('%s/%s', $vendorName, $pluginName),
                     'versions' => $versions,
                 ];
             }

@@ -56,7 +56,6 @@ const stepTitles = [
     'Choose plugins',
     'Describe your store',
     'Summary',
-    'Upload your logo',
     'Choose deployment target',
     'Summary',
 ];
@@ -65,7 +64,6 @@ const stepDescriptions = [
     'Plugins are optional. You can select any to include, or proceed without plugins.',
     'Provide a description of your store and its details.',
     'Generating your store, please wait...',
-    'Upload a logo for your demo store.',
     'Choose where you want to deploy your store.',
     'Review and confirm your settings before launching your demo store.'
 ];
@@ -105,8 +103,6 @@ export default function DemoWizard({
         const stored = localStorage.getItem('selectedPlugins');
         return stored ? JSON.parse(stored) : [];
     });
-    const [logoFile, setLogoFile] = useState(null);
-    const [logoUrl, setLogoUrl] = useState(null);
     const [target, setTarget] = useState('');
     const [envOptions, setEnvOptions] = useState([]);
     const [env, setEnv] = useState('');
@@ -262,16 +258,6 @@ export default function DemoWizard({
         }, 0);
     }, [setDirection, setStep]);
 
-    const uploadLogo = async () => {
-        if (!logoFile) return;
-        const form = new FormData();
-        form.append('logo', logoFile);
-        const res = await fetch(logoUploadUrl, {method: 'POST', body: form});
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        setLogoUrl(data.logoUrl);
-    };
-
     const buildPluginPayload = () => {
         const map = {};
         selectedPlugins.forEach(composer => {
@@ -285,13 +271,6 @@ export default function DemoWizard({
         setLoading(true);
         setError(null);
         try {
-            if (logoFile) await uploadLogo();
-            const payload = {
-                environment: target === 'platform.sh' ? env : undefined,
-                plugins: buildPluginPayload(),
-                logoUrl,
-                target,
-            };
             const res = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -336,8 +315,6 @@ export default function DemoWizard({
     const resetWizard = useCallback(() => {
         localStorage.clear(); // czyści wszystko
         setSelectedPlugins([]);
-        setLogoFile(null);
-        setLogoUrl(null);
         setTarget('');
         setEnv('');
         setStoreDetails(null);
@@ -534,44 +511,8 @@ export default function DemoWizard({
                                 </div>
                             </motion.div>
                         )}
-                        {/* Step 4: Logo Upload */}
+                        {/* Step 4: Deploy Target */}
                         {step === 4 && (
-                            <motion.div
-                                key="4"
-                                custom={direction}
-                                variants={stepVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                transition={{duration: 0.25, type: 'tween', ease: 'easeInOut'}}
-                            >
-                                <h2 className="text-xl font-semibold mb-4 text-teal-700">4. Logo</h2>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={e => {
-                                        const file = e.target.files[0];
-                                        setLogoFile(file);
-                                        setLogoUrl(file ? URL.createObjectURL(file) : null);
-                                    }}
-                                    className="w-full mb-4 text-sm text-gray-700"
-                                />
-                                {logoUrl &&
-                                    <img src={logoUrl} alt="Logo" className="h-16 object-contain mx-auto mb-4"/>}
-                                <div className="flex justify-between">
-                                    <button onClick={back}
-                                            className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
-                                        Back
-                                    </button>
-                                    <button onClick={handleNext}
-                                            className="py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium shadow transition">Next
-                                        →
-                                    </button>
-                                </div>
-                            </motion.div>
-                        )}
-                        {/* Step 5: Deploy Target */}
-                        {step === 5 && (
                             <motion.div
                                 key="5"
                                 custom={direction}
@@ -629,61 +570,6 @@ export default function DemoWizard({
                 </div>
             </div>
         </motion.div>
-    );
-}
-
-function DownloadStorePresetButton({storePresetName}) {
-    const [downloadError, setDownloadError] = useState(null);
-    const [downloading, setDownloading] = useState(false);
-
-    const isValidPresetName = typeof storePresetName === 'string' && storePresetName.length > 0 && storePresetName !== '[object Object]';
-
-    const handleDownload = async (e) => {
-        e.preventDefault();
-        setDownloadError(null);
-        setDownloading(true);
-        try {
-            if (!isValidPresetName) {
-                throw new Error('Invalid preset ID. Cannot download.');
-            }
-            const url = `/api/download-store-preset/${encodeURIComponent(storePresetName)}`;
-            const res = await fetch(url);
-            if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                throw new Error(data.error || `Download failed: ${res.status} ${res.statusText}`);
-            }
-            const blob = await res.blob();
-            const a = document.createElement('a');
-            const downloadUrl = window.URL.createObjectURL(blob);
-            a.href = downloadUrl;
-            a.download = `${storePresetName}.zip`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(downloadUrl);
-        } catch (err) {
-            setDownloadError(err.message || 'Download failed');
-        } finally {
-            setDownloading(false);
-        }
-    };
-
-    return (
-        <div className="flex flex-col items-center gap-2">
-            <button
-                onClick={handleDownload}
-                className="py-2 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-medium shadow transition"
-                disabled={downloading || !isValidPresetName}
-            >
-                {downloading ? 'Downloading...' : 'Download ZIP'}
-            </button>
-            {!isValidPresetName && (
-                <div className="text-red-600 text-sm mt-2">Invalid or missing preset ID. Cannot download.</div>
-            )}
-            {downloadError && (
-                <div className="text-red-600 text-sm mt-2">{downloadError}</div>
-            )}
-        </div>
     );
 }
 
