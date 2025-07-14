@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import {useWizardState} from "../../../hooks/useWizardState";
 
 export function useConversation() {
+    const [wiz, dispatch] = useWizardState();
+
     const [messages, setMessages] = useState(() => {
         const stored = localStorage.getItem('messages');
         return stored ? JSON.parse(stored) : [];
@@ -9,9 +11,6 @@ export function useConversation() {
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [state, setState] = useState(() => {
-        return localStorage.getItem('state') || 'collecting';
-    });
     const [storeDetails, setStoreDetails] = useState(() => {
         const stored = localStorage.getItem('storeDetails');
         return stored ? JSON.parse(stored) : null;
@@ -39,12 +38,6 @@ export function useConversation() {
         }
     }, [storeDetails]);
 
-    useEffect(() => {
-        if (state) {
-            localStorage.setItem('state', state);
-        }
-    }, [state]);
-
     // Auto-send next request if last message is function_call
     useEffect(() => {
         if (
@@ -58,7 +51,6 @@ export function useConversation() {
     }, [messages]);
 
     const handleSend = async (e, auto = false) => {
-        const [wiz, dispatch] = useWizardState();
 
         if (!auto) e?.preventDefault();
         if (!auto && !input.trim()) return;
@@ -77,7 +69,7 @@ export function useConversation() {
                 conversationId,
                 messages: newMessages,
                 storeDetails,
-                state,
+                state: wiz.state,
                 error,
             };
             
@@ -94,7 +86,7 @@ export function useConversation() {
                 data = JSON.parse(rawResponse);
             } catch (parseError) {
                 setError(`Invalid JSON response from API:\n${rawResponse}`);
-                setState('error');
+                dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'error' } });
                 setLoading(false);
                 return;
             }
@@ -103,8 +95,8 @@ export function useConversation() {
             else setError(null);
             
             if (data.state) {
-                setState(data.state);
-                dispatch({ type: 'SET_WIZARD_STATE', state: data.state });
+                console.log(data.state);
+                dispatch({ type: 'SET_WIZARD_STATE', state: { state: data.state } });
             }
             if (data.conversationId) setConversationId(data.conversationId);
             if (data.storeDetails) setStoreDetails(data.storeDetails);
@@ -116,7 +108,7 @@ export function useConversation() {
             }
         } catch (err) {
             setError(err.message || "Unknown error");
-            setState('error');
+            dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'error' } });
         } finally {
             setLoading(false);
         }
@@ -129,7 +121,7 @@ export function useConversation() {
                 conversationId,
                 messages,
                 storeDetails,
-                state,
+                state: wiz.state,
                 error,
             };
             
@@ -146,7 +138,7 @@ export function useConversation() {
                 data = JSON.parse(rawResponse);
             } catch (parseError) {
                 setError(`Invalid JSON response from API:\n${rawResponse}`);
-                setState('error');
+                dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'error' } });
                 setLoading(false);
                 return;
             }
@@ -154,7 +146,7 @@ export function useConversation() {
             if (data.error) setError(data.error); 
             else setError(null);
             
-            if (data.state) setState(data.state);
+            if (data.state) dispatch({ type: 'SET_WIZARD_STATE', state: { state: data.state } });
             if (data.conversationId) setConversationId(data.conversationId);
             if (data.storeDetails) setStoreDetails(data.storeDetails);
             
@@ -165,7 +157,7 @@ export function useConversation() {
             }
         } catch (err) {
             setError(err.message || "Unknown error");
-            setState('error');
+            dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'error' } });
         } finally {
             setLoading(false);
         }
@@ -196,15 +188,15 @@ export function useConversation() {
                 data = JSON.parse(rawResponse);
             } catch (parseError) {
                 setError(`Invalid JSON response from API:\n${rawResponse}`);
-                setState('error');
+                dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'error' } });
                 return;
             }
             if (data.error) setError(data.error); 
             else setError(null);
-            // Możesz tu dodać obsługę success, np. setState('fixtures_ready')
+            // Możesz tu dodać obsługę success, np. dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'fixtures_ready' } })
         } catch (err) {
             setError(err.message || 'Unknown error');
-            setState('error');
+            dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'error' } });
         } finally {
             setLoading(false);
         }
@@ -215,18 +207,17 @@ export function useConversation() {
         localStorage.removeItem('conversationId');
         localStorage.removeItem('messages');
         localStorage.removeItem('storeDetails');
-        localStorage.removeItem('state');
+        dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'collecting' } });
         setStoreDetails(null);
         setMessages([]);
         setInput("");
         setError(null);
         setLoading(false);
-        setState('collecting');
     };
 
     const copyConversation = () => {
         const payload = JSON.stringify(
-            { conversationId, messages, storeDetails, state, error },
+            { conversationId, messages, storeDetails, state: wiz.state, error },
             null,
             2
         );
@@ -236,15 +227,13 @@ export function useConversation() {
     };
 
     return {
-        // State
         messages,
         input,
         loading,
         error,
-        state,
         storeDetails,
         conversationId,
-        
+        state: wiz.state,
         // Actions
         setInput,
         handleSend,

@@ -2,7 +2,7 @@ import React from 'react';
 import { useConversation } from './hooks/useConversation';
 import ConversationPanel from './ConversationPanel';
 
-const DescribeStoreStage = ({ onStoreDetailsChange, onNext }) => {
+const DescribeStoreStage = ({ onStoreDetailsChange }) => {
     const {
         messages,
         input,
@@ -46,7 +46,6 @@ const DescribeStoreStage = ({ onStoreDetailsChange, onNext }) => {
                     error={error}
                     copyConversation={copyConversation}
                     handleCreateFixtures={handleCreateFixtures}
-                    onNext={onNext}
                 />
             </div>
         </div>

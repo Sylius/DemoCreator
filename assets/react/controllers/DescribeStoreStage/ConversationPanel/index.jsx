@@ -13,7 +13,6 @@ const ConversationPanel = ({
                                conversationState,
                                copyConversation,
                                handleCreateFixtures,
-                               onNext,
                                isReady
                            }) => {
     const [showFunctionMessages, setShowFunctionMessages] = useState(false);
@@ -38,7 +37,7 @@ const ConversationPanel = ({
             />
 
             {/* Large centered Next button when ready */}
-            {wiz.fixtures.ready && (
+            {wiz.state === 'ready' && (
                 <div className="flex justify-center items-center py-6 px-4">
                     <button
                         onClick={onNext}

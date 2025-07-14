@@ -264,10 +264,8 @@ export default function DemoWizard({
     };
 
     const resetWizard = useCallback(() => {
-        // localStorage.clear(); // No need, useWizardState persists state
         dispatch({ type: 'RESET_WIZARD' });
         navigate(`/wizard/${stepPaths[0]}`, {replace: true});
-        // Reload page to ensure complete reset
         window.location.reload();
     }, [navigate, dispatch]);
 

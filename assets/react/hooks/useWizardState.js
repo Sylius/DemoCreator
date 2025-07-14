@@ -66,7 +66,8 @@ function reducer(state, action) {
                 images: {ready: false, generating: false, error: action.error},
             };
         case 'RESET_WIZARD':
-            localStorage.removeItem('messages');
+            localStorage.clear();
+
             return initialState;
         default:
             return state;
