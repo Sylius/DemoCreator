@@ -34,10 +34,16 @@ export default function DeployStep() {
       } else {
         setLocalhostStatus('error');
       }
-    } catch {
+    } catch (err) {
+      // Jeśli fetch rzucił, to najczęściej znaczy, że nie ma apki na porcie (ERR_CONNECTION_REFUSED)
+      // lub CORS. Niestety nie da się rozróżnić w JS, więc domyślnie traktujemy jako error.
       setLocalhostStatus('error');
+      // Jeśli user widzi 200 w network tab, może ręcznie uznać, że to CORS.
+      console.warn('Fetch error:', err);
+      console.log('Jeśli w network tab widzisz 200, to prawdopodobnie CORS. W innym przypadku apka nie działa na tym porcie.');
     } finally {
       setChecking(false);
+      console.log('Localhost check completed');
     }
   };
 
@@ -117,7 +123,8 @@ export default function DeployStep() {
               {checking ? 'Checking...' : 'Check connection'}
             </button>
             {localhostStatus === 'ok' && <span className="ml-2 text-green-600">Sylius detected!</span>}
-            {localhostStatus === 'error' && <span className="ml-2 text-red-600">No Sylius app detected</span>}
+            {localhostStatus === 'cors-ok' && <span className="ml-2 text-yellow-600">Sylius prawdopodobnie działa (CORS blokuje odpowiedź, sprawdź network tab)</span>}
+            {localhostStatus === 'error' && <span className="ml-2 text-red-600">No Sylius app detected or connection refused</span>}
           </div>
         )}
 

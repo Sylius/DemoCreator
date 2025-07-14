@@ -1,15 +1,13 @@
-import React, {useEffect, useCallback, useContext} from 'react';
-import {WizardContext} from '../hooks/WizardProvider';
-import {motion, AnimatePresence} from 'framer-motion';
-import {useNavigate, useParams} from 'react-router-dom';
-import {useSupportedPlugins} from '../hooks/useSupportedPlugins';
-import {useConversation} from './DescribeStoreStage/hooks/useConversation';
-import {useStorePreset} from '../hooks/useStorePreset';
-import PluginsStep from './DemoWizardSteps/PluginsStep';
+import DeployStep from './DemoWizardSteps/DeployStep';
 import InterviewStep from './DemoWizardSteps/InterviewStep';
 import InterviewSummaryStep from './DemoWizardSteps/InterviewSummaryStep';
-import DeployStep from './DemoWizardSteps/DeployStep';
+import PluginsStep from './DemoWizardSteps/PluginsStep';
+import React, {useContext} from 'react';
 import StoreSummaryStep from './DemoWizardSteps/StoreSummaryStep';
+import {motion} from 'framer-motion';
+import {useNavigate, useParams} from 'react-router-dom';
+import {useStorePreset} from '../hooks/useStorePreset';
+import {WizardContext} from '../hooks/WizardProvider';
 
 const steps = [
     'Plugins',
@@ -43,89 +41,11 @@ const stepDescriptions = [
     'Review and confirm your settings before launching your demo store.'
 ];
 
-export default function DemoWizard({apiUrl, environmentsUrl, deployStateUrlBase}) {
+export default function DemoWizard() {
     const navigate = useNavigate();
     const {step: stepParam} = useParams();
     const {wiz, dispatch} = useContext(WizardContext);
-    const conversation = useConversation();
-    const {
-        presetId,
-        loading: presetLoading,
-        error: presetError,
-        updatePreset,
-    } = useStorePreset();
-
-    useEffect(() => {
-        if (!stepParam || stepParam !== stepPaths[wiz.step - 1]) {
-            const timer = setTimeout(() => {
-                navigate(`/wizard/${stepPaths[wiz.step - 1]}`, {replace: true});
-            }, 100);
-            return () => clearTimeout(timer);
-        }
-    }, [wiz.step, stepParam, navigate]);
-
-    useEffect(() => {
-        if (!stepParam) {
-            navigate(`/wizard/${stepPaths[0]}`, {replace: true});
-        }
-    }, [stepParam, navigate]);
-
-    useEffect(() => {
-        if (wiz.step === 4 && wiz.target === 'platform.sh') {
-            fetch(environmentsUrl)
-                .then(r => r.json())
-                .then(data => dispatch({type: 'SET_ENV_OPTIONS', envOptions: data.environments || []}))
-                .catch(() => dispatch({type: 'SET_ERROR', error: 'Failed to fetch environments'}));
-        }
-    }, [wiz.step, wiz.target, environmentsUrl, dispatch]);
-
-    useEffect(() => {
-        if (wiz.step === 5 && wiz.deployStateId) {
-            const interval = setInterval(() => {
-                fetch(`${deployStateUrlBase}/${wiz.env}/${wiz.deployStateId}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        dispatch({type: 'SET_DEPLOY_STATUS', deployStatus: data.status});
-                        if (data.status !== 'in_progress') {
-                            clearInterval(interval);
-                        }
-                    })
-                    .catch(() => {
-                        dispatch({type: 'SET_ERROR', error: 'Failed to check deploy status'});
-                        clearInterval(interval);
-                    });
-            }, 20000);
-            return () => clearInterval(interval);
-        }
-    }, [wiz.step, wiz.deployStateId, wiz.env, deployStateUrlBase, dispatch]);
-
-    // Reset describeStoreStageReady when step changes away from 2
-    useEffect(() => {
-        if (wiz.step !== 2 && wiz.isDescribeStoreStageReady) {
-            dispatch({type: 'SET_DESCRIBE_STORE_STAGE_READY', isDescribeStoreStageReady: false});
-        }
-    }, [wiz.step, wiz.isDescribeStoreStageReady, dispatch]);
-
-    // Reset fixtures state when entering step 3 (preview-store)
-    useEffect(() => {
-        if (wiz.step === 3) {
-            // Reset fixtures state to allow regeneration
-            dispatch({type: 'SET_FIXTURES_READY', isFixturesReady: false});
-            dispatch({type: 'SET_FIXTURES_GENERATING', isFixturesGenerating: false});
-        }
-    }, [wiz.step, dispatch]);
-
-    const handlePluginsSelected = (plugins) => {
-        dispatch({type: 'SET_SELECTED_PLUGINS', selectedPlugins: plugins});
-        updatePreset({plugins});
-    };
-
-    const handleNext = useCallback(() => {
-        dispatch({type: 'SET_STEP', step: Math.min(wiz.step + 1, stepPaths.length), direction: 1});
-    }, [wiz.step, dispatch]);
-    const back = useCallback(() => {
-        dispatch({type: 'SET_STEP', step: Math.max(wiz.step - 1, 1), direction: -1});
-    }, [wiz.step, dispatch]);
+    const {presetId} = useStorePreset();
 
     return (
         <motion.div
@@ -177,32 +97,9 @@ export default function DemoWizard({apiUrl, environmentsUrl, deployStateUrlBase}
                 <div className="flex-1 overflow-y-auto min-h-0 relative">
                     {wiz.step === 1 && (<PluginsStep/>)}
                     {wiz.step === 2 && (<InterviewStep/>)}
-                    {wiz.step === 3 && (
-                        <InterviewSummaryStep
-                            conversation={conversation}
-                            presetId={presetId}
-                            updatePreset={updatePreset}
-                            handleNext={handleNext}
-                        />
-                    )}
-                    {wiz.step === 4 && (
-                        <DeployStep
-                            apiUrl={apiUrl}
-                            environmentsUrl={environmentsUrl}
-                            deployStateUrlBase={deployStateUrlBase}
-                            presetId={presetId}
-                            updatePreset={updatePreset}
-                            handleNext={handleNext}
-                        />
-                    )}
-                    {wiz.step === 5 && (
-                        <StoreSummaryStep
-                            conversation={conversation}
-                            presetId={presetId}
-                            updatePreset={updatePreset}
-                            handleNext={handleNext}
-                        />
-                    )}
+                    {wiz.step === 3 && (<InterviewSummaryStep/>)}
+                    {wiz.step === 4 && (<DeployStep/>)}
+                    {wiz.step === 5 && (<StoreSummaryStep/>)}
                 </div>
             </div>
         </motion.div>
