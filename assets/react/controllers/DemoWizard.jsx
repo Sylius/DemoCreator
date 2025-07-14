@@ -1,5 +1,5 @@
-import React, {useEffect, useCallback} from 'react';
-import { useWizardState } from '../hooks/useWizardState';
+import React, {useEffect, useCallback, useContext} from 'react';
+import { WizardContext } from '../hooks/WizardProvider';
 import {motion, AnimatePresence} from 'framer-motion';
 import {useNavigate, useParams} from 'react-router-dom';
 import DescribeStoreStage from './DescribeStoreStage';
@@ -96,7 +96,7 @@ export default function DemoWizard({
     const navigate = useNavigate();
     const {step: stepParam} = useParams();
     const initialStepIndex = stepPaths.indexOf(stepParam) !== -1 ? stepPaths.indexOf(stepParam) : 0;
-    const [wiz, dispatch] = useWizardState();
+    const { wiz, dispatch } = useContext(WizardContext);
     const {plugins, loading: pluginsLoading, error: pluginsError, refetch} = useSupportedPlugins();
     const conversation = useConversation();
     const {handleCreateFixtures} = conversation;

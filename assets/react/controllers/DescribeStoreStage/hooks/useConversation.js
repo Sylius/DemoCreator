@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
-import {useWizardState} from "../../../hooks/useWizardState";
+import { useState, useRef, useEffect, useContext } from 'react';
+import { WizardContext } from '../../../hooks/WizardProvider';
 
 export function useConversation() {
-    const [wiz, dispatch] = useWizardState();
+    const { wiz, dispatch } = useContext(WizardContext);
 
     const [messages, setMessages] = useState(() => {
         const stored = localStorage.getItem('messages');
