@@ -1,4 +1,4 @@
-import {useState, useContext} from 'react';
+import {useState, useContext, useEffect} from 'react';
 import ConversationControls from './ConversationControls';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
@@ -20,6 +20,14 @@ const ConversationPanel = ({
     // const isDev = typeof process !== 'undefined' && process.env.NODE_ENV !== 'production';
     const isDev = true; // For demonstration purposes, assume we're always in dev mode
     const { wiz, dispatch } = useContext(WizardContext);
+
+    const onNext = () => {
+        dispatch({ type: 'NEXT_STEP' });
+    }
+
+    useEffect(() => {
+        console.log('ConversationPanel: state changed:', wiz.state);
+    }, [wiz.state]);
 
     return (
         <div className="flex flex-col flex-1 min-h-0 bg-gray-50">

@@ -130,6 +130,12 @@ export default function DemoWizard({
     }, [stepParam, navigate]);
 
     useEffect(() => {
+        if (wiz.state === 'ready') {
+            handleNext();
+        }
+    }, [wiz.state]);
+
+    useEffect(() => {
         if (wiz.step === 4 && wiz.target === 'platform.sh') {
             fetch(environmentsUrl)
                 .then(r => r.json())

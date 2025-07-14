@@ -34,6 +34,12 @@ function reducer(state, action) {
             return {...state, selectedPlugins: action.selectedPlugins};
         case 'SET_WIZARD_STATE':
             return {...state, ...action.state};
+        case 'NEXT_STEP':
+            return {
+                ...state,
+                step: state.step + 1,
+                direction: 1,
+            };
         case 'START_FIXTURES':
             return {
                 ...state,
