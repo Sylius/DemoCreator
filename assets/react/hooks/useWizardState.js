@@ -40,6 +40,11 @@ function reducer(state, action) {
                 step: state.step + 1,
                 direction: 1,
             };
+        case 'UPDATE_STORE_DETAILS':
+            return {
+                ...state,
+                storeDetails: action.storeDetails,
+            };
         case 'START_FIXTURES':
             return {
                 ...state,

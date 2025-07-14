@@ -99,7 +99,10 @@ export function useConversation() {
                 dispatch({ type: 'SET_WIZARD_STATE', state: { state: data.state } });
             }
             if (data.conversationId) setConversationId(data.conversationId);
-            if (data.storeDetails) setStoreDetails(data.storeDetails);
+            if (data.storeDetails) {
+                dispatch({ type: 'UPDATE_STORE_DETAILS', storeDetails: data.storeDetails });
+                setStoreDetails(data.storeDetails);
+            }
             
             if (Array.isArray(data.messages)) {
                 setMessages(data.messages);
