@@ -12,8 +12,6 @@ const ConversationPanel = ({
                                error,
                                conversationState,
                                copyConversation,
-                               handleCreateFixtures,
-                               isReady
                            }) => {
     const [showFunctionMessages, setShowFunctionMessages] = useState(false);
     const [showDebug, setShowDebug] = useState(false);
@@ -114,7 +112,6 @@ const ConversationPanel = ({
                         copyConversation={copyConversation}
                         showFunctionMessages={showFunctionMessages}
                         setShowFunctionMessages={setShowFunctionMessages}
-                        handleCreateFixtures={handleCreateFixtures}
                         loading={loading}
                         conversationState={conversationState}
                     />

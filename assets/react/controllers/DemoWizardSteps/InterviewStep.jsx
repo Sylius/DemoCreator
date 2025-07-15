@@ -7,7 +7,7 @@ import {useConversation} from "../DescribeStoreStage/hooks/useConversation";
 
 export default function InterviewStep() {
     const {wiz, dispatch} = useContext(WizardContext);
-    const {messages, input, loading, error, setInput, handleSend, copyConversation, handleCreateFixtures} = useConversation();
+    const {messages, input, loading, error, setInput, handleSend, copyConversation} = useConversation();
 
     const back = useCallback(() => {
         dispatch({ type: 'SET_STEP', step: Math.max(wiz.step - 1, 1), direction: -1 });
@@ -47,7 +47,6 @@ export default function InterviewStep() {
                                 loading={loading}
                                 error={error}
                                 copyConversation={copyConversation}
-                                handleCreateFixtures={handleCreateFixtures}
                             />
                         </div>
                     </div>

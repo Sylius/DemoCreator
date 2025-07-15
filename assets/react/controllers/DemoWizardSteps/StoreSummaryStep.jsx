@@ -4,7 +4,7 @@ import {motion} from 'framer-motion';
 import wizardStepVariants from './wizardStepVariants';
 import {useSupportedPlugins} from "../../hooks/useSupportedPlugins";
 
-export default function DeployStep() {
+export default function StoreSummaryStep() {
   const {wiz, dispatch} = useContext(WizardContext);
   const {plugins} = useSupportedPlugins();
 

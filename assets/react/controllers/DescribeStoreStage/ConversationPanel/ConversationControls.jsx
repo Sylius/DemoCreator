@@ -1,15 +1,17 @@
 import React from 'react';
+import {useConversation} from "../hooks/useConversation";
 
 const ConversationControls = ({
     copyConversation,
     retryRequest,
     showFunctionMessages,
     setShowFunctionMessages,
-    handleCreateFixtures,
     clearConversation,
     loading,
     state
 }) => {
+    const { handleCreateFixtures } = useConversation();
+
     return (
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
             <button
@@ -88,4 +90,4 @@ const ConversationControls = ({
     );
 };
 
-export default ConversationControls; 
+export default ConversationControls;
