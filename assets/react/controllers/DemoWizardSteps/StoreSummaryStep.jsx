@@ -1,13 +1,12 @@
 import React, {useContext, useState} from 'react';
-import {WizardContext} from '../../hooks/WizardProvider';
+import {WizardContext, StorePresetContext} from '../../hooks/WizardProvider';
 import {motion} from 'framer-motion';
 import wizardStepVariants from './wizardStepVariants';
-import {useStorePreset} from '../../hooks/useStorePreset';
 
 export default function StoreSummaryStep() {
-    const {wiz} = useContext(WizardContext);
-    const {handleCreateFixtures, handleCreateImages, loading, error} = useStorePreset();
-    const [status, setStatus] = useState('idle'); // idle | generatingFixtures | generatingImages | success | error
+    const {wiz, dispatch} = useContext(WizardContext);
+    const {handleCreateFixtures, handleCreateImages, loading, error} = useContext(StorePresetContext);
+    const [status, setStatus] = useState('idle'); // idle | generatingFixtures | generatingImages | success | error | deploying
     const [errorMsg, setErrorMsg] = useState(null);
 
     const prettify = (name) => {
@@ -31,6 +30,19 @@ export default function StoreSummaryStep() {
             setErrorMsg(e?.message || 'Unknown error');
         }
     };
+
+    // Opcjonalnie: funkcja do deployu (jeśli masz handleDeploy)
+    // const {handleDeploy} = useContext(StorePresetContext);
+    // const onDeploy = async () => {
+    //     setStatus('deploying');
+    //     try {
+    //         await handleDeploy();
+    //         setStatus('deployed');
+    //     } catch (e) {
+    //         setStatus('error');
+    //         setErrorMsg(e?.message || 'Unknown error');
+    //     }
+    // };
 
     return (
         <motion.div
@@ -60,25 +72,55 @@ export default function StoreSummaryStep() {
                     <p className="text-sm text-gray-700">{wiz.target}{wiz.target === 'platform.sh' && wiz.env ? ` (${wiz.env})` : ''}</p>
                 </div>
             </div>
-            <div className="flex flex-col items-center justify-center mt-8">
+
+            {/* Statusy generowania */}
+            {status === 'idle' && (
                 <button
                     onClick={onBeginGeneration}
-                    disabled={status === 'generatingFixtures' || status === 'generatingImages' || status === 'success'}
-                    className="w-full max-w-md py-4 px-8 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-semibold shadow-lg text-xl transition-all duration-200 transform hover:scale-105 border-2 border-teal-500 mb-6"
+                    disabled={loading}
+                    className="w-full py-2 rounded-lg font-medium bg-teal-600 hover:bg-teal-700 text-white"
                 >
-                    {status === 'generatingFixtures' ? 'Generating fixtures...' :
-                        status === 'generatingImages' ? 'Generating images...' :
-                            status === 'success' ? 'Generation complete!' :
-                                'Begin generation'}
+                    Begin generation
                 </button>
-                {status === 'success' && (
-                    <div className="text-green-700 font-semibold text-lg mb-2">Store fixtures and images generated successfully!</div>
-                )}
-                {status === 'error' && (
-                    <div className="text-red-600 font-semibold text-lg mb-2">Error: {errorMsg || error}</div>
-                )}
-                {loading && <div className="text-gray-500">Loading...</div>}
-            </div>
+            )}
+            {status === 'generatingFixtures' && (
+                <div className="flex flex-col items-center py-6">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mb-4"></div>
+                    <p className="text-gray-700">Generating fixtures...</p>
+                </div>
+            )}
+            {status === 'generatingImages' && (
+                <div className="flex flex-col items-center py-6">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mb-4"></div>
+                    <p className="text-gray-700">Generating images...</p>
+                </div>
+            )}
+            {status === 'success' && (
+                <div className="flex flex-col items-center py-6">
+                    <div className="text-green-600 text-2xl mb-2">✔</div>
+                    <p className="text-green-700 font-semibold">Generation complete!</p>
+                    {/*
+                    <button
+                        onClick={onDeploy}
+                        className="mt-4 w-full py-2 rounded-lg font-medium bg-teal-600 hover:bg-teal-700 text-white"
+                    >
+                        Deploy store
+                    </button>
+                    */}
+                </div>
+            )}
+            {status === 'error' && (
+                <div className="flex flex-col items-center py-6">
+                    <div className="text-red-600 text-2xl mb-2">✖</div>
+                    <p className="text-red-700 font-semibold">{errorMsg}</p>
+                    <button
+                        onClick={onBeginGeneration}
+                        className="mt-4 w-full py-2 rounded-lg font-medium bg-teal-600 hover:bg-teal-700 text-white"
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
         </motion.div>
     );
 }

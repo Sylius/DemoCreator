@@ -1,12 +1,12 @@
-import {useState, useEffect, useCallback} from 'react';
-import {useWizardState} from "./useWizardState";
+import {useState, useEffect, useCallback, useContext} from 'react';
+import {WizardContext} from "./WizardProvider";
 
 export function useStorePreset() {
     const [presetId, setPresetId] = useState(() => localStorage.getItem('presetId') || null);
     const [preset, setPreset] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [wiz, dispatch] = useWizardState();
+    const { wiz, dispatch } = useContext(WizardContext);
 
     // Create or load presetId on mount
     useEffect(() => {

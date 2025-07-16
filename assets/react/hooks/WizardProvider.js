@@ -7,12 +7,18 @@ export const StorePresetContext = createContext(null);
 
 export function WizardProvider({ children }) {
     const [wiz, dispatch] = useWizardState();
-    const storePreset = useStorePreset();
     return (
         <WizardContext.Provider value={{ wiz, dispatch }}>
-            <StorePresetContext.Provider value={storePreset}>
-                {children}
-            </StorePresetContext.Provider>
+            <StorePresetProvider>{children}</StorePresetProvider>
         </WizardContext.Provider>
+    );
+}
+
+function StorePresetProvider({ children }) {
+    const storePreset = useStorePreset();
+    return (
+        <StorePresetContext.Provider value={storePreset}>
+            {children}
+        </StorePresetContext.Provider>
     );
 }
