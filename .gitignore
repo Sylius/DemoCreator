@@ -10,7 +10,8 @@
 
 ssh_key
 
-/sylius/
+/sylius-bk
+/sylius
 
 ###> symfony/webpack-encore-bundle ###
 /node_modules/

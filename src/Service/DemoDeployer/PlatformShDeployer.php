@@ -6,14 +6,16 @@ namespace App\Service\DemoDeployer;
 
 use App\Exception\DemoDeploymentException;
 use App\Exception\InvalidStorePresetException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
 final readonly class PlatformShDeployer implements DemoDeployerInterface
 {
     public function __construct(
-        private string $projectId,
-        private string $projectDir,
+        #[Autowire('%platformsh.project_id%')] private string $projectId,
+        #[Autowire('%kernel.project_dir%')] private string $projectDir,
+        #[Autowire('%kernel.project_dir%/var/store-presets')] private string $presetsDir,
     ) {
     }
 
@@ -22,14 +24,14 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
         $this->login();
         $this->validateProjectId();
 
-        $syliusDir = $this->getSyliusDirectory($store);
-        $this->removeExistingSyliusProject($syliusDir);
-        $this->cloneSyliusRepository($syliusDir);
-        $this->updatePlatformAppYaml($syliusDir);
-        $this->copyStoreIntoSyliusDirectory($syliusDir, $store);
-        $this->commitStore($syliusDir);
+        $this->removeExistingSyliusProject();
+        $this->cloneSyliusRepository();
+        $this->updatePlatformAppYaml();
+        $this->copyStorePresetIntoSyliusDirectory($store);
+        $this->requireStoreAssembler();
+        $this->commitStore();
 
-        $this->pushSylius($syliusDir, $environment);
+        $this->pushSylius($environment);
         $url = $this->getUrl($environment);
         $deployStateId = $this->getDeployStateId($environment);
 
@@ -59,70 +61,68 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
         }
     }
 
-    private function getSyliusDirectory(string $store): string
+    private function getSyliusDirectory(): string
     {
-        return $this->projectDir
-            . DIRECTORY_SEPARATOR . 'sylius'
-            . DIRECTORY_SEPARATOR . $store;
+        return $this->projectDir . DIRECTORY_SEPARATOR . 'sylius';
     }
 
-    private function removeExistingSyliusProject(string $syliusDir): void
+    private function removeExistingSyliusProject(): void
     {
         $result = Process::fromShellCommandline(
-            sprintf('rm -fr %s', escapeshellarg($syliusDir))
+            sprintf('rm -fr %s', escapeshellarg($this->getSyliusDirectory()))
         )->mustRun();
 
         if (!$result->isSuccessful()) {
-            throw new DemoDeploymentException(sprintf(
-                'Failed to remove existing Sylius project at %s: %s',
-                $syliusDir,
-                $result->getErrorOutput()
-            ));
+            throw new DemoDeploymentException('Failed to remove existing Sylius project');
         }
     }
 
-    public function cloneSyliusRepository(string $syliusDir): void
+    public function cloneSyliusRepository(): void
     {
         Process::fromShellCommandline(sprintf(
             'git clone --branch 2.0 %s %s',
             escapeshellarg('https://github.com/Sylius/Sylius-Standard.git'),
-            escapeshellarg($syliusDir)
+            escapeshellarg($this->getSyliusDirectory())
         ))->mustRun();
     }
 
-    private function copyStoreIntoSyliusDirectory(string $syliusDir, string $store): void
+    private function copyStorePresetIntoSyliusDirectory(string $store): void
     {
-        $storePath = $this->getStorePresetPath($store);
-        if (!is_dir($storePath)) {
-            throw new DemoDeploymentException(sprintf('Store "%s" not found in %s', $store, $storePath));
-        }
-
-        $targetDir = $syliusDir . '/store-preset/';
+        $targetDir = $this->getSyliusDirectory() . DIRECTORY_SEPARATOR . 'store-preset';
         Process::fromShellCommandline(sprintf(
             'mkdir -p %s',
             escapeshellarg($targetDir)
         ))->mustRun();
 
+        $sourceDir = $this->presetsDir . DIRECTORY_SEPARATOR . $store;
+        if (!is_dir($sourceDir)) {
+            throw new InvalidStorePresetException(sprintf(
+                'Store preset "%s" not exists in %s. Check the passed store name or ensure that the preset exists.',
+                $store,
+                $this->presetsDir,
+            ));
+        }
+
         Process::fromShellCommandline(sprintf(
-            'cp -R %s/* %s/',
-            escapeshellarg($storePath),
+            'cp -R %s/. %s',
+            escapeshellarg($sourceDir),
             escapeshellarg($targetDir)
         ))->mustRun();
     }
 
-    public function commitStore(string $syliusDir): void
+    public function commitStore(): void
     {
         Process::fromShellCommandline(sprintf(
             'cd %s && git add . && git commit -m "Add store-preset files"',
-            escapeshellarg($syliusDir),
+            escapeshellarg($this->getSyliusDirectory()),
         ))->mustRun();
     }
 
-    public function pushSylius(string $syliusDir, string $environment): void
+    public function pushSylius(string $environment): void
     {
         $result = Process::fromShellCommandline(sprintf(
             'cd %s && platform push --project=%s --environment=%s --force --no-wait',
-            escapeshellarg($syliusDir),
+            escapeshellarg($this->getSyliusDirectory()),
             escapeshellarg($this->projectId),
             escapeshellarg($environment)
         ))->mustRun();
@@ -130,11 +130,19 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
 
     public function getUrl(string $environment): string
     {
-        return trim(Process::fromShellCommandline(sprintf(
-            'platform environment:url --project=%s --environment=%s --primary --pipe',
-            escapeshellarg($this->projectId),
-            escapeshellarg($environment)
-        ))->mustRun()->getOutput());
+        try {
+            return trim(Process::fromShellCommandline(sprintf(
+                'platform environment:url --project=%s --environment=%s --primary --pipe',
+                escapeshellarg($this->projectId),
+                escapeshellarg($environment)
+            ))->mustRun()->getOutput());
+        } catch (\Throwable $e) {
+            throw new DemoDeploymentException(sprintf(
+                'Failed to get URL for environment "%s" in project "%s". Ensure the environment exists and is active.',
+                $environment,
+                $this->projectId
+            ), 0, $e);
+        }
     }
 
     public function getDeployStateId(string $environment): string|false
@@ -167,9 +175,9 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
         return $path;
     }
 
-    private function updatePlatformAppYaml(string $syliusDir): void
+    private function updatePlatformAppYaml(): void
     {
-        $filePath = $syliusDir . '/.platform.app.yaml';
+        $filePath = $this->getSyliusDirectory() . DIRECTORY_SEPARATOR . '.platform.app.yaml';
         if (!file_exists($filePath)) {
             throw new DemoDeploymentException(sprintf(
                 'Platform.sh configuration not found at %s',
@@ -185,9 +193,7 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
                     'search' => 'yarn install --frozen-lockfile',
                     'offset' => 0,
                     'lines' => [
-                        'composer config repositories.sylius-assembler vcs git@github.com:Sylius/StoreAssembler.git',
-                        'composer require sylius/store-assembler:dev-main',
-                        'vendor/bin/store-assembler --build',
+                        'vendor/bin/sylius-store-assembler --build',
                     ],
                 ],
             ],
@@ -195,7 +201,7 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
                 [
                     'search' => 'bin/console sylius:fixtures:load -n',
                     'offset' => 1,
-                    'lines' => ['vendor/bin/store-assembler --deploy'],
+                    'lines' => ['vendor/bin/sylius-store-assembler --deploy'],
                 ],
                 [
                     'search' => 'bin/console doctrine:database:create --if-not-exists',
@@ -241,5 +247,13 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
                 $this->projectId
             ));
         }
+    }
+
+    private function requireStoreAssembler(): void
+    {
+        Process::fromShellCommandline(sprintf(
+            'cd %s && composer require sylius/store-assembler:dev-xd --no-scripts --no-interaction',
+            escapeshellarg($this->getSyliusDirectory())
+        ))->mustRun();
     }
 }

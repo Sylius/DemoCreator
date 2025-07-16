@@ -17,7 +17,6 @@ export default function PluginsStep() {
             .replace(/\b\w/g, l => l.toUpperCase());
     }
 
-    // plugins: ["sylius/cms-plugin:^1.0", ...]
     const handlePluginsSelected = (composer, version, checked) => {
         const pluginString = `${composer}:^${version.replace(/^\^?/, '')}`;
         let updated;
