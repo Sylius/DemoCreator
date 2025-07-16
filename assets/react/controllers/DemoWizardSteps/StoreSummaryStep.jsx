@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {WizardContext, StorePresetContext} from '../../hooks/WizardProvider';
 import {motion} from 'framer-motion';
 import wizardStepVariants from './wizardStepVariants';
@@ -6,7 +6,7 @@ import wizardStepVariants from './wizardStepVariants';
 export default function StoreSummaryStep() {
     const {wiz, dispatch} = useContext(WizardContext);
     const {handleCreateFixtures, handleCreateImages, loading, error} = useContext(StorePresetContext);
-    const [status, setStatus] = useState('idle'); // idle | generatingFixtures | generatingImages | success | error | deploying
+    const [status, setStatus] = useState('idle'); // idle | generatingFixtures | fixturesDone | generatingImages | imagesDone | error | deploying
     const [errorMsg, setErrorMsg] = useState(null);
 
     const prettify = (name) => {
@@ -17,32 +17,35 @@ export default function StoreSummaryStep() {
             .replace(/\b\w/g, l => l.toUpperCase());
     }
 
+    // Automatyczne odpalenie generowania obrazków po fixtures
+    useEffect(() => {
+        if (status === 'fixturesDone') {
+            setStatus('generatingImages');
+            handleCreateImages()
+                .then(() => setStatus('imagesDone'))
+                .catch(e => {
+                    setStatus('error');
+                    setErrorMsg(e?.message || 'Unknown error');
+                });
+        }
+    }, [status, handleCreateImages]);
+
     const onBeginGeneration = async () => {
         setStatus('generatingFixtures');
         setErrorMsg(null);
         try {
             await handleCreateFixtures();
-            setStatus('generatingImages');
-            await handleCreateImages();
-            setStatus('success');
+            setStatus('fixturesDone');
         } catch (e) {
             setStatus('error');
             setErrorMsg(e?.message || 'Unknown error');
         }
     };
 
-    // Opcjonalnie: funkcja do deployu (jeśli masz handleDeploy)
-    // const {handleDeploy} = useContext(StorePresetContext);
-    // const onDeploy = async () => {
-    //     setStatus('deploying');
-    //     try {
-    //         await handleDeploy();
-    //         setStatus('deployed');
-    //     } catch (e) {
-    //         setStatus('error');
-    //         setErrorMsg(e?.message || 'Unknown error');
-    //     }
-    // };
+    const onDeploy = () => {
+        // TODO: implement real deploy logic
+        alert('Deploy handler (do zaimplementowania)');
+    };
 
     return (
         <motion.div
@@ -80,33 +83,37 @@ export default function StoreSummaryStep() {
                     disabled={loading}
                     className="w-full py-2 rounded-lg font-medium bg-teal-600 hover:bg-teal-700 text-white"
                 >
-                    Begin generation
+                    Rozpocznij generowanie danych sklepu
                 </button>
             )}
             {status === 'generatingFixtures' && (
                 <div className="flex flex-col items-center py-6">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mb-4"></div>
-                    <p className="text-gray-700">Generating fixtures...</p>
+                    <p className="text-gray-700 font-semibold">Generowanie danych sklepu (fixtures)...</p>
+                </div>
+            )}
+            {status === 'fixturesDone' && (
+                <div className="flex flex-col items-center py-6">
+                    <div className="text-green-600 text-2xl mb-2">✔</div>
+                    <p className="text-green-700 font-semibold">Dane sklepu wygenerowane! Trwa generowanie obrazków...</p>
                 </div>
             )}
             {status === 'generatingImages' && (
                 <div className="flex flex-col items-center py-6">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mb-4"></div>
-                    <p className="text-gray-700">Generating images...</p>
+                    <p className="text-gray-700 font-semibold">Generowanie obrazków produktów...</p>
                 </div>
             )}
-            {status === 'success' && (
+            {status === 'imagesDone' && (
                 <div className="flex flex-col items-center py-6">
-                    <div className="text-green-600 text-2xl mb-2">✔</div>
-                    <p className="text-green-700 font-semibold">Generation complete!</p>
-                    {/*
+                    <div className="text-green-600 text-2xl mb-2">🖼️</div>
+                    <p className="text-green-700 font-semibold">Obrazki produktów wygenerowane!</p>
                     <button
                         onClick={onDeploy}
                         className="mt-4 w-full py-2 rounded-lg font-medium bg-teal-600 hover:bg-teal-700 text-white"
                     >
                         Deploy store
                     </button>
-                    */}
                 </div>
             )}
             {status === 'error' && (

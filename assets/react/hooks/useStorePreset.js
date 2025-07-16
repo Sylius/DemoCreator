@@ -93,8 +93,10 @@ export function useStorePreset() {
         }
     };
 
-    const handleCreateImages = async (presetId, overrideStoreDetails) => {
-        if (!presetId) {
+    const handleCreateImages = async (maybePresetId, overrideStoreDetails) => {
+        const id = maybePresetId || presetId;
+        console.log('handleCreateImages called with presetId:', id);
+        if (!id) {
             setError('Brak presetId!');
             return;
         }
@@ -102,7 +104,7 @@ export function useStorePreset() {
         setLoading(true);
         const payload = overrideStoreDetails ? { storeDetails: overrideStoreDetails } : {};
         try {
-            const response = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/generate-images`, {
+            const response = await fetch(`/api/store-presets/${encodeURIComponent(id)}/generate-images`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
