@@ -1,5 +1,4 @@
 import {useState, useContext, useEffect} from 'react';
-import ConversationControls from './ConversationControls';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import {WizardContext} from '../../../hooks/WizardProvider';
@@ -12,8 +11,6 @@ const ConversationPanel = ({
                                error,
                                conversationState,
                                copyConversation,
-                               handleCreateFixtures,
-                               isReady
                            }) => {
     const [showFunctionMessages, setShowFunctionMessages] = useState(false);
     const [showDebug, setShowDebug] = useState(false);
@@ -110,14 +107,6 @@ const ConversationPanel = ({
                         <div><b>messages.length:</b> {messages.length}</div>
                         <div><b>error:</b> {error ? String(error) : 'null'}</div>
                     </div>
-                    <ConversationControls
-                        copyConversation={copyConversation}
-                        showFunctionMessages={showFunctionMessages}
-                        setShowFunctionMessages={setShowFunctionMessages}
-                        handleCreateFixtures={handleCreateFixtures}
-                        loading={loading}
-                        conversationState={conversationState}
-                    />
                 </div>
             )}
         </div>

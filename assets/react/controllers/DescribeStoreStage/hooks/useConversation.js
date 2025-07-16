@@ -166,45 +166,6 @@ export function useConversation() {
         }
     };
 
-    const handleCreateFixtures = async (presetId, overrideStoreDetails) => {
-        const details = overrideStoreDetails !== undefined ? overrideStoreDetails : storeDetails;
-        if (!details) {
-            setError('Store details are required. Please complete the store description first.');
-            return;
-        }
-        if (!presetId) {
-            setError('Brak presetId!');
-            return;
-        }
-        setError(null);
-        setLoading(true);
-        const payload = { storeDetails: details };
-        try {
-            const response = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/fixtures-generate`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            const rawResponse = await response.text();
-            let data;
-            try {
-                data = JSON.parse(rawResponse);
-            } catch (parseError) {
-                setError(`Invalid JSON response from API:\n${rawResponse}`);
-                dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'error' } });
-                return;
-            }
-            if (data.error) setError(data.error); 
-            else setError(null);
-            // Możesz tu dodać obsługę success, np. dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'fixtures_ready' } })
-        } catch (err) {
-            setError(err.message || 'Unknown error');
-            dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'error' } });
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const clearConversation = () => {
         setConversationId(null);
         localStorage.removeItem('conversationId');
