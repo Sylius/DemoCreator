@@ -1,14 +1,13 @@
 import React, {useContext} from 'react';
-import {WizardContext} from '../../hooks/WizardProvider';
+import {WizardContext, StorePresetContext} from '../../hooks/WizardProvider';
 import {motion} from 'framer-motion';
 import wizardStepVariants from './wizardStepVariants';
 import {useSupportedPlugins} from "../../hooks/useSupportedPlugins";
-import {useStorePreset} from '../../hooks/useStorePreset';
 
 export default function PluginsStep() {
     const {wiz, dispatch} = useContext(WizardContext);
     const {plugins, loading: pluginsLoading, error: pluginsError, refetch} = useSupportedPlugins();
-    const {updatePreset, getPreset} = useStorePreset();
+    const {updatePreset, getPreset} = useContext(StorePresetContext);
 
     const prettify = (name) => {
         return name
@@ -18,9 +17,19 @@ export default function PluginsStep() {
             .replace(/\b\w/g, l => l.toUpperCase());
     }
 
-    const handlePluginsSelected = (plugins) => {
-        dispatch({type: 'SET_SELECTED_PLUGINS', plugins: plugins});
-        updatePreset({plugins: plugins})
+    // plugins: ["sylius/cms-plugin:^1.0", ...]
+    const handlePluginsSelected = (composer, version, checked) => {
+        const pluginString = `${composer}:^${version.replace(/^\^?/, '')}`;
+        let updated;
+        if (checked) {
+            updated = wiz.plugins.includes(pluginString)
+                ? wiz.plugins
+                : [...wiz.plugins, pluginString];
+        } else {
+            updated = wiz.plugins.filter(x => x !== pluginString);
+        }
+        dispatch({type: 'SET_SELECTED_PLUGINS', plugins: updated});
+        updatePreset({plugins: updated})
             .then(() => getPreset())
             .catch(err => console.error('Failed to update preset:', err));
     };
@@ -59,27 +68,21 @@ export default function PluginsStep() {
                         <>
                             <div className="grid grid-cols-1 gap-2 mb-6 overflow-y-auto"
                                  style={{maxHeight: 360}}>
-                                {plugins.map(p => (
-                                    <label key={p.composer} className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            value={p.composer}
-                                            checked={wiz.plugins.includes(p.composer)}
-                                            onChange={e => {
-                                                const c = e.target.value;
-                                                let updated;
-                                                if (wiz.plugins.includes(c)) {
-                                                    updated = wiz.plugins.filter(x => x !== c);
-                                                } else {
-                                                    updated = [...wiz.plugins, c];
-                                                }
-                                                handlePluginsSelected(updated);
-                                            }}
-                                            className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-                                        />
-                                        <span className="text-gray-800 text-sm">{prettify(p.name)} ({p.version})</span>
-                                    </label>
-                                ))}
+                                {plugins.map(p => {
+                                    const pluginString = `${p.composer}:^${p.version.replace(/^\^?/, '')}`;
+                                    return (
+                                        <label key={pluginString} className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                value={pluginString}
+                                                checked={wiz.plugins.includes(pluginString)}
+                                                onChange={e => handlePluginsSelected(p.composer, p.version, e.target.checked)}
+                                                className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                                            />
+                                            <span className="text-gray-800 text-sm">{prettify(p.name)} (^ {p.version})</span>
+                                        </label>
+                                    );
+                                })}
                             </div>
                             <button
                                 onClick={() => {
