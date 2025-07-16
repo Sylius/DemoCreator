@@ -18,14 +18,12 @@ export default function PluginsStep() {
     }
 
     const handlePluginsSelected = (composer, version, checked) => {
-        const pluginString = `${composer}:^${version.replace(/^\^?/, '')}`;
         let updated;
         if (checked) {
-            updated = wiz.plugins.includes(pluginString)
-                ? wiz.plugins
-                : [...wiz.plugins, pluginString];
+            updated = { ...wiz.plugins, [composer]: `^${version.replace(/^\^?/, '')}` };
         } else {
-            updated = wiz.plugins.filter(x => x !== pluginString);
+            updated = { ...wiz.plugins };
+            delete updated[composer];
         }
         dispatch({type: 'SET_SELECTED_PLUGINS', plugins: updated});
         updatePreset({plugins: updated})
@@ -68,13 +66,12 @@ export default function PluginsStep() {
                             <div className="grid grid-cols-1 gap-2 mb-6 overflow-y-auto"
                                  style={{maxHeight: 360}}>
                                 {plugins.map(p => {
-                                    const pluginString = `${p.composer}:^${p.version.replace(/^\^?/, '')}`;
                                     return (
-                                        <label key={pluginString} className="flex items-center space-x-2">
+                                        <label key={p.composer} className="flex items-center space-x-2">
                                             <input
                                                 type="checkbox"
-                                                value={pluginString}
-                                                checked={wiz.plugins.includes(pluginString)}
+                                                value={p.composer}
+                                                checked={!!wiz.plugins[p.composer]}
                                                 onChange={e => handlePluginsSelected(p.composer, p.version, e.target.checked)}
                                                 className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
                                             />

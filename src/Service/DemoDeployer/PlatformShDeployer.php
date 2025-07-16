@@ -187,48 +187,51 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
 
         $config = Yaml::parseFile($filePath);
 
-        $hooksConfig = [
-            'build' => [
-                [
-                    'search' => 'yarn install --frozen-lockfile',
-                    'offset' => 0,
-                    'lines' => [
-                        'vendor/bin/sylius-store-assembler --build',
-                    ],
-                ],
-            ],
-            'deploy' => [
-                [
-                    'search' => 'bin/console sylius:fixtures:load -n',
-                    'offset' => 1,
-                    'lines' => ['vendor/bin/sylius-store-assembler --deploy'],
-                ],
-                [
-                    'search' => 'bin/console doctrine:database:create --if-not-exists',
-                    'offset' => 0,
-                    'lines' => ['bin/console doctrine:database:drop --force --if-exists'],
-                ],
-            ],
-        ];
+        // Ensure hooks are arrays
+        foreach (['build', 'deploy'] as $hook) {
+            if (isset($config['hooks'][$hook]) && is_string($config['hooks'][$hook])) {
+                $config['hooks'][$hook] = explode("\n", $config['hooks'][$hook]);
+            }
+        }
 
-        foreach ($hooksConfig as $hookName => $operations) {
-            if (!isset($config['hooks'][$hookName])) {
-                continue;
-            }
-            $lines = explode("\n", $config['hooks'][$hookName]);
-            foreach ($operations as $op) {
-                $pos = null;
-                foreach ($lines as $i => $line) {
-                    if (str_contains($line, $op['search'])) {
-                        $pos = $i;
-                        break;
-                    }
-                }
-                if ($pos !== null) {
-                    array_splice($lines, $pos + $op['offset'], 0, $op['lines']);
+        // BUILD: add vendor/bin/sylius-store-assembler --build after yarn install --frozen-lockfile
+        if (isset($config['hooks']['build']) && is_array($config['hooks']['build'])) {
+            $build = $config['hooks']['build'];
+            $newBuild = [];
+            foreach ($build as $line) {
+                $newBuild[] = $line;
+                if (str_contains($line, 'yarn install --frozen-lockfile')) {
+                    $newBuild[] = 'vendor/bin/sylius-store-assembler --build';
                 }
             }
-            $config['hooks'][$hookName] = implode("\n", $lines);
+            $config['hooks']['build'] = $newBuild;
+        }
+
+        // DEPLOY: add vendor/bin/sylius-store-assembler --deploy after bin/console sylius:fixtures:load -n
+        // and bin/console doctrine:database:drop --force --if-exists before bin/console doctrine:database:create --if-not-exists
+        if (isset($config['hooks']['deploy']) && is_array($config['hooks']['deploy'])) {
+            $deploy = $config['hooks']['deploy'];
+            $newDeploy = [];
+            foreach ($deploy as $i => $line) {
+                // Before database:create
+                if (str_contains($line, 'bin/console doctrine:database:create --if-not-exists')) {
+                    $newDeploy[] = 'bin/console doctrine:database:drop --force --if-exists';
+                }
+                $newDeploy[] = $line;
+                // After fixtures:load
+                if (str_contains($line, 'bin/console sylius:fixtures:load -n')) {
+                    $newDeploy[] = 'vendor/bin/sylius-store-assembler --deploy';
+                }
+            }
+            $config['hooks']['deploy'] = $newDeploy;
+        }
+
+        // Zamień tablice hooków z powrotem na stringi (Platform.sh wymaga stringów)
+        if (isset($config['hooks']['build']) && is_array($config['hooks']['build'])) {
+            $config['hooks']['build'] = implode("\n", $config['hooks']['build']);
+        }
+        if (isset($config['hooks']['deploy']) && is_array($config['hooks']['deploy'])) {
+            $config['hooks']['deploy'] = implode("\n", $config['hooks']['deploy']);
         }
 
         $yamlContent = Yaml::dump($config, 4, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
@@ -252,7 +255,12 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
     private function requireStoreAssembler(): void
     {
         Process::fromShellCommandline(sprintf(
-            'cd %s && composer require sylius/store-assembler:dev-xd --no-scripts --no-interaction',
+            'cd %s && composer require sylius/store-assembler --no-scripts --no-interaction',
+            escapeshellarg($this->getSyliusDirectory())
+        ))->mustRun();
+
+        Process::fromShellCommandline(sprintf(
+            'cd %s && yarn add --dev @symfony/webpack-encore webpack webpack-cli',
             escapeshellarg($this->getSyliusDirectory())
         ))->mustRun();
     }

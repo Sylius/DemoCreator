@@ -3,7 +3,7 @@ import {useReducer, useEffect} from 'react';
 const initialState = {
     step: 1,
     direction: 1,
-    plugins: [],
+    plugins: {},
     target: '',
     env: '',
     fixtures: {

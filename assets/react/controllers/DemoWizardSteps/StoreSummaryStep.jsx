@@ -62,12 +62,9 @@ export default function StoreSummaryStep() {
                 <div className="bg-white rounded-xl shadow p-6 border">
                     <h3 className="font-semibold text-gray-800 mb-2">Plugins:</h3>
                     <ul className="list-disc list-inside text-sm text-gray-700">
-                        {wiz.plugins.map(str => {
-                            const [composer, version] = str.split(':');
-                            return (
-                                <li key={str}>{prettify(composer)} ({version})</li>
-                            );
-                        })}
+                        {Object.entries(wiz.plugins).map(([composer, version]) => (
+                            <li key={composer}>{prettify(composer)} ({version})</li>
+                        ))}
                     </ul>
                 </div>
                 <div className="bg-white rounded-xl shadow p-6 border">
