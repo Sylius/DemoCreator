@@ -1,0 +1,243 @@
+{
+    "storePresetName": "used_agricultural_machinery",
+    "locales": [
+        "pl_PL"
+    ],
+    "currencies": [
+        "PLN"
+    ],
+    "countries": [
+        "PL"
+    ],
+    "menuTaxon": {
+        "code": "used_agricultural_machinery",
+        "name": "Used Agricultural Machinery",
+        "translations": [
+            "U\u017cywane Maszyny Rolnicze"
+        ]
+    },
+    "channel": {
+        "code": "UAM-PL",
+        "name": "Used Agricultural Machinery Poland",
+        "locales": [
+            "pl_PL"
+        ],
+        "currencies": [
+            "PLN"
+        ],
+        "hostname": "uam-pl.store",
+        "theme_name": "agriculture-theme"
+    },
+    "categories": [
+        {
+            "code": "tractories",
+            "name": "Traktory",
+            "slug": "traktory",
+            "translations": [
+                "Traktory"
+            ]
+        },
+        {
+            "code": "combines",
+            "name": "Kombajny",
+            "slug": "kombajny",
+            "translations": [
+                "Kombajny"
+            ]
+        },
+        {
+            "code": "tillage_machines",
+            "name": "Maszyny uprawowe",
+            "slug": "maszyny-uprawowe",
+            "translations": [
+                "Maszyny Uprawowe"
+            ]
+        },
+        {
+            "code": "sowing_machines",
+            "name": "Maszyny siewne",
+            "slug": "maszyny-siewne",
+            "translations": [
+                "Maszyny Siewne"
+            ]
+        },
+        {
+            "code": "accessories",
+            "name": "Akcesoria",
+            "slug": "akcesoria",
+            "translations": [
+                "Akcesoria"
+            ]
+        }
+    ],
+    "paymentMethods": [
+        {
+            "code": "cash_on_delivery",
+            "name": "Cash on Delivery"
+        }
+    ],
+    "shippingMethods": [
+        {
+            "code": "standard_shipping",
+            "name": "Standard Shipping"
+        }
+    ],
+    "taxCategories": [
+        {
+            "code": "standard_tax",
+            "name": "Standard Tax"
+        }
+    ],
+    "taxons": [
+        {
+            "code": "tractories",
+            "name": "Traktory",
+            "translations": [
+                "Traktory"
+            ]
+        },
+        {
+            "code": "combines",
+            "name": "Kombajny",
+            "translations": [
+                "Kombajny"
+            ]
+        },
+        {
+            "code": "tillage_machines",
+            "name": "Maszyny uprawowe",
+            "translations": [
+                "Maszyny Uprawowe"
+            ]
+        },
+        {
+            "code": "sowing_machines",
+            "name": "Maszyny siewne",
+            "translations": [
+                "Maszyny Siewne"
+            ]
+        },
+        {
+            "code": "accessories",
+            "name": "Akcesoria",
+            "translations": [
+                "Akcesoria"
+            ]
+        }
+    ],
+    "taxRates": [
+        {
+            "code": "PL_STANDARD",
+            "name": "Poland Standard",
+            "zone": "WORLD",
+            "category": "standard_tax",
+            "amount": 0.23
+        }
+    ],
+    "zones": [
+        "WORLD"
+    ],
+    "products": [
+        {
+            "name": "Zetor 8045",
+            "description": "Szczeg\u00f3\u0142owy opis tego wyj\u0105tkowego traktora Zetor 8045, kt\u00f3ry jest niezawodnym wyborem dla ka\u017cdego rolnika.",
+            "short_description": "Niezawodny traktor Zetor 8045.",
+            "img_prompt": "Realistyczny wizerunek tratorka Zetor 8045",
+            "tax_category": "standard_tax",
+            "main_taxon": "tractories",
+            "taxons": [
+                "tractories"
+            ],
+            "images": [
+                {
+                    "path": "images/Zetor_8045.jpg"
+                }
+            ],
+            "product_attributes": {
+                "material": "Steel",
+                "weight_kg": "3500"
+            }
+        },
+        {
+            "name": "New Holland TC56",
+            "description": "Szczeg\u00f3\u0142owy opis nowych funkcji i wydajno\u015bci kombajnu New Holland TC56, idealnego dla du\u017cych gospodarstw.",
+            "short_description": "Wydajny kombajn New Holland TC56.",
+            "img_prompt": "Realistyczny wizerunek kombajnu New Holland TC56",
+            "tax_category": "standard_tax",
+            "main_taxon": "combines",
+            "taxons": [
+                "combines"
+            ],
+            "images": [
+                {
+                    "path": "images/New_Holland_TC56.jpg"
+                }
+            ],
+            "product_attributes": {
+                "material": "Steel",
+                "weight_kg": "10000"
+            }
+        },
+        {
+            "name": "Lemken Opal 140",
+            "description": "Szczeg\u00f3\u0142owy opis p\u0142uga Lemken Opal 140, kt\u00f3ry gwarantuje skuteczn\u0105 upraw\u0119 ziemi.",
+            "short_description": "Efektywny p\u0142ug Lemken Opal 140.",
+            "img_prompt": "Realistyczny wizerunek p\u0142uga Lemken Opal 140",
+            "tax_category": "standard_tax",
+            "main_taxon": "tillage_machines",
+            "taxons": [
+                "tillage_machines"
+            ],
+            "images": [
+                {
+                    "path": "images/Lemken_Opal_140.jpg"
+                }
+            ],
+            "product_attributes": {
+                "material": "Steel",
+                "weight_kg": "750"
+            }
+        },
+        {
+            "name": "Amazone ED 602-K",
+            "description": "Szczeg\u00f3\u0142owy opis siewnika Amazone ED 602-K, kt\u00f3ry oferuje precyzyjne siewy.",
+            "short_description": "Precyzyjny siewnik Amazone ED 602-K.",
+            "img_prompt": "Realistyczny wizerunek siewnika Amazone ED 602-K",
+            "tax_category": "standard_tax",
+            "main_taxon": "sowing_machines",
+            "taxons": [
+                "sowing_machines"
+            ],
+            "images": [
+                {
+                    "path": "images/Amazone_ED_602-K.jpg"
+                }
+            ],
+            "product_attributes": {
+                "material": "Steel",
+                "weight_kg": "1850"
+            }
+        },
+        {
+            "name": "Claas Variant 280",
+            "description": "Szczeg\u00f3\u0142owy opis akcesorium do zbioru Claas Variant 280, kt\u00f3re jest niezb\u0119dnym uzupe\u0142nieniem ka\u017cdego sprz\u0119tu rolniczego.",
+            "short_description": "Niezb\u0119dne akcesorium Claas Variant 280.",
+            "img_prompt": "Realistyczny wizerunek akcesorium Claas Variant 280",
+            "tax_category": "standard_tax",
+            "main_taxon": "accessories",
+            "taxons": [
+                "accessories"
+            ],
+            "images": [
+                {
+                    "path": "images/Claas_Variant_280.jpg"
+                }
+            ],
+            "product_attributes": {
+                "material": "Metal",
+                "weight_kg": "1200"
+            }
+        }
+    ],
+    "updatedAt": "2025-07-01T09:27:11+00:00"
+}
