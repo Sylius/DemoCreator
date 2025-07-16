@@ -19,8 +19,8 @@ export default function PluginsStep() {
     }
 
     const handlePluginsSelected = (plugins) => {
-        dispatch({type: 'SET_SELECTED_PLUGINS', selectedPlugins: plugins});
-        updatePreset({selectedPlugins: plugins})
+        dispatch({type: 'SET_SELECTED_PLUGINS', plugins: plugins});
+        updatePreset({plugins: plugins})
             .then(() => getPreset())
             .catch(err => console.error('Failed to update preset:', err));
     };
@@ -64,14 +64,14 @@ export default function PluginsStep() {
                                         <input
                                             type="checkbox"
                                             value={p.composer}
-                                            checked={wiz.selectedPlugins.includes(p.composer)}
+                                            checked={wiz.plugins.includes(p.composer)}
                                             onChange={e => {
                                                 const c = e.target.value;
                                                 let updated;
-                                                if (wiz.selectedPlugins.includes(c)) {
-                                                    updated = wiz.selectedPlugins.filter(x => x !== c);
+                                                if (wiz.plugins.includes(c)) {
+                                                    updated = wiz.plugins.filter(x => x !== c);
                                                 } else {
-                                                    updated = [...wiz.selectedPlugins, c];
+                                                    updated = [...wiz.plugins, c];
                                                 }
                                                 handlePluginsSelected(updated);
                                             }}

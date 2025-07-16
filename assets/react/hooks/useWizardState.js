@@ -3,7 +3,7 @@ import {useReducer, useEffect} from 'react';
 const initialState = {
     step: 1,
     direction: 1,
-    selectedPlugins: [],
+    plugins: [],
     target: '',
     env: '',
     fixtures: {
@@ -31,7 +31,7 @@ function reducer(state, action) {
         case 'SET_STEP':
             return {...state, step: action.step, direction: action.direction};
         case 'SET_SELECTED_PLUGINS':
-            return {...state, selectedPlugins: action.selectedPlugins};
+            return {...state, plugins: action.plugins};
         case 'SET_WIZARD_STATE':
             return {...state, ...action.state};
         case 'NEXT_STEP':

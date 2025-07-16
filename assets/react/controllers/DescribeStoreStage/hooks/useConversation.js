@@ -202,7 +202,6 @@ export function useConversation() {
         setInput,
         handleSend,
         retryRequest,
-        handleCreateFixtures,
         clearConversation,
         copyConversation,
     };
