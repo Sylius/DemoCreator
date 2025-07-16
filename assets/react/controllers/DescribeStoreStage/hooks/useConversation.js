@@ -11,10 +11,6 @@ export function useConversation() {
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [storeDetails, setStoreDetails] = useState(() => {
-        const stored = localStorage.getItem('storeDetails');
-        return stored ? JSON.parse(stored) : null;
-    });
     const [conversationId, setConversationId] = useState(() => {
         return localStorage.getItem('conversationId') || null;
     });
@@ -29,14 +25,6 @@ export function useConversation() {
     useEffect(() => {
         localStorage.setItem('messages', JSON.stringify(messages));
     }, [messages]);
-
-    useEffect(() => {
-        if (storeDetails !== null) {
-            localStorage.setItem('storeDetails', JSON.stringify(storeDetails));
-        } else {
-            localStorage.removeItem('storeDetails');
-        }
-    }, [storeDetails]);
 
     // Auto-send next request if last message is function_call
     useEffect(() => {
@@ -68,7 +56,7 @@ export function useConversation() {
             const payload = {
                 conversationId,
                 messages: newMessages,
-                storeDetails,
+                storeDetails: wiz.storeDetails,
                 state: wiz.state,
                 error,
             };
@@ -101,7 +89,6 @@ export function useConversation() {
             if (data.conversationId) setConversationId(data.conversationId);
             if (data.storeDetails) {
                 dispatch({ type: 'UPDATE_STORE_DETAILS', storeDetails: data.storeDetails });
-                setStoreDetails(data.storeDetails);
             }
             
             if (Array.isArray(data.messages)) {
@@ -123,7 +110,7 @@ export function useConversation() {
             const payload = {
                 conversationId,
                 messages,
-                storeDetails,
+                storeDetails: wiz.storeDetails,
                 state: wiz.state,
                 error,
             };
@@ -151,8 +138,7 @@ export function useConversation() {
             
             if (data.state) dispatch({ type: 'SET_WIZARD_STATE', state: { state: data.state } });
             if (data.conversationId) setConversationId(data.conversationId);
-            if (data.storeDetails) setStoreDetails(data.storeDetails);
-            
+
             if (Array.isArray(data.messages)) {
                 setMessages(data.messages);
             } else {
@@ -170,9 +156,7 @@ export function useConversation() {
         setConversationId(null);
         localStorage.removeItem('conversationId');
         localStorage.removeItem('messages');
-        localStorage.removeItem('storeDetails');
         dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'collecting' } });
-        setStoreDetails(null);
         setMessages([]);
         setInput("");
         setError(null);
@@ -181,7 +165,7 @@ export function useConversation() {
 
     const copyConversation = () => {
         const payload = JSON.stringify(
-            { conversationId, messages, storeDetails, state: wiz.state, error },
+            { conversationId, messages, storeDetails: wiz.storeDetails, state: wiz.state, error },
             null,
             2
         );
@@ -195,7 +179,7 @@ export function useConversation() {
         input,
         loading,
         error,
-        storeDetails,
+        storeDetails: wiz.storeDetails,
         conversationId,
         state: wiz.state,
         // Actions

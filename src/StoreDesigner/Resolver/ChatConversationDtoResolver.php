@@ -26,7 +26,7 @@ class ChatConversationDtoResolver implements ValueResolverInterface
                 currencies: $data['storeDetails']['currencies'] ?? [],
                 countries: $data['storeDetails']['countries'] ?? [],
                 categories: $data['storeDetails']['categories'] ?? [],
-                productsPerCat: $data['storeDetails']['productsPerCat'] ?? 0,
+                productsPerCat: $data['storeDetails']['productsPerCat'] ?? 1,
                 descriptionStyle: $data['storeDetails']['descriptionStyle'] ?? null,
                 imageStyle: $data['storeDetails']['imageStyle'] ?? null,
                 zones: $data['storeDetails']['zones'] ?? [],

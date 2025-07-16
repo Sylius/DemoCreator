@@ -41,7 +41,7 @@ final readonly class ChatConversationService
                     currencies: $args['currencies'] ?? [],
                     countries: $args['countries'] ?? [],
                     categories: $args['categories'] ?? [],
-                    productsPerCat: $args['productsPerCat'] ?? 0,
+                    productsPerCat: $args['productsPerCat'] ?? 1,
                     descriptionStyle: $args['descriptionStyle'] ?? null,
                     imageStyle: $args['imageStyle'] ?? null,
                     zones: $args['zones'] ?? [],

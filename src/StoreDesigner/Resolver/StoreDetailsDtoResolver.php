@@ -30,7 +30,7 @@ class StoreDetailsDtoResolver implements ValueResolverInterface
             currencies: $data['currencies'] ?? [],
             countries: $data['countries'] ?? [],
             categories: $data['categories'] ?? [],
-            productsPerCat: $data['productsPerCat'] ?? 5,
+            productsPerCat: $data['productsPerCat'] ?? 1,
             descriptionStyle: $data['descriptionStyle'] ?? 'professional',
             imageStyle: $data['imageStyle'] ?? 'realistic',
             zones: $data['zones'] ?? [],
