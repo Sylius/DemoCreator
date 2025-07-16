@@ -83,7 +83,9 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
             'git clone --branch 2.0 %s %s',
             escapeshellarg('https://github.com/Sylius/Sylius-Standard.git'),
             escapeshellarg($this->getSyliusDirectory())
-        ))->mustRun();
+        ))
+            ->setTimeout(0)
+            ->mustRun();
     }
 
     private function copyStorePresetIntoSyliusDirectory(string $store): void
@@ -257,11 +259,15 @@ final readonly class PlatformShDeployer implements DemoDeployerInterface
         Process::fromShellCommandline(sprintf(
             'cd %s && composer require sylius/store-assembler --no-scripts --no-interaction',
             escapeshellarg($this->getSyliusDirectory())
-        ))->mustRun();
+        ))
+            ->setTimeout(0)
+            ->mustRun();
 
         Process::fromShellCommandline(sprintf(
             'cd %s && yarn add --dev @symfony/webpack-encore webpack webpack-cli',
             escapeshellarg($this->getSyliusDirectory())
-        ))->mustRun();
+        ))
+            ->setTimeout(0)
+            ->mustRun();
     }
 }

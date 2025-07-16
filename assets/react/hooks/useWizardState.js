@@ -76,6 +76,44 @@ function reducer(state, action) {
                 ...state,
                 images: {ready: false, generating: false, error: action.error},
             };
+        case 'DEPLOY_START':
+            return {
+                ...state,
+                deploy: {
+                    stateId: null,
+                    url: null,
+                    status: 'deploying',
+                    error: null,
+                },
+            };
+        case 'DEPLOY_INITIATED':
+            return {
+                ...state,
+                deploy: {
+                    stateId: action.stateId,
+                    url: action.url,
+                    status: 'deploying',
+                    error: null,
+                },
+            };
+        case 'DEPLOY_ERROR':
+            return {
+                ...state,
+                deploy: {
+                    ...state.deploy,
+                    error: action.error,
+                    status: 'error',
+                },
+            };
+        case 'DEPLOY_COMPLETE':
+            return {
+                ...state,
+                deploy: {
+                    ...state.deploy,
+                    status: 'complete',
+                    error: null,
+                },
+            };
         case 'RESET_WIZARD':
             localStorage.clear();
 
