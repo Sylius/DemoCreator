@@ -302,4 +302,24 @@ final class StorePresetManager
         }
         return $results;
     }
+
+    public function generateBannerImage(string $id, string $prompt): ?string
+    {
+        $this->validatePresetId($id);
+        $definitionPath = Path::join($this->getPresetDirectory($id), 'store-definition.json');
+        if (!$this->filesystem->exists($definitionPath)) {
+            throw new \RuntimeException("Brak store-definition.json dla presetu {$id}");
+        }
+        try {
+            $imageData = $this->gptClient->generateImage($prompt);
+            $fileName = 'banner_' . Uuid::v4()->toRfc4122() . '.png';
+            $filePath = Path::join($this->getPresetDirectory($id), 'fixtures', $fileName);
+            if (file_put_contents($filePath, $imageData) === false) {
+                throw new \RuntimeException('Failed to save banner image to ' . $filePath);
+            }
+            return $filePath;
+        } catch (\Throwable $e) {
+            throw new \RuntimeException("Nie można wygenerować obrazka banera: {$e->getMessage()}", 0, $e);
+        }
+    }
 }

@@ -136,4 +136,31 @@ class StorePresetController extends AbstractController
             return $this->json(['error' => 'Failed to generate images: ' . $e->getMessage()], 500);
         }
     }
+
+    #[Route('/api/store-presets/{id}/generate-banner', name: 'generate_store_preset_banner', methods: ['PATCH'])]
+    public function generateBanner(string $id, Request $request): JsonResponse
+    {
+        set_time_limit(600);
+        ini_set('max_execution_time', '600');
+
+        $preset = $this->storePresetManager->getPreset($id);
+        if (!$preset) {
+            return $this->json(['error' => 'Preset not found'], 404);
+        }
+        $data = json_decode($request->getContent(), true);
+        $prompt = $data['prompt'] ?? null;
+        if (!$prompt) {
+            return $this->json(['error' => 'No prompt provided'], 400);
+        }
+        try {
+            $path = $this->storePresetManager->generateBannerImage($id, $prompt);
+            return $this->json([
+                'message' => 'Banner generated',
+                'path' => $path,
+                'presetId' => $id
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->json(['error' => 'Failed to generate banner: ' . $e->getMessage()], 500);
+        }
+    }
 } 
