@@ -11,11 +11,11 @@
     "properties": {
         "name": {
             "type": "string",
-            "description": "Unikalna nazwa presetu sklepu"
+            "description": "Unique name of the store preset"
         },
         "plugins": {
             "type": "object",
-            "description": "Lista pluginów do zainstalowania (composer package => wersja)",
+            "description": "List of plugins to install (composer package => version)",
             "patternProperties": {
                 "^[a-z0-9-/]+$": {
                     "type": "string"
@@ -25,7 +25,7 @@
         },
         "themes": {
             "type": "object",
-            "description": "Konfiguracja motywów dla różnych obszarów (np. shop, admin)",
+            "description": "Theme configuration for different areas (e.g. shop, admin)",
             "minProperties": 1,
             "properties": {
                 "shop": {
@@ -41,7 +41,7 @@
         },
         "fixtures": {
             "type": "object",
-            "description": "Konfiguracja fixture'ów (np. nazwa suite)",
+            "description": "Fixtures configuration (e.g. suite name)",
             "properties": {
                 "suite": {
                     "type": "string"
@@ -63,7 +63,7 @@
             "properties": {
                 "cssVariables": {
                     "type": "object",
-                    "description": "Zmienne CSS dla motywu",
+                    "description": "CSS variables for the theme",
                     "patternProperties": {
                         "^--[a-zA-Z0-9-]+$": {
                             "type": "string"
@@ -73,7 +73,7 @@
                 },
                 "assets": {
                     "type": "object",
-                    "description": "Assety graficzne dla motywu (logo, banner, favicon, ...)",
+                    "description": "Graphic assets for the theme (logo, banner, favicon, ...)",
                     "properties": {
                         "logo": {
                             "$ref": "#/definitions/asset"
@@ -97,15 +97,15 @@
             "properties": {
                 "file": {
                     "type": "string",
-                    "description": "Nazwa pliku assetu (np. logo.png)"
+                    "description": "Asset file name (e.g. logo.png)"
                 },
                 "alt": {
                     "type": "string",
-                    "description": "Tekst alternatywny (alt) dla obrazka"
+                    "description": "Alternative text (alt) for the image"
                 },
                 "type": {
                     "type": "string",
-                    "description": "Typ MIME (opcjonalnie)"
+                    "description": "MIME type (optional)"
                 }
             },
             "additionalProperties": false
