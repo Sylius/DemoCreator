@@ -13,30 +13,33 @@ final readonly class FileResourceLoader
     ) {
     }
 
-    public function load(string $relativePath): string
+    public function loadPrompt(PromptPath $prompt): string
     {
-        $path = $this->projectDir . DIRECTORY_SEPARATOR . ltrim($relativePath, DIRECTORY_SEPARATOR);
-        if (!file_exists($path)) {
-            throw new \RuntimeException("File not found: $path");
-        }
+        return $this->load($prompt->value);
+    }
 
-        $data = file_get_contents($path);
+    public function loadSchema(SchemaPath $schema): array
+    {
+        $data = $this->load($schema->value);
+
+        $json = json_decode($data, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException("Invalid JSON in schema file: {$schema->value} - " . json_last_error_msg());
+        }
+        return $json;
+    }
+
+    private function load(string $path): string
+    {
+        $fullPath = $this->projectDir . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
+        if (!file_exists($fullPath)) {
+            throw new \RuntimeException("File not found: $fullPath");
+        }
+        $data = file_get_contents($fullPath);
         if ($data === false) {
-            throw new \RuntimeException("Failed to read file: $path");
+            throw new \RuntimeException("Failed to read file: $fullPath");
         }
 
         return $data;
-    }
-
-    public function loadJson(string $relativePath): array
-    {
-        $data = $this->load($relativePath);
-        $json = json_decode($data, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException("Invalid JSON in $relativePath: " . json_last_error_msg());
-        }
-
-        return $json;
     }
 }

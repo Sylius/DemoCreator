@@ -7,7 +7,6 @@ namespace App\StoreDesigner\Controller;
 use App\StoreDesigner\Dto\ChatConversationDto;
 use App\StoreDesigner\Resolver\ChatConversationDtoResolver;
 use App\StoreDesigner\Service\ChatConversationService;
-use App\StoreDesigner\Service\FixtureCreator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;

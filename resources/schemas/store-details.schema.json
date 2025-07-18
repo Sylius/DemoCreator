@@ -1,0 +1,101 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Update Store Details Parameters",
+    "type": "object",
+    "properties": {
+        "industry": {
+            "type": "string"
+        },
+        "locales": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "currencies": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "countries": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "zones": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "countries": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "countries"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "categories": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ]
+            }
+        },
+        "productsPerCat": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "descriptionStyle": {
+            "type": "string"
+        },
+        "imageStyle": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "industry",
+        "locales",
+        "currencies",
+        "countries",
+        "categories",
+        "productsPerCat",
+        "descriptionStyle",
+        "imageStyle",
+        "zones"
+    ]
+}

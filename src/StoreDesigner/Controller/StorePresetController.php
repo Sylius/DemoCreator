@@ -1,16 +1,15 @@
 <?php
+
 namespace App\StoreDesigner\Controller;
 
 use App\StoreDesigner\Dto\StoreDetailsDto;
-use App\StoreDesigner\Resolver\ChatConversationDtoResolver;
 use App\StoreDesigner\Resolver\StoreDetailsDtoResolver;
-use App\StoreDesigner\Service\FixtureCreator;
+use App\StoreDesigner\Service\FixtureGenerator;
 use App\StoreDesigner\Service\FixtureParser;
 use App\StoreDesigner\Service\StorePresetManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,9 +17,10 @@ class StorePresetController extends AbstractController
 {
     public function __construct(
         private readonly StorePresetManager $storePresetManager,
-        private readonly FixtureCreator $fixtureCreator,
+        private readonly FixtureGenerator $fixtureGenerator,
         private readonly FixtureParser $fixtureParser,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/store-presets', name: 'create_store_preset', methods: ['POST'])]
     public function createPreset(): JsonResponse
@@ -57,7 +57,8 @@ class StorePresetController extends AbstractController
     public function generateFixtures(
         string $id,
         #[ValueResolver(StoreDetailsDtoResolver::class)] StoreDetailsDto $storeDetailsDto,
-    ): JsonResponse {
+    ): JsonResponse
+    {
         set_time_limit(600);
         ini_set('max_execution_time', '600');
 
@@ -67,7 +68,7 @@ class StorePresetController extends AbstractController
         }
 
         try {
-            $storeDefinition = $this->fixtureCreator->create($storeDetailsDto);
+            $storeDefinition = $this->fixtureGenerator->generate($storeDetailsDto);
             $fixtures = $this->fixtureParser->parse($storeDefinition);
             $this->storePresetManager->updateStoreDefinition(array_merge($storeDefinition, ['id' => $id]));
             $this->storePresetManager->updateFixtures($id, $fixtures);
@@ -163,4 +164,4 @@ class StorePresetController extends AbstractController
             return $this->json(['error' => 'Failed to generate banner: ' . $e->getMessage()], 500);
         }
     }
-} 
+}

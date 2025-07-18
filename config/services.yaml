@@ -14,18 +14,6 @@ services:
             - '../src/Kernel.php'
             - '../src/StoreDesigner/Dto/'
 
-
-    Platformsh\Client\Connection\Connector:
-        arguments:
-            $config:
-                api_url: 'https://api.platform.sh'
-                accounts: 'https://api.platform.sh/'
-                centralized_permissions_enabled: true
-
-    Platformsh\Client\PlatformClient:
-        arguments:
-            $connector: '@Platformsh\Client\Connection\Connector'
-
     App\StoreDesigner\Controller\:
         resource: '../src/StoreDesigner/Controller'
         tags: ['controller.service_arguments']

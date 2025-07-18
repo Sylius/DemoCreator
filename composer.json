@@ -13,7 +13,6 @@
         "doctrine/orm": "^3.3",
         "openai-php/client": "^0.13.0",
         "openai-php/symfony": "^0.13.0",
-        "platformsh/client": "*",
         "symfony/console": "7.2.*",
         "symfony/doctrine-messenger": "7.2.*",
         "symfony/dotenv": "7.2.*",

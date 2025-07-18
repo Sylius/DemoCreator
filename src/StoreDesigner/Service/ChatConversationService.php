@@ -7,20 +7,20 @@ namespace App\StoreDesigner\Service;
 use App\StoreDesigner\Dto\ChatConversationDto;
 use App\StoreDesigner\Dto\ChatConversationState;
 use App\StoreDesigner\Dto\StoreDetailsDto;
+use App\StoreDesigner\Util\FileResourceLoader;
+use App\StoreDesigner\Util\PromptPath;
+use App\StoreDesigner\Util\SchemaPath;
 use Random\RandomException;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class ChatConversationService
 {
     public function __construct(
-        #[Autowire('%kernel.project_dir%/config/gpt/')] private string $configPath,
         private GptClient $gptClient,
+        private FileResourceLoader $fileResourceLoader,
     ) {
     }
 
-    /**
-     * @throws RandomException
-     */
+    /** @throws RandomException */
     public function processConversation(ChatConversationDto $data): ChatConversationDto
     {
         $conversationId = $data->conversationId ?? bin2hex(random_bytes(16));
@@ -30,7 +30,10 @@ final readonly class ChatConversationService
         $error = $data->error;
 
         if (empty($messages) || ($messages[0]['role'] ?? '') !== 'system') {
-            array_unshift($messages, $this->getSystemMessage());
+            array_unshift($messages, [
+                'role' => 'system',
+                'content' => $this->fileResourceLoader->loadPrompt(PromptPath::InterviewInstructions),
+            ]);
         }
 
         $functionMap = [
@@ -63,7 +66,11 @@ final readonly class ChatConversationService
                 messages: $messages,
                 model: 'gpt-4.1-mini',
                 maxCompletionTokens: $maxCompletionTokens,
-                functions: [$this->getUpdateStoreDetailsFunction()],
+                functions: [[
+                    'name' => 'updateStoreDetails',
+                    'description' => 'Zbiera podstawowe dane sklepu',
+                    'parameters' => $this->fileResourceLoader->loadSchema(SchemaPath::StoreDetails),
+                ]],
             );
             $messages[] = $message->toArray();
 
@@ -110,96 +117,5 @@ final readonly class ChatConversationService
         }
 
         return ChatConversationState::Collecting;
-    }
-
-    private function getSystemInstructions(): string
-    {
-        $path = $this->configPath . 'system_instructions.md';
-        if (!file_exists($path)) {
-            throw new \RuntimeException('System instructions file not found: ' . $path);
-        }
-        $data = file_get_contents($path);
-        if ($data === false) {
-            throw new \RuntimeException('Failed to read system instructions file: ' . $path);
-        }
-
-        return $data;
-    }
-
-    private function getSystemMessage(): array
-    {
-        $instructions = $this->getSystemInstructions();
-        return [
-            'role' => 'system',
-            'content' => $instructions,
-        ];
-    }
-
-    private function getUpdateStoreDetailsFunction(): array
-    {
-        return
-            [
-                'name' => 'updateStoreDetails',
-                'description' => 'Zbiera podstawowe dane sklepu',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'industry' => ['type' => 'string'],
-                        'locales' => ['type' => 'array', 'items' => ['type' => 'string']],
-                        'currencies' => ['type' => 'array', 'items' => ['type' => 'string']],
-                        'countries' => ['type' => 'array', 'items' => ['type' => 'string']],
-                        'zones' => [
-                            'type' => 'object',
-                            'additionalProperties' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'name' => ['type' => 'string'],
-                                    'countries' => [
-                                        'type' => 'array',
-                                        'items' => ['type' => 'string'],
-                                    ],
-                                ],
-                                'required' => ['name', 'countries'],
-                                'additionalProperties' => false,
-                            ],
-                        ],
-                        'categories' => [
-                            'type' => 'array',
-                            'items' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'code' => ['type' => 'string'],
-                                    'name' => ['type' => 'string'],
-                                    'slug' => ['type' => 'string'],
-                                    'translations' => [
-                                        'type' => 'array',
-                                        'items' => [
-                                            'type' => 'array',
-                                            'items' => [
-                                                'type' => 'string',
-                                            ]
-                                        ],
-                                    ],
-                                ],
-                                'required' => ['code', 'name'],
-                            ],
-                        ],
-                        'productsPerCat' => ['type' => 'integer', 'minimum' => 1],
-                        'descriptionStyle' => ['type' => 'string'],
-                        'imageStyle' => ['type' => 'string'],
-                    ],
-                    'required' => [
-                        'industry',
-                        'locales',
-                        'currencies',
-                        'countries',
-                        'categories',
-                        'productsPerCat',
-                        'descriptionStyle',
-                        'imageStyle',
-                        'zones',
-                    ]
-                ]
-            ];
     }
 }
