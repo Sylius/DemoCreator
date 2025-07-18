@@ -12,10 +12,10 @@ final readonly class FixtureCreator
 {
     public function __construct(
         private GptClient $gptClient,
-        #[Autowire('%kernel.project_dir%/config/gpt/')] private string $configPath,
+        #[Autowire('%kernel.project_dir%/resources/prompts')] private string $promptsPath,
+        #[Autowire('%kernel.project_dir%/resources/schemas')] private string $schemasPath,
         private LoggerInterface $logger,
-    )
-    {
+    ) {
     }
 
     public function create(StoreDetailsDto $storeDetailsDto): array
@@ -101,7 +101,7 @@ final readonly class FixtureCreator
 
     private function getGenerateFixturesFunction(): array
     {
-        $schemaPath = $this->configPath . 'fixtures_schema.json';
+        $schemaPath = $this->schemasPath . 'fixtures_schema.json';
         if (!file_exists($schemaPath)) {
             throw new \RuntimeException('Fixtures schema file not found: ' . $schemaPath);
         }
@@ -119,7 +119,7 @@ final readonly class FixtureCreator
 
     private function getSystemMessage(): string
     {
-        $path = $this->configPath . 'system_instructions_fixtures_creation.md';
+        $path = $this->promptsPath . 'fixtures-generation-instructions.md';
         if (!file_exists($path)) {
             throw new \RuntimeException('System instructions file not found: ' . $path);
         }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Service;
 
+use SensitiveParameter;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -13,7 +14,7 @@ final readonly class GptClient
 {
     public function __construct(
         private HttpClientInterface $httpClient,
-        #[Autowire(env: 'OPENAI_API_KEY')] private string $openaiApiKey,
+        #[SensitiveParameter] #[Autowire(env: 'OPENAI_API_KEY')] private string $openaiApiKey,
         private LoggerInterface $logger,
     ) {
     }
