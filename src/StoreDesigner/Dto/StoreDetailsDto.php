@@ -46,7 +46,7 @@ class StoreDetailsDto implements \JsonSerializable
         if (!$result->isValid()) {
             $formatter = new ErrorFormatter();
             $errors = $formatter->format($result->error());
-            throw new InvalidSchemaDataException('Invalid data', $errors);
+            throw new InvalidSchemaDataException($errors);
         }
 
         return new self(

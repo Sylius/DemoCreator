@@ -26,7 +26,7 @@ readonly class ChatConversationDtoResolver implements ValueResolverInterface
         yield new ChatConversationDto(
             conversationId: $data['conversationId'] ?? bin2hex(random_bytes(16)),
             messages: $data['messages'] ?? [],
-            storeDetails: StoreDetailsDto::fromArray($data['storeDetails'], $this->fileResourceLoader->loadSchemaObject(SchemaPath::StoreDetails)),
+            storeDetails: $data['storeDetails'] !== null ? StoreDetailsDto::fromArray($data['storeDetails'], $this->fileResourceLoader->loadSchemaObject(SchemaPath::StoreDetails)): null,
             state: isset($data['state']) ? ChatConversationState::from($data['state']) : ChatConversationState::Collecting,
             error: $data['error'] ?? null,
         );

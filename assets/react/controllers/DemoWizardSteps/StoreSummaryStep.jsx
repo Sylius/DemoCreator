@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {WizardContext, StorePresetContext} from '../../hooks/WizardProvider';
 import {motion} from 'framer-motion';
 import wizardStepVariants from './wizardStepVariants';
@@ -19,6 +19,10 @@ export default function StoreSummaryStep() {
             .replace(/-/g, ' ')
             .replace(/\b\w/g, l => l.toUpperCase());
     };
+
+    const back = useCallback(() => {
+        dispatch({type: 'SET_STEP', step: Math.max(wiz.step - 1, 1), direction: -1});
+    }, [wiz.step, dispatch]);
 
     // Rozpocznij generowanie fixtures
     const onBeginGeneration = async () => {
@@ -199,6 +203,12 @@ export default function StoreSummaryStep() {
                 </div>
             </div>
             {content}
+            <div className="flex justify-between mt-6">
+                <button onClick={back}
+                        className="text-teal-600 hover:underline rounded-lg px-4 py-2">←
+                    Back
+                </button>
+            </div>
         </motion.div>
     );
 }

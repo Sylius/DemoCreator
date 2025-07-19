@@ -57,8 +57,7 @@ class StorePresetController extends AbstractController
     public function generateFixtures(
         string $id,
         #[ValueResolver(StoreDetailsDtoResolver::class)] StoreDetailsDto $storeDetailsDto,
-    ): JsonResponse
-    {
+    ): JsonResponse {
         set_time_limit(600);
         ini_set('max_execution_time', '600');
 
