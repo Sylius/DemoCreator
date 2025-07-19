@@ -23,7 +23,7 @@ final readonly class FixtureGenerator
             messages: [
                 [
                     'role' => 'system',
-                    'content' => $this->fileResourceLoader->loadPrompt(PromptPath::FixturesGenerationInstructions),
+                    'content' => $this->fileResourceLoader->loadPrompt(PromptPath::StoreDefinitionGenerationInstructions),
                 ],
                 [
                     'role' => 'user',

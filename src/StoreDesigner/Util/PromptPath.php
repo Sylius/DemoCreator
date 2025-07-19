@@ -7,5 +7,5 @@ namespace App\StoreDesigner\Util;
 enum PromptPath: string
 {
     case InterviewInstructions = 'resources/prompts/interview-instructions.md';
-    case FixturesGenerationInstructions = 'resources/prompts/fixtures-generation-instructions.md';
+    case StoreDefinitionGenerationInstructions = 'resources/prompts/store-definition-generation-instructions.md';
 }
