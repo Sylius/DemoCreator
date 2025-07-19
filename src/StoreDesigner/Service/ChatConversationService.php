@@ -20,7 +20,10 @@ final readonly class ChatConversationService
     ) {
     }
 
-    /** @throws RandomException */
+    /**
+     * @throws RandomException
+     * @throws \JsonException
+     */
     public function processConversation(ChatConversationDto $data): ChatConversationDto
     {
         $conversationId = $data->conversationId ?? bin2hex(random_bytes(16));
@@ -35,22 +38,6 @@ final readonly class ChatConversationService
                 'content' => $this->fileResourceLoader->loadPrompt(PromptPath::InterviewInstructions),
             ]);
         }
-
-        $functionMap = [
-            'updateStoreDetails' => function (array $args) use (&$storeDetails) {
-                return new StoreDetailsDto(
-                    industry: $args['industry'] ?? '',
-                    locales: $args['locales'] ?? [],
-                    currencies: $args['currencies'] ?? [],
-                    countries: $args['countries'] ?? [],
-                    categories: $args['categories'] ?? [],
-                    productsPerCat: $args['productsPerCat'] ?? 1,
-                    descriptionStyle: $args['descriptionStyle'] ?? null,
-                    imageStyle: $args['imageStyle'] ?? null,
-                    zones: $args['zones'] ?? [],
-                );
-            },
-        ];
 
         $maxCompletionTokens = 4096;
         $maxFunctionCalls = 5;
@@ -69,7 +56,7 @@ final readonly class ChatConversationService
                 functions: [[
                     'name' => 'updateStoreDetails',
                     'description' => 'Zbiera podstawowe dane sklepu',
-                    'parameters' => $this->fileResourceLoader->loadSchema(SchemaPath::StoreDetails),
+                    'parameters' => $this->fileResourceLoader->loadSchemaArray(SchemaPath::StoreDetails),
                 ]],
             );
             $messages[] = $message->toArray();
@@ -78,11 +65,14 @@ final readonly class ChatConversationService
                 $name = $message->getFunctionCallName();
                 $args = $message->getFunctionCallData();
                 if ($name === 'updateStoreDetails') {
-                    $storeDetails = $functionMap['updateStoreDetails']($args ?? []);
+                    $storeDetails = StoreDetailsDto::fromArray(
+                        $args,
+                        $this->fileResourceLoader->loadSchemaObject(SchemaPath::StoreDetails),
+                    );
                     $messages[] = [
                         'role' => 'function',
                         'name' => $name,
-                        'content' => json_encode($storeDetails, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                        'content' => $storeDetails->toJson(),
                     ];
                     $state = ChatConversationState::Ready;
                 } else {

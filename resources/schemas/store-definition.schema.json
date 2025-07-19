@@ -225,10 +225,6 @@
                 "additionalProperties": false
             }
         },
-        "zones": {
-            "type": "array",
-            "items": { "type": "string" }
-        },
         "products": {
             "type": "array",
             "items": {
@@ -290,6 +286,38 @@
                 ],
                 "additionalProperties": false
             }
+        },
+        "theme": {
+            "type": "object",
+            "description": "Wygenerowany theme sklepu (cssVariables, assets)",
+            "properties": {
+                "cssVariables": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^--[a-zA-Z0-9-]+$": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "assets": {
+                    "type": "object",
+                    "properties": {
+                        "logo": {
+                            "type": "string"
+                        },
+                        "banner": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "cssVariables",
+                "assets"
+            ]
         }
     },
     "required": [
@@ -297,7 +325,6 @@
         "locales",
         "currencies",
         "countries",
-        "zones",
         "menuTaxon",
         "channel",
         "categories",
@@ -306,7 +333,8 @@
         "taxCategories",
         "taxons",
         "taxRates",
-        "products"
+        "products",
+        "theme"
     ],
     "additionalProperties": false
 }

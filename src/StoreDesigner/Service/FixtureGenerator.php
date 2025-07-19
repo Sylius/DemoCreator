@@ -27,17 +27,16 @@ final readonly class FixtureGenerator
                 ],
                 [
                     'role' => 'user',
-                    'content' => json_encode($storeDetailsDto->jsonSerialize()),
+                    'content' => $storeDetailsDto->toJson(),
                 ],
             ],
-//                model: 'gpt-4.1',
             model: 'gpt-4.1-mini',
             maxCompletionTokens: 8192,
             functions: [
                 [
                     'name' => 'generateFixtures',
                     'description' => 'It generates the final json fixtures based on the collectStoreInfo retrieved data',
-                    'parameters' => $this->fileResourceLoader->loadSchema(SchemaPath::FixturesSchema),
+                    'parameters' => $this->fileResourceLoader->loadSchemaArray(SchemaPath::StoreDefinition),
                 ],
             ],
         );

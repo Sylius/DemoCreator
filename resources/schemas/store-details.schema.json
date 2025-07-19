@@ -24,28 +24,6 @@
                 "type": "string"
             }
         },
-        "zones": {
-            "type": "object",
-            "additionalProperties": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "countries": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "required": [
-                    "name",
-                    "countries"
-                ],
-                "additionalProperties": false
-            }
-        },
         "categories": {
             "type": "array",
             "items": {
@@ -85,6 +63,37 @@
         },
         "imageStyle": {
             "type": "string"
+        },
+        "themePreferences": {
+            "type": "object",
+            "description": "Preferencje dotyczące wyglądu sklepu, theme, branding, logo, banner, kolory, styl.",
+            "properties": {
+                "style": {
+                    "type": "string",
+                    "description": "Nazwa stylu, np. modern, minimalist, classic"
+                },
+                "primaryColor": {
+                    "type": "string",
+                    "description": "Główny kolor (hex)"
+                },
+                "secondaryColor": {
+                    "type": "string",
+                    "description": "Kolor dodatkowy (hex)"
+                },
+                "logoPrompt": {
+                    "type": "string",
+                    "description": "Prompt do wygenerowania logo"
+                },
+                "bannerPrompt": {
+                    "type": "string",
+                    "description": "Prompt do wygenerowania baneru"
+                },
+                "referenceBrandUrl": {
+                    "type": "string",
+                    "description": "URL do brandu referencyjnego (np. Einhell.de)"
+                }
+            },
+            "additionalProperties": true
         }
     },
     "required": [
@@ -95,7 +104,6 @@
         "categories",
         "productsPerCat",
         "descriptionStyle",
-        "imageStyle",
-        "zones"
+        "imageStyle"
     ]
 }

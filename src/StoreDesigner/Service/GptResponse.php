@@ -59,21 +59,6 @@ final readonly class GptResponse
         return false;
     }
 
-    public function getUsage(): ?array
-    {
-        return $this->raw['usage'] ?? null;
-    }
-
-    public function getRole(): ?string
-    {
-        return $this->raw['role'] ?? null;
-    }
-
-    public function getRaw(): array
-    {
-        return $this->raw;
-    }
-
     private function tryRepairJson(string $json): string
     {
         // Prosta heurystyka: domknij nawiasy klamrowe

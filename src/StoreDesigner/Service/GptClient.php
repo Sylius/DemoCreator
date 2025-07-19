@@ -22,14 +22,6 @@ final readonly class GptClient
     public function chatCompletions(array $messages, string $model, int $maxCompletionTokens = 1024, array $functions = []): GptResponse
     {
         $requestId = uniqid('gpt_', true);
-        $this->logger->info('Starting GPT request', [
-            'request_id' => $requestId,
-            'model' => $model,
-            'max_tokens' => $maxCompletionTokens,
-            'messages_count' => count($messages),
-            'has_functions' => !empty($functions)
-        ]);
-
         try {
             $payload = [
                 'model' => $model,
@@ -39,40 +31,32 @@ final readonly class GptClient
                 'max_completion_tokens' => $maxCompletionTokens,
             ];
 
-            $this->logger->debug('GPT request payload', [
-                'request_id' => $requestId,
-                'payload' => $payload
-            ]);
-
             $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->openaiApiKey,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => $payload,
-                'timeout' => 600, // 10 minutes timeout
+                'timeout' => 600,
             ]);
 
             $statusCode = $response->getStatusCode();
-            $this->logger->info('GPT response received', [
-                'request_id' => $requestId,
-                'status_code' => $statusCode
-            ]);
-
             $body = $response->toArray(false);
-            
-            // Log the full response for debugging
-            $this->logger->debug('GPT response body', [
-                'request_id' => $requestId,
-                'body' => $body
-            ]);
 
-            // Handle different error scenarios
             if ($statusCode !== 200) {
+                $this->logger->error('GPT HTTP error', [
+                    'request_id' => $requestId,
+                    'status_code' => $statusCode,
+                    'body' => $body
+                ]);
                 $this->handleHttpError($statusCode, $body, $requestId);
             }
 
             if (isset($body['error'])) {
+                $this->logger->error('OpenAI API error', [
+                    'request_id' => $requestId,
+                    'error' => $body['error']
+                ]);
                 $this->handleOpenAIError($body['error'], $requestId);
             }
 
@@ -83,12 +67,6 @@ final readonly class GptClient
             $message = $body['choices'][0]['message'] ?? [];
             $message['usage'] = $body['usage'] ?? [];
             $message['finish_reason'] = $body['choices'][0]['finish_reason'] ?? null;
-
-            $this->logger->info('GPT request completed successfully', [
-                'request_id' => $requestId,
-                'finish_reason' => $message['finish_reason'],
-                'usage' => $body['usage'] ?? null
-            ]);
 
             return new GptResponse($message);
         } catch (TransportExceptionInterface $e) {

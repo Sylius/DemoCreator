@@ -8,5 +8,5 @@ enum SchemaPath: string
 {
     case ManifestSchema = 'resources/schemas/store-preset-manifest.schema.json';
     case StoreDetails = 'resources/schemas/store-details.schema.json';
-    case FixturesSchema = 'resources/schemas/fixtures.schema.json';
+    case StoreDefinition = 'resources/schemas/store-definition.schema.json';
 }

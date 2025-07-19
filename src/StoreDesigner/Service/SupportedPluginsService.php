@@ -5,37 +5,21 @@ declare(strict_types=1);
 namespace App\StoreDesigner\Service;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\Cache\CacheItem;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Psr\Log\LoggerInterface;
 
-class SupportedPluginsService
+readonly class SupportedPluginsService
 {
-    private const CACHE_KEY = 'supported_plugins';
-    private const CACHE_TTL = 1800; // 30 minutes in seconds
-
     public function __construct(
-        private readonly HttpClientInterface $httpClient,
-        private readonly CacheInterface $cache,
-        private readonly ?LoggerInterface $logger = null
-    ) {}
+        private HttpClientInterface $httpClient,
+    ) {
+    }
 
     public function getSupportedPlugins(): array
     {
-        return $this->cache->get(self::CACHE_KEY, function (CacheItem $item) {
-            $item->expiresAfter(self::CACHE_TTL);
-            try {
-                return $this->fetchFromGitHub();
-            } catch (TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | \Exception $e) {
-                if ($this->logger) {
-                    $this->logger->error('Failed to fetch plugins from GitHub: ' . $e->getMessage());
-                }
-                return $this->getStaticPlugins();
-            }
-        });
+        try {
+            return $this->fetchFromGitHub();
+        } catch (\Throwable $e) {
+            return $this->getStaticPlugins();
+        }
     }
 
     private function fetchFromGitHub(): array

@@ -19,9 +19,7 @@ final class StorePresetManager
         private readonly Filesystem $filesystem,
         #[Autowire('%kernel.project_dir%/var/store-presets')]
         private string $storePresetsDir,
-        #[Autowire('%kernel.project_dir%/var')]
-        private string $varDir,
-        private GptClient $gptClient,
+        private readonly GptClient $gptClient,
     ) {
         // Upewniamy się, że bazowa ścieżka nie ma końcowego slash-a
         $this->storePresetsDir = rtrim($this->storePresetsDir, '/\\');
@@ -66,16 +64,6 @@ final class StorePresetManager
         }
     }
 
-    public function updatePlugins(string $id, array $plugins): void
-    {
-        $this->updatePreset($id, ['plugins' => $plugins]);
-    }
-
-    public function updateTheme(string $id, array $themeConfig): void
-    {
-        $this->updatePreset($id, ['themes' => $themeConfig]);
-    }
-
     public function updateFixtures(string $id, array $fixtures): void
     {
         $this->validatePresetId($id);
@@ -84,7 +72,6 @@ final class StorePresetManager
         $this->filesystem->mkdir($dir, 0755);
         $yaml = Yaml::dump($fixtures, 10, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
         $this->filesystem->dumpFile($filePath, $yaml);
-        $this->updatePreset($id, ['name' => array_keys($fixtures['sylius_fixtures']['suites'])[0] ?? '']);
     }
 
     public function updateStoreDefinition(array $data): void
@@ -107,11 +94,6 @@ final class StorePresetManager
                 $e
             );
         }
-    }
-
-    public function markReady(string $id, bool $ready = true): void
-    {
-        $this->updatePreset($id, ['readyToUse' => $ready]);
     }
 
     public function getPreset(string $id): ?array
@@ -176,16 +158,10 @@ final class StorePresetManager
 
     private function getDefaultPresetData(string $id): array
     {
-        $now = (new \DateTimeImmutable())->format(DATE_ATOM);
         return [
-            'id'         => $id,
-            'name'       => '',
-            'plugins'    => [],
-            'themes'     => [],
-            'fixtures'   => [],
-            'readyToUse' => false,
-            'createdAt'  => $now,
-            'updatedAt'  => $now,
+            'id' => $id,
+            'name' => '',
+            'plugins' => [],
         ];
     }
 
@@ -246,24 +222,6 @@ final class StorePresetManager
         }
         $zip->close();
         return $tmpZip;
-    }
-
-    public function saveRawAssistantResponse(array $storeDefinition): void
-    {
-        $dir = $this->varDir . '/raw-store-definitions';
-        $this->filesystem->mkdir($dir, 0755);
-        $timestamp = (new \DateTimeImmutable())->format('Ymd_His');
-        $filePath = Path::join($dir, 'store_definition_' . $timestamp . '.json');
-        try {
-            $json = json_encode($storeDefinition, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-            $this->filesystem->dumpFile($filePath, $json);
-        } catch (IOException | \JsonException $e) {
-            throw new \RuntimeException(
-                "Nie można zapisać surowej odpowiedzi asystenta: {$e->getMessage()}",
-                0,
-                $e
-            );
-        }
     }
 
     public function generateProductImages(string $id): array
