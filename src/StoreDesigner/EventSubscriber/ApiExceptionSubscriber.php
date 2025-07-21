@@ -3,7 +3,10 @@
 namespace App\StoreDesigner\EventSubscriber;
 
 use App\StoreDesigner\Exception\InvalidSchemaDataException;
+use App\StoreDesigner\Exception\StoreDefinitionNotFoundException;
+use App\StoreDesigner\Exception\StorePresetNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -27,5 +30,33 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
                 'details' => $exception->getMessage(),
             ], 400));
         }
+
+        if ($exception instanceof StorePresetNotFoundException) {
+            $event->setResponse(new JsonResponse([
+                'error' => 'Store preset not found',
+                'details' => $exception->getMessage(),
+            ], 404));
+        }
+
+        if ($exception instanceof StoreDefinitionNotFoundException) {
+            $event->setResponse(new JsonResponse([
+                'error' => 'Store definition not found',
+                'details' => $exception->getMessage(),
+            ], 404));
+        }
+
+        if ($exception instanceof IOException) {
+            $event->setResponse(new JsonResponse([
+                'error' => 'File system error',
+                'details' => $exception->getMessage(),
+            ], 500));
+        }
+
+        if ($exception instanceof \JsonException) {
+            $event->setResponse(new JsonResponse([
+                'error' => 'JSON error',
+                'details' => $exception->getMessage(),
+            ], 400));
+        }
     }
-} 
+}

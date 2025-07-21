@@ -4,7 +4,7 @@ namespace App\StoreDesigner\Controller;
 
 use App\StoreDesigner\Dto\StoreDetailsDto;
 use App\StoreDesigner\Resolver\StoreDetailsDtoResolver;
-use App\StoreDesigner\Service\FixtureGenerator;
+use App\StoreDesigner\Service\StoreDefinitionGenerator;
 use App\StoreDesigner\Service\FixtureParser;
 use App\StoreDesigner\Service\StorePresetManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +17,7 @@ class StorePresetController extends AbstractController
 {
     public function __construct(
         private readonly StorePresetManager $storePresetManager,
-        private readonly FixtureGenerator $fixtureGenerator,
+        private readonly StoreDefinitionGenerator $storeDefinitionGenerator,
         private readonly FixtureParser $fixtureParser,
     ) {
     }
@@ -29,88 +29,33 @@ class StorePresetController extends AbstractController
     }
 
     #[Route('/api/store-presets/{presetId}', name: 'update_store_preset', methods: ['PATCH'])]
-    public function updatePreset(string $presetId, Request $request): JsonResponse
+    public function updatePlugins(string $presetId, Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $this->storePresetManager->updatePreset($presetId, $data);
+        $this->storePresetManager->updatePlugins($presetId, json_decode($request->getContent(), true));
+
         return $this->json(['status' => 'ok']);
     }
 
-    #[Route('/api/store-presets/{presetId}', name: 'get_store_preset', methods: ['GET'])]
-    public function getPreset(string $presetId): JsonResponse
-    {
-        $preset = $this->storePresetManager->getPreset($presetId);
-        if (!$preset) {
-            return $this->json(['error' => 'Preset not found'], 404);
-        }
-        return $this->json($preset);
-    }
-
-    #[Route('/api/store-presets/{presetId}', name: 'delete_store_preset', methods: ['DELETE'])]
-    public function deletePreset(string $presetId): JsonResponse
-    {
-        $this->storePresetManager->deletePreset($presetId);
-        return $this->json(['status' => 'deleted']);
-    }
-
-    #[Route('/api/store-presets/{id}/fixtures-generate', name: 'generate_store_preset_fixtures', methods: ['PATCH'])]
-    public function generateFixtures(
+    #[Route('/api/store-presets/{id}/generate-store-definition', name: 'generate_store_definition', methods: ['POST'])]
+    public function generateStoreDefinition(
         string $id,
         #[ValueResolver(StoreDetailsDtoResolver::class)] StoreDetailsDto $storeDetailsDto,
     ): JsonResponse {
         set_time_limit(600);
         ini_set('max_execution_time', '600');
 
-        $preset = $this->storePresetManager->getPreset($id);
-        if (!$preset) {
-            return $this->json(['error' => 'Preset not found'], 404);
-        }
-
-        try {
-            $storeDefinition = $this->fixtureGenerator->generate($storeDetailsDto);
-            $fixtures = $this->fixtureParser->parse($storeDefinition);
-            $this->storePresetManager->updateStoreDefinition(array_merge($storeDefinition, ['id' => $id]));
-            $this->storePresetManager->updateFixtures($id, $fixtures);
-            $response = $this->json([
-                'message' => 'Fixtures generated',
-                'fixturesCount' => count($fixtures),
-                'presetId' => $id
-            ], 200);
-            $response->headers->set('X-Debug-Max-Execution-Time', ini_get('max_execution_time'));
-            return $response;
-        } catch (\Throwable $e) {
-            $response = $this->json(['error' => 'Failed to generate fixtures: ' . $e->getMessage()], 500);
-            $response->headers->set('X-Debug-Max-Execution-Time', ini_get('max_execution_time'));
-            return $response;
-        }
-    }
-
-    #[Route('/api/store-presets/{id}/fixtures-parse', name: 'update_store_preset_definition', methods: ['PATCH'])]
-    public function updateDefinition(string $id, Request $request): JsonResponse
-    {
-        $preset = $this->storePresetManager->getPreset($id);
-        if (!$preset) {
-            return $this->json(['error' => 'Preset not found'], 404);
-        }
-
-        $data = json_decode($request->getContent(), true);
-        if (empty($data)) {
-            return $this->json(['error' => 'No definition provided'], 400);
-        }
-
-        try {
-            $data['id'] = $id;
-            $this->storePresetManager->updateStoreDefinition($data);
-            $fixtures = $this->fixtureParser->parse($data);
-            $this->storePresetManager->updateFixtures($id, $fixtures);
-            return $this->json([
-                'message' => 'Definition and fixtures updated successfully',
-                'fixturesCount' => count($fixtures),
-                'id' => $id
-            ]);
-        } catch (\Throwable $e) {
-            return $this->json(['error' => 'Failed to update definition: ' . $e->getMessage()], 500);
-        }
+        $storeDefinition = $this->storeDefinitionGenerator->generate($storeDetailsDto);
+        $fixtures = $this->fixtureParser->parse($storeDefinition);
+        $this->storePresetManager->saveStoreDefinition($id, $storeDefinition);
+        $this->storePresetManager->saveStoreDetails($id, $storeDetailsDto);
+        $this->storePresetManager->saveFixtures($id, $fixtures);
+        $response = $this->json([
+            'message' => 'Fixtures generated',
+            'fixturesCount' => count($fixtures),
+            'presetId' => $id
+        ]);
+        $response->headers->set('X-Debug-Max-Execution-Time', ini_get('max_execution_time'));
+        return $response;
     }
 
     #[Route('/api/store-presets/{id}/generate-images', name: 'generate_store_preset_images', methods: ['PATCH'])]
@@ -119,22 +64,15 @@ class StorePresetController extends AbstractController
         set_time_limit(600);
         ini_set('max_execution_time', '600');
 
-        $preset = $this->storePresetManager->getPreset($id);
-        if (!$preset) {
-            return $this->json(['error' => 'Preset not found'], 404);
-        }
-        try {
-            $result = $this->storePresetManager->generateProductImages($id);
-            return $this->json([
-                'message' => 'Images generated',
-                'count' => count($result['images'] ?? []),
-                'images' => $result['images'] ?? [],
-                'errors' => $result['errors'] ?? [],
-                'presetId' => $id
-            ], 200);
-        } catch (\Throwable $e) {
-            return $this->json(['error' => 'Failed to generate images: ' . $e->getMessage()], 500);
-        }
+        $result = $this->storePresetManager->generateProductImages($id);
+
+        return $this->json([
+            'message' => 'Images generated',
+            'count' => count($result['images'] ?? []),
+            'images' => $result['images'] ?? [],
+            'errors' => $result['errors'] ?? [],
+            'presetId' => $id
+        ]);
     }
 
     #[Route('/api/store-presets/{id}/generate-banner', name: 'generate_store_preset_banner', methods: ['PATCH'])]
@@ -143,24 +81,12 @@ class StorePresetController extends AbstractController
         set_time_limit(600);
         ini_set('max_execution_time', '600');
 
-        $preset = $this->storePresetManager->getPreset($id);
-        if (!$preset) {
-            return $this->json(['error' => 'Preset not found'], 404);
-        }
-        $data = json_decode($request->getContent(), true);
-        $prompt = $data['prompt'] ?? null;
-        if (!$prompt) {
-            return $this->json(['error' => 'No prompt provided'], 400);
-        }
-        try {
-            $path = $this->storePresetManager->generateBannerImage($id, $prompt);
-            return $this->json([
-                'message' => 'Banner generated',
-                'path' => $path,
-                'presetId' => $id
-            ], 200);
-        } catch (\Throwable $e) {
-            return $this->json(['error' => 'Failed to generate banner: ' . $e->getMessage()], 500);
-        }
+        $path = $this->storePresetManager->generateBannerImage($id, $request->get('prompt', ''));
+
+        return $this->json([
+            'message' => 'Banner generated',
+            'path' => $path,
+            'presetId' => $id
+        ]);
     }
 }

@@ -7,7 +7,7 @@ import {useSupportedPlugins} from "../../hooks/useSupportedPlugins";
 export default function PluginsStep() {
     const {wiz, dispatch} = useContext(WizardContext);
     const {plugins, loading: pluginsLoading, error: pluginsError, refetch} = useSupportedPlugins();
-    const {updatePreset, getPreset} = useContext(StorePresetContext);
+    const {updatePreset} = useContext(StorePresetContext);
 
     const prettify = (name) => {
         return name
@@ -27,8 +27,6 @@ export default function PluginsStep() {
         }
         dispatch({type: 'SET_SELECTED_PLUGINS', plugins: updated});
         updatePreset({plugins: updated})
-            .then(() => getPreset())
-            .catch(err => console.error('Failed to update preset:', err));
     };
 
     return (

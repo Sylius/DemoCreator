@@ -293,24 +293,121 @@
             "properties": {
                 "cssVariables": {
                     "type": "object",
-                    "patternProperties": {
-                        "^--[a-zA-Z0-9-]+$": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "assets": {
-                    "type": "object",
+                    "description": "Obiekt z wymaganymi zmiennymi CSS do custom-theme.scss. Wszystkie muszą być obecne.",
                     "properties": {
-                        "logo": {
+                        "--bs-btn-bg": {
                             "type": "string"
                         },
-                        "banner": {
+                        "--bs-btn-hover-bg": {
+                            "type": "string"
+                        },
+                        "--bs-body-bg": {
+                            "type": "string"
+                        },
+                        "--bs-text-color": {
+                            "type": "string"
+                        },
+                        "--bs-link-color": {
+                            "type": "string"
+                        },
+                        "--bs-link-hover-color": {
+                            "type": "string"
+                        },
+                        "--bs-link-color-rgb": {
+                            "type": "string"
+                        },
+                        "--bs-link-hover-color-rgb": {
+                            "type": "string"
+                        },
+                        "--bs-primary": {
+                            "type": "string"
+                        },
+                        "--bs-primary-rgb": {
+                            "type": "string"
+                        },
+                        "--bs-bg-opacity": {
+                            "type": "string"
+                        },
+                        "--bs-btn-color": {
+                            "type": "string"
+                        },
+                        "--bs-btn-border-color": {
+                            "type": "string"
+                        },
+                        "--bs-btn-hover-border-color": {
+                            "type": "string"
+                        },
+                        "--bs-btn-focus-shadow-rgb": {
+                            "type": "string"
+                        },
+                        "--bs-btn-active-color": {
+                            "type": "string"
+                        },
+                        "--bs-btn-active-bg": {
+                            "type": "string"
+                        },
+                        "--bs-btn-active-border-color": {
+                            "type": "string"
+                        },
+                        "--bs-btn-active-shadow": {
+                            "type": "string"
+                        },
+                        "--bs-btn-disabled-color": {
+                            "type": "string"
+                        },
+                        "--bs-btn-disabled-bg": {
+                            "type": "string"
+                        },
+                        "--bs-btn-disabled-border-color": {
                             "type": "string"
                         }
                     },
-                    "additionalProperties": {
-                        "type": "string"
+                    "required": [
+                        "--bs-btn-bg",
+                        "--bs-btn-hover-bg",
+                        "--bs-body-bg",
+                        "--bs-text-color",
+                        "--bs-link-color",
+                        "--bs-link-hover-color",
+                        "--bs-link-color-rgb",
+                        "--bs-link-hover-color-rgb",
+                        "--bs-primary",
+                        "--bs-primary-rgb",
+                        "--bs-bg-opacity",
+                        "--bs-btn-color",
+                        "--bs-btn-border-color",
+                        "--bs-btn-hover-border-color",
+                        "--bs-btn-focus-shadow-rgb",
+                        "--bs-btn-active-color",
+                        "--bs-btn-active-bg",
+                        "--bs-btn-active-border-color",
+                        "--bs-btn-active-shadow",
+                        "--bs-btn-disabled-color",
+                        "--bs-btn-disabled-bg",
+                        "--bs-btn-disabled-border-color"
+                    ],
+                    "additionalProperties": false
+                },
+                "assets": {
+                    "type": "array",
+                    "description": "Lista par klucz-wartość dla assetów (np. logo, banner)",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "key": {
+                                "type": "string",
+                                "description": "Nazwa assetu, np. logo, banner"
+                            },
+                            "value": {
+                                "type": "string",
+                                "description": "Ścieżka lub URL do assetu"
+                            }
+                        },
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false
                     }
                 }
             },

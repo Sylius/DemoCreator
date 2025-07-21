@@ -9,7 +9,7 @@ use App\StoreDesigner\Util\FileResourceLoader;
 use App\StoreDesigner\Util\PromptPath;
 use App\StoreDesigner\Util\SchemaPath;
 
-final readonly class FixtureGenerator
+final readonly class StoreDefinitionGenerator
 {
     public function __construct(
         private GptClient $gptClient,
@@ -35,7 +35,7 @@ final readonly class FixtureGenerator
             functions: [
                 [
                     'name' => 'generateFixtures',
-                    'description' => 'It generates the final json fixtures based on the collectStoreInfo retrieved data',
+                    'description' => 'It generates the final json fixtures based on the storeDetails data',
                     'parameters' => $this->fileResourceLoader->loadSchemaArray(SchemaPath::StoreDefinition),
                 ],
             ],

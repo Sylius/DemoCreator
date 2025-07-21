@@ -62,13 +62,12 @@ class StoreDetailsDto implements \JsonSerializable
         );
     }
 
-    /** @throws \JsonException */
     public function toJson(): string
     {
         return json_encode($this->jsonSerialize(), JSON_THROW_ON_ERROR);
     }
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): array
     {
         return [
             'industry' => $this->industry,

@@ -23,17 +23,6 @@ export function useStorePreset() {
         }
     }, [presetId]);
 
-    // Fetch preset data
-    const getPreset = useCallback(() => {
-        if (!presetId) return;
-        setLoading(true);
-        fetch(`/api/store-presets/${presetId}`)
-            .then(res => res.json())
-            .then(setPreset)
-            .catch(e => setError(e.message))
-            .finally(() => setLoading(false));
-    }, [presetId]);
-
     // Update preset (PATCH)
     const updatePreset = useCallback((data) => {
         if (!presetId) return;
@@ -43,11 +32,7 @@ export function useStorePreset() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data),
         })
-            .then(res => res.json())
-            .then(() => getPreset())
-            .catch(e => setError(e.message))
-            .finally(() => setLoading(false));
-    }, [presetId, getPreset]);
+    }, [presetId]);
 
     // Delete preset
     const deletePreset = useCallback(() => {
@@ -68,8 +53,8 @@ export function useStorePreset() {
         console.log('Creating fixtures with payload:', payload);
         console.log('Using presetId:', presetId);
         try {
-            const response = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/fixtures-generate`, {
-                method: 'PATCH',
+            const response = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/generate-store-definition`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
@@ -132,7 +117,6 @@ export function useStorePreset() {
         preset,
         loading,
         error,
-        getPreset,
         updatePreset,
         deletePreset,
         setPresetId,
