@@ -3,29 +3,31 @@
 namespace App\StoreDesigner\Controller;
 
 use App\StoreDesigner\Dto\StoreDetailsDto;
+use App\StoreDesigner\Factory\StorePresetFactory;
+use App\StoreDesigner\Message\GenerateProductImagesMessage;
 use App\StoreDesigner\Resolver\StoreDetailsDtoResolver;
-use App\StoreDesigner\Service\StoreDefinitionGenerator;
-use App\StoreDesigner\Service\FixtureParser;
+use App\StoreDesigner\Service\StoreGenerationOrchestrator;
 use App\StoreDesigner\Service\StorePresetManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StorePresetController extends AbstractController
 {
     public function __construct(
         private readonly StorePresetManager $storePresetManager,
-        private readonly StoreDefinitionGenerator $storeDefinitionGenerator,
-        private readonly FixtureParser $fixtureParser,
+        private readonly StoreGenerationOrchestrator $storeGenerationOrchestrator,
+        private readonly StorePresetFactory $storePresetFactory,
     ) {
     }
 
     #[Route('/api/store-presets', name: 'create_store_preset', methods: ['POST'])]
     public function createPreset(): JsonResponse
     {
-        return $this->json(['storePresetId' => $this->storePresetManager->create()]);
+        return $this->json(['storePresetId' => $this->storePresetFactory->create()]);
     }
 
     #[Route('/api/store-presets/{presetId}', name: 'update_store_preset', methods: ['PATCH'])]
@@ -36,43 +38,34 @@ class StorePresetController extends AbstractController
         return $this->json(['status' => 'ok']);
     }
 
-    #[Route('/api/store-presets/{id}/generate-store-definition', name: 'generate_store_definition', methods: ['POST'])]
-    public function generateStoreDefinition(
-        string $id,
+    #[Route('/api/store-presets/{storePresetId}/generate-store', name: 'generate_store', methods: ['POST'])]
+    public function generateStore(
+        string $storePresetId,
         #[ValueResolver(StoreDetailsDtoResolver::class)] StoreDetailsDto $storeDetailsDto,
     ): JsonResponse {
         set_time_limit(600);
         ini_set('max_execution_time', '600');
 
-        $storeDefinition = $this->storeDefinitionGenerator->generate($storeDetailsDto);
-        $fixtures = $this->fixtureParser->parse($storeDefinition);
-        $this->storePresetManager->saveStoreDefinition($id, $storeDefinition);
-        $this->storePresetManager->saveStoreDetails($id, $storeDetailsDto);
-        $this->storePresetManager->saveFixtures($id, $fixtures);
-        $response = $this->json([
-            'message' => 'Fixtures generated',
-            'fixturesCount' => count($fixtures),
-            'presetId' => $id
-        ]);
+        $this->storeGenerationOrchestrator->orchestrate($storePresetId, $storeDetailsDto);
+
+        $response = $this->json([]);
         $response->headers->set('X-Debug-Max-Execution-Time', ini_get('max_execution_time'));
+
         return $response;
     }
 
     #[Route('/api/store-presets/{id}/generate-images', name: 'generate_store_preset_images', methods: ['PATCH'])]
-    public function generateImages(string $id): JsonResponse
+    public function generateImages(string $id, MessageBusInterface $messageBus): JsonResponse
     {
         set_time_limit(600);
         ini_set('max_execution_time', '600');
 
-        $result = $this->storePresetManager->generateProductImages($id);
+        $messageBus->dispatch(new GenerateProductImagesMessage($id));
 
         return $this->json([
-            'message' => 'Images generated',
-            'count' => count($result['images'] ?? []),
-            'images' => $result['images'] ?? [],
-            'errors' => $result['errors'] ?? [],
-            'presetId' => $id
-        ]);
+            'status' => 'accepted',
+            'presetId' => $id,
+        ], 202);
     }
 
     #[Route('/api/store-presets/{id}/generate-banner', name: 'generate_store_preset_banner', methods: ['PATCH'])]

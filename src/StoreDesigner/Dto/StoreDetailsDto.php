@@ -64,7 +64,7 @@ class StoreDetailsDto implements \JsonSerializable
 
     public function toJson(): string
     {
-        return json_encode($this->jsonSerialize(), JSON_THROW_ON_ERROR);
+        return json_encode($this->jsonSerialize(), JSON_THROW_ON_ERROR, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     public function jsonSerialize(): array

@@ -16,7 +16,6 @@ namespace App\StoreDesigner\Dto;
 final readonly class ManifestDto implements \JsonSerializable
 {
     public function __construct(
-        public string $storePresetId,
         public ?string $name = null,
         public array $plugins = [],
     ) {
@@ -24,13 +23,12 @@ final readonly class ManifestDto implements \JsonSerializable
 
     public function toJson(): string
     {
-        return json_encode($this->jsonSerialize(), JSON_THROW_ON_ERROR);
+        return json_encode($this->jsonSerialize(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     public function jsonSerialize(): array
     {
         return [
-            'storePresetId' => $this->storePresetId,
             'name' => $this->name,
             'plugins' => $this->plugins,
         ];

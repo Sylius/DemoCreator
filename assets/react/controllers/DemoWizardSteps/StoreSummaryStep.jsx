@@ -26,6 +26,7 @@ export default function StoreSummaryStep() {
 
     // Rozpocznij generowanie fixtures
     const onBeginGeneration = async () => {
+        console.log("Starting generation of fixtures...");
         dispatch({type: 'START_FIXTURES'});
         setErrorMsg(null);
         try {

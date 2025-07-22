@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Service;
 
-use App\StoreDesigner\Repository\StorePresetRepository;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 final readonly class StorePresetArtifactsManager

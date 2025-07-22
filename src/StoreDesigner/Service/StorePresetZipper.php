@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Service;
 
-use App\StoreDesigner\Repository\StorePresetRepository;
+use App\StoreDesigner\Filesystem\StoreFilesystemPersister;
 
 final readonly class StorePresetZipper
 {
     public function __construct(
-        private StorePresetRepository $storePresetRepository,
+        private StoreFilesystemPersister $storePresetRepository,
     ) {
     }
 

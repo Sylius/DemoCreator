@@ -53,7 +53,7 @@ export function useStorePreset() {
         console.log('Creating fixtures with payload:', payload);
         console.log('Using presetId:', presetId);
         try {
-            const response = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/generate-store-definition`, {
+            const response = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/generate-store`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
