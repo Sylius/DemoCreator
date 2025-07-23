@@ -15,11 +15,10 @@ namespace App\StoreDesigner\MessageHandler;
 
 use App\StoreDesigner\Dto\ImageRequestDto;
 use App\StoreDesigner\Exception\InvalidStoreDefinitionException;
-use App\StoreDesigner\Filesystem\ImagePersisterInterface;
+use App\StoreDesigner\Filesystem\ProductImagePersisterInterface;
 use App\StoreDesigner\Filesystem\StoreDefinitionReader;
 use App\StoreDesigner\Generator\ImageGeneratorInterface;
 use App\StoreDesigner\Message\GenerateProductImagesMessage;
-use App\StoreDesigner\Util\ImageType;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -28,7 +27,7 @@ final readonly class GenerateProductImagesMessageHandler
     public function __construct(
         private StoreDefinitionReader $storeDefinitionReader,
         private ImageGeneratorInterface $imageGenerator,
-        private ImagePersisterInterface $imagePersister,
+        private ProductImagePersisterInterface $imagePersister,
     ) {
     }
 
@@ -44,13 +43,12 @@ final readonly class GenerateProductImagesMessageHandler
         }
 
         foreach ($products as $product) {
-            foreach ($product['images'] ?? [] as $name) {
-                $binary = $this->imageGenerator->generate(new ImageRequestDto(prompt: $product['img_prompt']));
-                $this->imagePersister->persistImage(
+            foreach ($product['images'] ?? [] as $imageName) {
+                $binary = $this->imageGenerator->generate(new ImageRequestDto(prompt: $product['imgPrompt']));
+                $this->imagePersister->persist(
                     $message->storePresetId,
-                    $name,
+                    $imageName,
                     $binary,
-                    ImageType::PRODUCT
                 );
             }
         }

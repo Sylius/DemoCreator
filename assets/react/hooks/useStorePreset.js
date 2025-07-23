@@ -49,14 +49,12 @@ export function useStorePreset() {
     }, [presetId]);
 
     const handleCreateFixtures = async () => {
-        const payload = { storeDetails: wiz.storeDetails };
-        console.log('Creating fixtures with payload:', payload);
         console.log('Using presetId:', presetId);
         try {
             const response = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/generate-store`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(wiz.storeDetails),
             });
             const rawResponse = await response.text();
             let data;

@@ -6,12 +6,12 @@ namespace App\StoreDesigner\Service;
 
 final class FixtureParser
 {
-    public function parse(array $jsonData): array
+    public function parse(array $storeDefinition): array
     {
-        return $this->buildSyliusFixtures($jsonData, false);
+        return $this->buildSyliusFixtures($storeDefinition);
     }
 
-    private function buildSyliusFixtures(array $inputData, bool $withImages): array
+    private function buildSyliusFixtures(array $inputData): array
     {
         // domyślna nazwa suite
         $suite = $inputData['storePresetName'] ?? 'moj_sklep';
@@ -88,7 +88,7 @@ final class FixtureParser
         $fixtures += $this->buildTaxons($inputData['categories'], $inputData['locales']);
 
         if (!empty($inputData['products'])) {
-            $fixtures += $this->buildProductFixtures($inputData['products'], 'tshirt', $withImages);
+            $fixtures += $this->buildProductFixtures($inputData['products'], 'tshirt');
         }
 
         // --- GOTOWA KOŃCÓWKA
@@ -238,7 +238,7 @@ final class FixtureParser
         return $result;
     }
 
-    private function buildProductFixtures(array $inputData, string $prefix = 'product', bool $withImages = false): array
+    private function buildProductFixtures(array $inputData, string $prefix = 'product'): array
     {
         if ($inputData === []) {
             return [];

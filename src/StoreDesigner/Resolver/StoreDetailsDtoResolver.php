@@ -23,7 +23,7 @@ readonly class StoreDetailsDtoResolver implements ValueResolverInterface
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
         yield StoreDetailsDto::fromArray(
-            $request->toArray()['storeDetails'],
+            $request->toArray(),
             $this->fileResourceLoader->loadSchemaObject(SchemaPath::StoreDetails),
         );
     }

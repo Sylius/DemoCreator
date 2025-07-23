@@ -22,7 +22,7 @@ final readonly class StoreDefinitionReader
 
     public function getStoreDefinition(string $storePresetId): array
     {
-        $definitionPath = $this->pathResolver->getStoreDefinitionPath($storePresetId);
+        $definitionPath = $this->pathResolver->getStoreDefinitionFilePath($storePresetId);
         if (!$this->filesystem->exists($definitionPath)) {
             throw new StoreDefinitionNotFoundException($storePresetId);
         }

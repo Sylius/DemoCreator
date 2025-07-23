@@ -13,14 +13,14 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Factory;
 
-use App\StoreDesigner\Filesystem\StoreFilesystemPersister;
+use App\StoreDesigner\Filesystem\StoreFilesystemPersisterProduct;
 use App\StoreDesigner\Service\StorePresetIdGenerator;
 
 final readonly class StorePresetFactory
 {
     public function __construct(
         private StorePresetIdGenerator $storePresetIdGenerator,
-        private StoreFilesystemPersister $storeFilesystemPersister,
+        private StoreFilesystemPersisterProduct $storeFilesystemPersister,
     ) {
     }
 

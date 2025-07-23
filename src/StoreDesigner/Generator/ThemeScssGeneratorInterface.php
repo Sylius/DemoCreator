@@ -11,11 +11,10 @@
 
 declare(strict_types=1);
 
-namespace App\StoreDesigner\Filesystem;
+namespace App\StoreDesigner\Generator;
 
-use App\StoreDesigner\Util\ImageType;
-
-interface ImagePersisterInterface
+interface ThemeScssGeneratorInterface
 {
-    public function persistImage(string $storePresetId, string $imageName, string $binary, ImageType $type): string;
+    /** @return array<string, string> */
+    public function generate(array $storeDefinition): array;
 }

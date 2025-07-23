@@ -15,11 +15,11 @@ namespace App\StoreDesigner\MessageHandler;
 
 use App\StoreDesigner\Dto\ImageRequestDto;
 use App\StoreDesigner\Exception\InvalidStoreDefinitionException;
-use App\StoreDesigner\Filesystem\ImagePersisterInterface;
+use App\StoreDesigner\Filesystem\AssetImagePersisterInterface;
 use App\StoreDesigner\Filesystem\StoreDefinitionReader;
 use App\StoreDesigner\Generator\ImageGeneratorInterface;
 use App\StoreDesigner\Message\GenerateBannerImageMessage;
-use App\StoreDesigner\Util\ImageType;
+use App\StoreDesigner\Util\StoreSection;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -29,7 +29,7 @@ final readonly class GenerateBannerImageMessageHandler
     public function __construct(
         private StoreDefinitionReader $storeDefinitionReader,
         private ImageGeneratorInterface $imageGenerator,
-        private ImagePersisterInterface $imagePersister,
+        private AssetImagePersisterInterface $assetImagePersister,
     ) {
     }
 
@@ -38,34 +38,37 @@ final readonly class GenerateBannerImageMessageHandler
         $definition = $this->storeDefinitionReader->getStoreDefinition($message->storePresetId);
 
         $binary = $this->imageGenerator->generate(new ImageRequestDto(
-            prompt: $this->getBannerPrompt($definition),
+            prompt: $this->getBannerPrompt($message->storePresetId, $definition),
             size: '1536x1024',
         ));
 
-        $this->imagePersister->persistImage(
+        $this->assetImagePersister->persist(
             $message->storePresetId,
+            StoreSection::Shop,
             self::BANNER_NAME,
             $binary,
-            ImageType::BANNER
         );
     }
 
-    private function getBannerPrompt(array $definition): string
+    private function getBannerPrompt(string $storePresetId, array $definition): string
     {
-        if (!isset($definition['theme']['assets']) || !is_array($definition['theme']['assets'])) {
+        $assets = $definition['themes'][StoreSection::Shop->value]['assets'] ?? [];
+
+        if (!is_array($assets)) {
             throw new InvalidStoreDefinitionException(
-                sprintf('Store preset "%s" does not have a valid theme assets definition.', $definition['id'] ?? 'unknown'),
+                sprintf('Invalid assets for shop theme in preset "%s".', $storePresetId)
             );
         }
 
-        foreach ($definition['theme']['assets'] as $asset) {
-            if (isset($asset['key'], $asset['prompt']) && $asset['key'] === 'banner') {
-                return $asset['prompt'];
-            }
+        $prompt = array_column($assets, 'prompt', 'key')[self::BANNER_NAME] ?? null;
+
+        if ($prompt === null) {
+            throw new InvalidStoreDefinitionException(sprintf(
+                'No banner prompt found in store definition for preset ID "%s".',
+                $storePresetId,
+            ));
         }
 
-        throw new InvalidStoreDefinitionException(
-            sprintf('Store preset "%s" does not have a banner prompt defined in theme assets.', $definition['id'] ?? 'unknown'),
-        );
+        return $prompt;
     }
 }

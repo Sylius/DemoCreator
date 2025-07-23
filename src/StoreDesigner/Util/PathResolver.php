@@ -28,43 +28,58 @@ final readonly class PathResolver
     ) {
     }
 
-    public function getStorePresetsDir(): string
+    public function getStorePresetsDirectory(): string
     {
         return $this->storePresetsDir;
     }
 
-    public function getStoreDefinitionPath(string $storePresetId): string
-    {
-        return Path::join($this->storePresetsDir, $storePresetId, self::STORE_DEFINITION_FILENAME);
-    }
-
-    public function getStoreDetailsPath(string $storePresetId): string
-    {
-        return Path::join($this->storePresetsDir, $storePresetId, self::STORE_DETAILS_FILENAME);
-    }
-
-    public function getManifestPath(string $storePresetId): string
-    {
-        return Path::join($this->storePresetsDir, $storePresetId, self::PRESET_FILENAME);
-    }
-
-    public function getStoreFixturesPath(string $storePresetId): string
-    {
-        return Path::join($this->storePresetsDir, $storePresetId, 'fixtures', 'fixtures.yaml');
-    }
-
-    public function getStoreImagesPath(string $storePresetId): string
+    public function getFixturesDirectory(string $storePresetId): string
     {
         return Path::join($this->storePresetsDir, $storePresetId, 'fixtures');
     }
 
-    public function getThemeScssPath(string $storePresetId): string
+    public function getAssetsStylesDirectory(string $storePresetId, StoreSection $storeSection): string
     {
-        return Path::join($this->storePresetsDir, $storePresetId, 'theme', 'theme.scss');
+        return Path::join($this->storePresetsDir, $storePresetId, 'assets', $storeSection->value, 'styles');
     }
 
-    public function getStoreAssetsPath(string $storePresetId): string
+    public function getStorePresetRootDirectory(string $storePresetId): string
     {
-        return Path::join($this->storePresetsDir, $storePresetId, 'assets');
+        return Path::join($this->storePresetsDir, $storePresetId);
+    }
+
+    public function getAssetsStylesFilePath(string $storePresetId, StoreSection $storeSection, string $fileName = 'theme'): string
+    {
+        return Path::join($this->getAssetsStylesDirectory($storePresetId, $storeSection), $fileName . '.scss');
+    }
+
+    public function getAssetsImageFilePath(string $storePresetId, StoreSection $storeSection, string $imageName): string
+    {
+        return Path::join($this->storePresetsDir, $storePresetId, 'assets', $storeSection->value, 'images', $imageName . '.png');
+    }
+
+    public function getStoreDefinitionFilePath(string $storePresetId): string
+    {
+        return Path::join($this->storePresetsDir, $storePresetId, self::STORE_DEFINITION_FILENAME);
+    }
+
+    public function getStoreDetailsFilePath(string $storePresetId): string
+    {
+        return Path::join($this->storePresetsDir, $storePresetId, self::STORE_DETAILS_FILENAME);
+    }
+
+    public function getManifestFilePath(string $storePresetId): string
+    {
+        return Path::join($this->storePresetsDir, $storePresetId, self::PRESET_FILENAME);
+    }
+
+    public function getFixturesFilePath(string $storePresetId): string
+    {
+        return Path::join($this->storePresetsDir, $storePresetId, 'fixtures', 'fixtures.yaml');
+    }
+
+    public function getFixturesImageFilePath(string $storePresetId, string $imageName): string
+    {
+        return Path::join($this->getFixturesDirectory($storePresetId), $imageName . '.png');
     }
 }
