@@ -62,4 +62,9 @@ final readonly class PathResolver
     {
         return Path::join($this->storePresetsDir, $storePresetId, 'theme', 'theme.scss');
     }
+
+    public function getStoreAssetsPath(string $storePresetId): string
+    {
+        return Path::join($this->storePresetsDir, $storePresetId, 'assets');
+    }
 }

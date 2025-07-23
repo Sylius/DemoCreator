@@ -390,22 +390,22 @@
                 },
                 "assets": {
                     "type": "array",
-                    "description": "Lista par klucz-wartość dla assetów (np. logo, banner)",
+                    "description": "The list of assets to be generated for the store theme.",
                     "items": {
                         "type": "object",
                         "properties": {
                             "key": {
                                 "type": "string",
-                                "description": "Nazwa assetu, np. logo, banner"
+                                "description": "Name of the asset type, e.g. 'logo', 'banner'"
                             },
-                            "value": {
+                            "prompt": {
                                 "type": "string",
-                                "description": "Ścieżka lub URL do assetu"
+                                "description": "Description prompt for the asset, e.g. 'A modern logo for a car parts store'"
                             }
                         },
                         "required": [
                             "key",
-                            "value"
+                            "prompt"
                         ],
                         "additionalProperties": false
                     }

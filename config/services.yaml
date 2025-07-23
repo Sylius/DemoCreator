@@ -13,6 +13,7 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/StoreDesigner/Dto/'
+            - '../src/StoreDesigner/Message/'
 
     App\StoreDesigner\Controller\:
         resource: '../src/StoreDesigner/Controller'

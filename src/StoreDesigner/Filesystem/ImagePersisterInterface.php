@@ -11,9 +11,11 @@
 
 declare(strict_types=1);
 
-namespace App\StoreDesigner\Generator;
+namespace App\StoreDesigner\Filesystem;
 
-interface ImageGeneratorInterface
+use App\StoreDesigner\Util\ImageType;
+
+interface ImagePersisterInterface
 {
-    public function generate(string $prompt): string;
+    public function persistImage(string $storePresetId, string $imageName, string $binary, ImageType $type): string;
 }

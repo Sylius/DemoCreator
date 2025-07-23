@@ -13,18 +13,22 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\MessageHandler;
 
+use App\StoreDesigner\Dto\ImageRequestDto;
 use App\StoreDesigner\Exception\InvalidStoreDefinitionException;
+use App\StoreDesigner\Filesystem\ImagePersisterInterface;
 use App\StoreDesigner\Filesystem\StoreDefinitionReader;
-use App\StoreDesigner\Generator\ProductImageGenerator;
+use App\StoreDesigner\Generator\ImageGeneratorInterface;
 use App\StoreDesigner\Message\GenerateProductImagesMessage;
-use App\StoreDesigner\Persister\ImagePersisterInterface;
+use App\StoreDesigner\Util\ImageType;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+#[AsMessageHandler]
 final readonly class GenerateProductImagesMessageHandler
 {
     public function __construct(
         private StoreDefinitionReader $storeDefinitionReader,
-        private ProductImageGenerator $imageGenerator,
-        private ImagePersisterInterface $persister,
+        private ImageGeneratorInterface $imageGenerator,
+        private ImagePersisterInterface $imagePersister,
     ) {
     }
 
@@ -40,10 +44,14 @@ final readonly class GenerateProductImagesMessageHandler
         }
 
         foreach ($products as $product) {
-            $prompt = $product['img_prompt'] ?? null;
             foreach ($product['images'] ?? [] as $name) {
-                $binary = $this->imageGenerator->generate($prompt);
-                $this->persister->saveGeneratedImage($message->storePresetId, $name, $binary);
+                $binary = $this->imageGenerator->generate(new ImageRequestDto(prompt: $product['img_prompt']));
+                $this->imagePersister->persistImage(
+                    $message->storePresetId,
+                    $name,
+                    $binary,
+                    ImageType::PRODUCT
+                );
             }
         }
     }

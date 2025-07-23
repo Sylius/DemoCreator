@@ -4,6 +4,7 @@ namespace App\StoreDesigner\Controller;
 
 use App\StoreDesigner\Dto\StoreDetailsDto;
 use App\StoreDesigner\Factory\StorePresetFactory;
+use App\StoreDesigner\Message\GenerateBannerImageMessage;
 use App\StoreDesigner\Message\GenerateProductImagesMessage;
 use App\StoreDesigner\Resolver\StoreDetailsDtoResolver;
 use App\StoreDesigner\Service\StoreGenerationOrchestrator;
@@ -54,7 +55,7 @@ class StorePresetController extends AbstractController
         return $response;
     }
 
-    #[Route('/api/store-presets/{id}/generate-images', name: 'generate_store_preset_images', methods: ['PATCH'])]
+    #[Route('/api/store-presets/{id}/generate-images', name: 'generate_store_preset_images', methods: ['POST'])]
     public function generateImages(string $id, MessageBusInterface $messageBus): JsonResponse
     {
         set_time_limit(600);
@@ -68,18 +69,14 @@ class StorePresetController extends AbstractController
         ], 202);
     }
 
-    #[Route('/api/store-presets/{id}/generate-banner', name: 'generate_store_preset_banner', methods: ['PATCH'])]
-    public function generateBanner(string $id, Request $request): JsonResponse
+    #[Route('/api/store-presets/{id}/generate-banner', name: 'generate_store_preset_banner', methods: ['POST'])]
+    public function generateBanner(string $id, MessageBusInterface $messageBus): JsonResponse
     {
-        set_time_limit(600);
-        ini_set('max_execution_time', '600');
-
-        $path = $this->storePresetManager->generateBannerImage($id, $request->get('prompt', ''));
+        $messageBus->dispatch(new GenerateBannerImageMessage($id));
 
         return $this->json([
-            'message' => 'Banner generated',
-            'path' => $path,
-            'presetId' => $id
-        ]);
+            'status' => 'accepted',
+            'presetId' => $id,
+        ], 202);
     }
 }

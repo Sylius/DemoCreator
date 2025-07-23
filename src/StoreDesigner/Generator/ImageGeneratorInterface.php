@@ -11,9 +11,11 @@
 
 declare(strict_types=1);
 
-namespace App\StoreDesigner\Persister;
+namespace App\StoreDesigner\Generator;
 
-interface ImagePersisterInterface
+use App\StoreDesigner\Dto\ImageRequestDto;
+
+interface ImageGeneratorInterface
 {
-    public function persist(string $storePresetId, string $imageBinary): void;
+    public function generate(ImageRequestDto $imageRequestDto): string;
 }

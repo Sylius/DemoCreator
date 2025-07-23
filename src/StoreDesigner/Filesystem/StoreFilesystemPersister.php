@@ -6,18 +6,33 @@ namespace App\StoreDesigner\Filesystem;
 
 use App\StoreDesigner\Dto\ManifestDto;
 use App\StoreDesigner\Dto\StoreDetailsDto;
-use App\StoreDesigner\Exception\StoreDefinitionNotFoundException;
+use App\StoreDesigner\Util\ImageType;
 use App\StoreDesigner\Util\PathResolver;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
-final readonly class StoreFilesystemPersister
+final readonly class StoreFilesystemPersister implements ImagePersisterInterface
 {
     public function __construct(
         private Filesystem $filesystem,
         private PathResolver $pathResolver,
     ) {
+    }
+
+    public function persistImage(string $storePresetId, string $imageName, string $binary, ImageType $type): string
+    {
+        $dir = match ($type) {
+            ImageType::PRODUCT => $this->pathResolver->getStoreImagesPath($storePresetId),
+            ImageType::LOGO,
+            ImageType::BANNER => $this->pathResolver->getStoreAssetsPath($storePresetId),
+        };
+
+        $this->filesystem->mkdir($dir, 0755);
+        $path = Path::join($dir, $imageName . '.png');
+        $this->filesystem->dumpFile($path, $binary);
+
+        return $path;
     }
 
     public function persistAll(string $storePresetId, StoreDetailsDto $storeDetailsDto, array $storeDefinition, array $fixtures, string $themeScss): void

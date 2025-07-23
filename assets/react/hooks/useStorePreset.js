@@ -90,7 +90,7 @@ export function useStorePreset() {
         const payload = overrideStoreDetails ? { storeDetails: overrideStoreDetails } : {};
         try {
             const response = await fetch(`/api/store-presets/${encodeURIComponent(id)}/generate-images`, {
-                method: 'PATCH',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
