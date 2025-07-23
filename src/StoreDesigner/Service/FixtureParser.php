@@ -249,7 +249,7 @@ final class FixtureParser
         foreach ($inputData as $productEntry) {
             unset($productEntry['price']);
             unset($productEntry['translations']);
-            unset($productEntry['img_prompt']);
+            unset($productEntry['imgPrompt']);
             $imageNames = $productEntry['images'] ?? [];
             unset($productEntry['images']);
             foreach ($imageNames as $name) {
@@ -265,10 +265,10 @@ final class FixtureParser
         $attributes = [];
 
         foreach ($formattedProducts as $productWithAttributes) {
-            if (!isset($productWithAttributes['product_attributes']) || !is_array($productWithAttributes['product_attributes'])) {
+            if (!isset($productWithAttributes['productAttributes']) || !is_array($productWithAttributes['productAttributes'])) {
                 continue;
             }
-            foreach ($productWithAttributes['product_attributes'] as $attributeKey => $attributeValue) {
+            foreach ($productWithAttributes['productAttributes'] as $attributeKey => $attributeValue) {
                 $attributes[$attributeKey] = [
                     'code' => $attributeKey,
                     'name' => ucfirst($attributeKey),
