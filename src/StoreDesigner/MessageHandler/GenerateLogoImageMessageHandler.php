@@ -25,9 +25,9 @@ use App\StoreDesigner\Util\StoreSection;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final readonly class GenerateBannerImageMessageHandler
+final readonly class GenerateLogoImageMessageHandler
 {
-    private const BANNER_NAME = 'banner';
+    private const LOGO_NAME = 'logo';
     public function __construct(
         private StoreDefinitionReader $storeDefinitionReader,
         private ImageGeneratorInterface $imageGenerator,
@@ -40,7 +40,7 @@ final readonly class GenerateBannerImageMessageHandler
         $definition = $this->storeDefinitionReader->getStoreDefinition($message->storePresetId);
 
         $binary = $this->imageGenerator->generate(new ImageRequestDto(
-            prompt: $this->getBannerPrompt($message->storePresetId, $definition),
+            prompt: $this->getLogoPrompt($message->storePresetId, $definition),
             imageResolution: ImageResolution::Landscape,
             imageQuality: ImageQuality::Low,
         ));
@@ -48,12 +48,12 @@ final readonly class GenerateBannerImageMessageHandler
         $this->assetImagePersister->persist(
             $message->storePresetId,
             StoreSection::Shop,
-            self::BANNER_NAME,
+            self::LOGO_NAME,
             $binary,
         );
     }
 
-    private function getBannerPrompt(string $storePresetId, array $definition): string
+    private function getLogoPrompt(string $storePresetId, array $definition): string
     {
         $assets = $definition['themes'][StoreSection::Shop->value]['assets'] ?? [];
 
@@ -63,11 +63,11 @@ final readonly class GenerateBannerImageMessageHandler
             );
         }
 
-        $prompt = array_column($assets, 'prompt', 'key')[self::BANNER_NAME] ?? null;
+        $prompt = array_column($assets, 'prompt', 'key')[self::LOGO_NAME] ?? null;
 
         if ($prompt === null) {
             throw new InvalidStoreDefinitionException(sprintf(
-                'No banner prompt found in store definition for preset ID "%s".',
+                'No logo prompt found in store definition for preset ID "%s".',
                 $storePresetId,
             ));
         }

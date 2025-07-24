@@ -5,6 +5,7 @@ namespace App\StoreDesigner\Controller;
 use App\StoreDesigner\Dto\StoreDetailsDto;
 use App\StoreDesigner\Factory\StorePresetFactory;
 use App\StoreDesigner\Message\GenerateBannerImageMessage;
+use App\StoreDesigner\Message\GenerateLogoImageMessage;
 use App\StoreDesigner\Message\GenerateProductImagesMessage;
 use App\StoreDesigner\Resolver\StoreDetailsDtoResolver;
 use App\StoreDesigner\Service\StoreGenerationOrchestrator;
@@ -34,7 +35,7 @@ class StorePresetController extends AbstractController
     #[Route('/api/store-presets/{presetId}', name: 'update_store_preset', methods: ['PATCH'])]
     public function updatePlugins(string $presetId, Request $request): JsonResponse
     {
-        $this->storePresetManager->updatePlugins($presetId, json_decode($request->getContent(), true));
+        $this->storePresetManager->updatePlugins($presetId, json_decode($request->getContent(), true)['plugins']);
 
         return $this->json(['status' => 'ok']);
     }
@@ -73,6 +74,17 @@ class StorePresetController extends AbstractController
     public function generateBanner(string $id, MessageBusInterface $messageBus): JsonResponse
     {
         $messageBus->dispatch(new GenerateBannerImageMessage($id));
+
+        return $this->json([
+            'status' => 'accepted',
+            'presetId' => $id,
+        ], 202);
+    }
+
+    #[Route('/api/store-presets/{id}/generate-logo', name: 'generate_store_preset_logo', methods: ['POST'])]
+    public function generateLogo(string $id, MessageBusInterface $messageBus): JsonResponse
+    {
+        $messageBus->dispatch(new GenerateLogoImageMessage($id));
 
         return $this->json([
             'status' => 'accepted',

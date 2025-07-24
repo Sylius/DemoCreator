@@ -39,7 +39,7 @@ final readonly class StoreFilesystemPersisterProduct
 
     public function saveStoreDetails(string $id, StoreDetailsDto $storeDetailsDto): void
     {
-        $this->filesystem->dumpFile($this->pathResolver->getStoreDetailsFilePath($id), $storeDetailsDto->toJson());
+        $this->dumpJson($this->pathResolver->getStoreDetailsFilePath($id), $storeDetailsDto->toArray());
     }
 
     public function saveManifest(string $id, ManifestDto $manifestDto): void
@@ -56,8 +56,6 @@ final readonly class StoreFilesystemPersisterProduct
     public function initStorePresetDirectory(string $storePresetId): void
     {
         $this->filesystem->mkdir($this->pathResolver->getStorePresetRootDirectory($storePresetId));
-        $this->filesystem->dumpFile($this->pathResolver->getManifestFilePath($storePresetId), json_encode(['id' => $storePresetId]));
-
     }
 
     private function saveThemeScss(string $storePresetId, array $themeScss): void

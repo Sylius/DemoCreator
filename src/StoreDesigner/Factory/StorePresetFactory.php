@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Factory;
 
+use App\StoreDesigner\Dto\ManifestDto;
 use App\StoreDesigner\Filesystem\StoreFilesystemPersisterProduct;
 use App\StoreDesigner\Service\StorePresetIdGenerator;
 
@@ -28,6 +29,7 @@ final readonly class StorePresetFactory
     {
         $storePresetId = $this->storePresetIdGenerator->generate();
         $this->storeFilesystemPersister->initStorePresetDirectory($storePresetId);
+        $this->storeFilesystemPersister->saveManifest($storePresetId, new ManifestDto(plugins: []));
 
         return $storePresetId;
     }

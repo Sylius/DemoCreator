@@ -19,6 +19,7 @@ use App\StoreDesigner\Filesystem\ProductImagePersisterInterface;
 use App\StoreDesigner\Filesystem\StoreDefinitionReader;
 use App\StoreDesigner\Generator\ImageGeneratorInterface;
 use App\StoreDesigner\Message\GenerateProductImagesMessage;
+use App\StoreDesigner\Util\ImageQuality;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -44,7 +45,10 @@ final readonly class GenerateProductImagesMessageHandler
 
         foreach ($products as $product) {
             foreach ($product['images'] ?? [] as $imageName) {
-                $binary = $this->imageGenerator->generate(new ImageRequestDto(prompt: $product['imgPrompt']));
+                $binary = $this->imageGenerator->generate(new ImageRequestDto(
+                    prompt: $product['imgPrompt'],
+                    imageQuality: ImageQuality::Low,
+                ));
                 $this->imagePersister->persist(
                     $message->storePresetId,
                     $imageName,

@@ -105,8 +105,8 @@ final readonly class GptClient
                 'model' => $imageRequestDto->model,
                 'prompt' => $imageRequestDto->prompt,
                 'n' => $imageRequestDto->n,
-                'size' => $imageRequestDto->size,
-                'quality' => $imageRequestDto->quality,
+                'size' => $imageRequestDto->imageResolution,
+                'quality' => $imageRequestDto->imageQuality,
             ],
         ]);
         $statusCode = $response->getStatusCode();
