@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\MessageHandler;
 
-use App\StoreDesigner\Dto\ImageRequestDto;
+use App\StoreDesigner\Dto\ProductImageRequestDto;
 use App\StoreDesigner\Exception\InvalidStoreDefinitionException;
 use App\StoreDesigner\Filesystem\AssetImagePersisterInterface;
 use App\StoreDesigner\Filesystem\StoreDefinitionReader;
@@ -28,29 +28,11 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class GenerateBannerImageMessageHandler
 {
     private const BANNER_NAME = 'banner';
-    public function __construct(
-        private StoreDefinitionReader $storeDefinitionReader,
-        private ImageGeneratorInterface $imageGenerator,
-        private AssetImagePersisterInterface $assetImagePersister,
-    ) {
-    }
+
 
     public function __invoke(GenerateBannerImageMessage $message): void
     {
-        $definition = $this->storeDefinitionReader->getStoreDefinition($message->storePresetId);
 
-        $binary = $this->imageGenerator->generate(new ImageRequestDto(
-            prompt: $this->getBannerPrompt($message->storePresetId, $definition),
-            imageResolution: ImageResolution::Landscape,
-            imageQuality: ImageQuality::Low,
-        ));
-
-        $this->assetImagePersister->persist(
-            $message->storePresetId,
-            StoreSection::Shop,
-            self::BANNER_NAME,
-            $binary,
-        );
     }
 
     private function getBannerPrompt(string $storePresetId, array $definition): string

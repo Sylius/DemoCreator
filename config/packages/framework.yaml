@@ -9,6 +9,7 @@ framework:
     #fragments: true
 
     http_client:
+        max_host_connections: 20
         default_options:
             timeout: 600 # 5 minutes timeout for all HTTP requests
 

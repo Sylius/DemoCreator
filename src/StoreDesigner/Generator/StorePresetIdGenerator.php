@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\StoreDesigner\Service;
+namespace App\StoreDesigner\Generator;
 
 use Symfony\Component\Uid\Uuid;
 

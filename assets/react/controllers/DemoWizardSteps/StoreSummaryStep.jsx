@@ -7,7 +7,7 @@ import {useStorePreset} from "../../hooks/useStorePreset";
 
 export default function StoreSummaryStep() {
     const {wiz, dispatch} = useContext(WizardContext);
-    const {handleCreateFixtures, handleCreateImages, loading} = useContext(StorePresetContext);
+    const {handleCreateFixtures, loading} = useContext(StorePresetContext);
     const [errorMsg, setErrorMsg] = useState(null);
     const [polling, setPolling] = useState(false);
     const {presetId} = useStorePreset();
@@ -37,16 +37,6 @@ export default function StoreSummaryStep() {
             setErrorMsg(e?.message || 'Unknown error');
         }
     };
-
-    // Automatyczne generowanie obrazków po fixtures
-    useEffect(() => {
-        if (wiz.fixtures.ready && !wiz.images.ready && !wiz.images.generating) {
-            dispatch({type: 'START_IMAGES'});
-            handleCreateImages()
-                .then(() => dispatch({type: 'IMAGES_SUCCESS'}))
-                .catch(e => dispatch({type: 'IMAGES_ERROR', error: e?.message || 'Unknown error'}));
-        }
-    }, [wiz.fixtures.ready, wiz.images.ready, wiz.images.generating, handleCreateImages, dispatch]);
 
     // Deploy logic
     const onDeploy = async () => {

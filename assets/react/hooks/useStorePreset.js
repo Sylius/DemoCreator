@@ -76,40 +76,6 @@ export function useStorePreset() {
         }
     };
 
-    const handleCreateImages = async (maybePresetId, overrideStoreDetails) => {
-        const id = maybePresetId || presetId;
-        console.log('handleCreateImages called with presetId:', id);
-        if (!id) {
-            setError('Brak presetId!');
-            return;
-        }
-        setError(null);
-        setLoading(true);
-        const payload = overrideStoreDetails ? { storeDetails: overrideStoreDetails } : {};
-        try {
-            const response = await fetch(`/api/store-presets/${encodeURIComponent(id)}/generate-images`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            const rawResponse = await response.text();
-            let data;
-            try {
-                data = JSON.parse(rawResponse);
-            } catch (parseError) {
-                setError(`Invalid JSON response from API:\n${rawResponse}`);
-                return;
-            }
-            if (data.error) setError(data.error);
-            else setError(null);
-            // Możesz tu dodać obsługę success
-        } catch (err) {
-            setError(err.message || 'Unknown error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     return {
         presetId,
         preset,
@@ -119,6 +85,5 @@ export function useStorePreset() {
         deletePreset,
         setPresetId,
         handleCreateFixtures,
-        handleCreateImages,
     };
 }

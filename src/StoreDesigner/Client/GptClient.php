@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\StoreDesigner\Service;
+namespace App\StoreDesigner\Client;
 
-use App\StoreDesigner\Dto\ImageRequestDto;
+use App\StoreDesigner\Dto\ProductImageRequestDto;
+use Psr\Log\LoggerInterface;
 use SensitiveParameter;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class GptClient
 {
@@ -94,7 +94,7 @@ final readonly class GptClient
         throw new \RuntimeException("OpenAI API HTTP error $statusCode: $errorMessage");
     }
 
-    public function generateImage(ImageRequestDto $imageRequestDto): string
+    public function generateImage(ProductImageRequestDto $imageRequestDto): string
     {
         $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/images/generations', [
             'headers' => [

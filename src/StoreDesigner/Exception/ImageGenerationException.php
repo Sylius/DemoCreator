@@ -11,9 +11,8 @@
 
 declare(strict_types=1);
 
-namespace App\StoreDesigner\Filesystem;
+namespace App\StoreDesigner\Exception;
 
-interface ProductImagePersisterInterface
+final class ImageGenerationException extends \RuntimeException
 {
-    public function persist(string $storePresetId, string $imageName, string $binary): void;
 }

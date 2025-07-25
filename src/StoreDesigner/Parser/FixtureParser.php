@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\StoreDesigner\Service;
+namespace App\StoreDesigner\Parser;
 
 final class FixtureParser
 {
@@ -215,6 +215,7 @@ final class FixtureParser
         foreach ($rates as $rate) {
             $code = $rate['code'];
             unset($rate['code']);
+            $rate['zone'] = 'WORLD';
             $custom[$code] = $rate;
         }
         return [
@@ -287,6 +288,8 @@ final class FixtureParser
             ];
         }
 
+        $formattedProducts = $this->keysToSnake($formattedProducts);
+
         $result["{$prefix}_product"] = [
                 'name' => 'product',
                 'options' => ['custom' => $formattedProducts],
@@ -303,5 +306,30 @@ final class FixtureParser
         }
 
         return $mappedTranslations;
+    }
+
+    function keysToSnake(array $arr): array
+    {
+        $out = [];
+        foreach ($arr as $key => $value) {
+            // jeśli klucz jest stringiem, konwertujemy go do snake_case
+            if (is_string($key)) {
+                // np. "shortDescription" -> "short_description"
+                $newKey = strtolower(
+                    preg_replace('/(?<!^)[A-Z]/', '_$0', $key)
+                );
+            } else {
+                // indeksy numeryczne czy inne pozostają bez zmian
+                $newKey = $key;
+            }
+
+            // rekurencyjnie przerabiamy też wartości‑tablice
+            if (is_array($value)) {
+                $value = $this->keysToSnake($value);
+            }
+
+            $out[$newKey] = $value;
+        }
+        return $out;
     }
 }

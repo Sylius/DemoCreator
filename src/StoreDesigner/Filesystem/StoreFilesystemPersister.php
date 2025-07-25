@@ -11,7 +11,7 @@ use App\StoreDesigner\Util\StoreSection;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
-final readonly class StoreFilesystemPersisterProduct
+final readonly class StoreFilesystemPersister
 {
     public function __construct(
         private Filesystem $filesystem,

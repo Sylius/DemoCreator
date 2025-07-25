@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\StoreDesigner\Service;
+namespace App\StoreDesigner\Client;
 
 final readonly class GptResponse
 {

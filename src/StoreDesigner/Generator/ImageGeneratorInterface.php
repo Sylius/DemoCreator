@@ -13,9 +13,14 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Generator;
 
-use App\StoreDesigner\Dto\ImageRequestDto;
+use App\StoreDesigner\Dto\ImageRequestInterface;
+use App\StoreDesigner\Dto\ImageResponseDto;
 
 interface ImageGeneratorInterface
 {
-    public function generate(ImageRequestDto $imageRequestDto): string;
+    /**
+     * @param ImageRequestInterface[] $imageRequests An array of ImageRequestDto objects.
+     * @return ImageResponseDto[]
+     */
+    public function generateAll(array $imageRequests): array;
 }

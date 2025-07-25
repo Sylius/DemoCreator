@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Service;
 
+use App\StoreDesigner\Client\GptClient;
 use App\StoreDesigner\Dto\ChatConversationDto;
 use App\StoreDesigner\Dto\ChatConversationState;
 use App\StoreDesigner\Dto\StoreDetailsDto;

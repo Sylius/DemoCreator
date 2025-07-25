@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Service;
 
+use App\StoreDesigner\Client\GptClient;
 use App\StoreDesigner\Dto\ManifestDto;
 use App\StoreDesigner\Dto\StoreDetailsDto;
-use App\StoreDesigner\Filesystem\StoreFilesystemPersisterProduct;
-use Symfony\Component\Filesystem\Path;
+use App\StoreDesigner\Filesystem\StoreFilesystemPersister;
 
 final readonly class StorePresetManager
 {
     public function __construct(
-        private StoreFilesystemPersisterProduct $storePresetRepository,
+        private StoreFilesystemPersister $storePresetRepository,
         private GptClient $gptClient,
     )
     {

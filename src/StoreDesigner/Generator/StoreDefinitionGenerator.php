@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Generator;
 
+use App\StoreDesigner\Client\GptClient;
 use App\StoreDesigner\Dto\StoreDetailsDto;
-use App\StoreDesigner\Service\GptClient;
 use App\StoreDesigner\Util\FileResourceLoader;
 use App\StoreDesigner\Util\PromptPath;
 use App\StoreDesigner\Util\SchemaPath;
