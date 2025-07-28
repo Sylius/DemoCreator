@@ -22,10 +22,6 @@ const ConversationPanel = ({
         dispatch({ type: 'NEXT_STEP' });
     }
 
-    useEffect(() => {
-        console.log('ConversationPanel: state changed:', wiz.state);
-    }, [wiz.state]);
-
     return (
         <div className="flex flex-col flex-1 min-h-0 bg-gray-50">
             {conversationState === 'done' && (

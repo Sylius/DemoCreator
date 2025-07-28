@@ -2,7 +2,7 @@
 
 namespace App\StoreDesigner\Controller;
 
-use App\Service\DemoDeployer\PlatformShDeployer;
+use App\StoreDeployer\Deployer\PlatformShDeployer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

@@ -1,4 +1,3 @@
-import DeployStep from './DemoWizardSteps/DeployStep';
 import InterviewStep from './DemoWizardSteps/InterviewStep';
 import InterviewSummaryStep from './DemoWizardSteps/InterviewSummaryStep';
 import PluginsStep from './DemoWizardSteps/PluginsStep';
@@ -13,7 +12,6 @@ const steps = [
     'Plugins',
     'Fixtures',
     'Interview summary',
-    'Deploy',
     'Store summary',
 ];
 
@@ -21,7 +19,6 @@ const stepPaths = [
     'choose-plugins',
     'describe-store',
     'interview-summary',
-    'choose-deploy',
     'store-summary'
 ];
 
@@ -29,7 +26,6 @@ const stepTitles = [
     'Choose plugins',
     'Describe your store',
     'Interview summary',
-    'Choose deployment target',
     'Store summary',
 ];
 
@@ -37,7 +33,6 @@ const stepDescriptions = [
     'Plugins are optional. You can select any to include, or proceed without plugins.',
     'Provide a description of your store and its details.',
     'Summary of your store interview and configuration.',
-    'Choose where you want to deploy your store.',
     'Review and confirm your settings before launching your demo store.'
 ];
 
@@ -98,8 +93,7 @@ export default function DemoWizard() {
                     {wiz.step === 1 && (<PluginsStep/>)}
                     {wiz.step === 2 && (<InterviewStep/>)}
                     {wiz.step === 3 && (<InterviewSummaryStep/>)}
-                    {wiz.step === 4 && (<DeployStep/>)}
-                    {wiz.step === 5 && (<StoreSummaryStep/>)}
+                    {wiz.step === 4 && (<StoreSummaryStep/>)}
                 </div>
             </div>
         </motion.div>

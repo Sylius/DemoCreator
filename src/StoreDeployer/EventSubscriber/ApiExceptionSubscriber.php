@@ -1,0 +1,34 @@
+<?php
+
+namespace App\StoreDeployer\EventSubscriber;
+
+use App\StoreDesigner\Exception\InvalidSchemaDataException;
+use App\StoreDesigner\Exception\StoreDefinitionNotFoundException;
+use App\StoreDesigner\Exception\StorePresetNotFoundException;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
+
+class ApiExceptionSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            KernelEvents::EXCEPTION => 'onKernelException',
+        ];
+    }
+
+    public function onKernelException(ExceptionEvent $event): void
+    {
+        $exception = $event->getThrowable();
+
+        if ($exception instanceof InvalidSchemaDataException) {
+            $event->setResponse(new JsonResponse([
+                'error' => 'Invalid data',
+                'details' => $exception->getMessage(),
+            ], 400));
+        }
+    }
+}

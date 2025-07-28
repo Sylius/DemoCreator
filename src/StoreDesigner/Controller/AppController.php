@@ -16,6 +16,7 @@ class AppController extends AbstractController
         requirements: ['appPath' => '(?!api($|/)).*'],
         defaults: ['appPath' => null]
     )]
+
     public function app(?string $appPath = null): Response
     {
         return $this->render('app.html.twig');

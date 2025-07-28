@@ -15,6 +15,7 @@ namespace App\StoreDesigner\Factory;
 
 use App\StoreDesigner\Dto\AssetImageRequestDto;
 use App\StoreDesigner\Dto\ProductImageRequestDto;
+use App\StoreDesigner\Util\ImageBackground;
 use App\StoreDesigner\Util\ImageQuality;
 use App\StoreDesigner\Util\ImageResolution;
 use App\StoreDesigner\Util\StoreSection;
@@ -47,6 +48,7 @@ final class ImageRequestCollectionFactory implements ImageRequestCollectionFacto
                     model: self::MODEL,
                     imageResolution: ImageResolution::Landscape,
                     imageQuality: ImageQuality::Low,
+                    imageBackground: $asset['key'] === 'logo' ? ImageBackground::Transparent : ImageBackground::Opaque,
                     n: 1,
                 );
             }

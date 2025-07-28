@@ -1,5 +1,11 @@
-controllers:
+store_designer_controllers:
     resource:
         path: ../src/StoreDesigner/Controller/
         namespace: App\StoreDesigner\Controller
+    type: attribute
+
+store_deployer_controllers:
+    resource:
+        path: ../src/StoreDeployer/Controller/
+        namespace: App\StoreDeployer\Controller
     type: attribute

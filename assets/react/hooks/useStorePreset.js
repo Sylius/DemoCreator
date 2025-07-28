@@ -12,7 +12,7 @@ export function useStorePreset() {
     useEffect(() => {
         if (!presetId) {
             setLoading(true);
-            fetch('/api/store-presets', {method: 'POST'})
+            fetch('/api/store-presets', { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
                     setPresetId(data.storePresetId);
@@ -29,16 +29,17 @@ export function useStorePreset() {
         setLoading(true);
         return fetch(`/api/store-presets/${presetId}`, {
             method: 'PATCH',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         })
+            .finally(() => setLoading(false));
     }, [presetId]);
 
     // Delete preset
     const deletePreset = useCallback(() => {
         if (!presetId) return;
         setLoading(true);
-        fetch(`/api/store-presets/${presetId}`, {method: 'DELETE'})
+        fetch(`/api/store-presets/${presetId}`, { method: 'DELETE' })
             .then(() => {
                 setPresetId(null);
                 setPreset(null);
@@ -48,33 +49,57 @@ export function useStorePreset() {
             .finally(() => setLoading(false));
     }, [presetId]);
 
-    const handleCreateFixtures = async () => {
-        console.log('Using presetId:', presetId);
+    // Generate store fixtures and images
+    const generateStore = useCallback(async (details) => {
+        if (!presetId) return;
+        setLoading(true);
         try {
-            const response = await fetch(`/api/store-presets/${encodeURIComponent(presetId)}/generate-store`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(wiz.storeDetails),
-            });
-            const rawResponse = await response.text();
+            const response = await fetch(
+                `/api/store-presets/${encodeURIComponent(presetId)}/generate-store`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(details),
+                }
+            );
+            const raw = await response.text();
             let data;
             try {
-                data = JSON.parse(rawResponse);
-            } catch (parseError) {
-                setError(`Invalid JSON response from API:\n${rawResponse}`);
-                dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'error' } });
-                return;
+                data = JSON.parse(raw);
+            } catch {
+                throw new Error(`Invalid JSON response from API: ${raw}`);
             }
-            if (data.error) setError(data.error);
-            else setError(null);
-            // Możesz tu dodać obsługę success, np. dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'fixtures_ready' } })
+            if (data.error) throw new Error(data.error);
+            return data;
         } catch (err) {
-            setError(err.message || 'Unknown error');
-            dispatch({ type: 'SET_WIZARD_STATE', state: { state: 'error' } });
+            setError(err.message);
+            dispatch({ type: 'ERROR', error: err.message });
+            throw err;
         } finally {
             setLoading(false);
         }
-    };
+    }, [presetId, dispatch]);
+
+    const deployStore = useCallback(async (env) => {
+        if (!presetId) return;
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/store-presets/${presetId}/deploy-store`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ env }),
+            });
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+            return data;
+        } catch (err) {
+            setError(err.message);
+            dispatch({ type: 'ERROR', error: err.message });
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }, [presetId, dispatch]);
 
     return {
         presetId,
@@ -84,6 +109,7 @@ export function useStorePreset() {
         updatePreset,
         deletePreset,
         setPresetId,
-        handleCreateFixtures,
+        generateStore,
+        deployStore,
     };
 }

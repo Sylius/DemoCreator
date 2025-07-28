@@ -1,5 +1,6 @@
 parameters:
-    platformsh.project_id: '%env(PLATFORMSH_PROJECT_ID)%'
+    store_deployer.target: '%env(STORE_DEPLOYER_TARGET)%'
+    store_deployer.target.platformsh.project_id: '%env(PLATFORMSH_PROJECT_ID)%'
 
 services:
     _defaults:
@@ -10,11 +11,31 @@ services:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
-            - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/StoreDesigner/Dto/'
             - '../src/StoreDesigner/Message/'
 
+
+    App\StoreDeployer\Controller\:
+        resource: '../src/StoreDeployer/Controller'
+        tags: ['controller.service_arguments']
     App\StoreDesigner\Controller\:
         resource: '../src/StoreDesigner/Controller'
         tags: ['controller.service_arguments']
+
+    App\StoreDeployer\Deployer\DynamicStoreDeployer:
+        arguments:
+            $locator: !tagged_locator
+                tag: 'store_deployer.deployer'
+                index_by: 'index'
+            $target:  '%store_deployer.target%'
+
+    App\StoreDeployer\Deployer\StoreDeployerInterface: '@App\StoreDeployer\Deployer\DynamicStoreDeployer'
+
+    App\StoreDeployer\Deployer\LocalhostDeployer:
+        tags:
+            - { name: 'store_deployer.deployer', index: 'localhost' }
+
+    App\StoreDeployer\Deployer\PlatformShDeployer:
+        tags:
+            - { name: 'store_deployer.deployer', index: 'platformsh' }

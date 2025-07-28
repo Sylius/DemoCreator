@@ -1,0 +1,141 @@
+sylius_fixtures:
+    suites:
+        agriculture_machinery:
+            listeners:
+                orm_purger: null
+                images_purger: null
+                logger: null
+            fixtures:
+                admin_user:
+                    name: admin_user
+                    options:
+                        custom:
+                            -
+                                email: sylius@example.com
+                                username: sylius
+                                password: sylius
+                                enabled: true
+                                locale_code: '%locale%'
+                                first_name: John
+                                last_name: Doe
+                                avatar: '@SyliusCoreBundle/Resources/fixtures/adminAvatars/john.webp'
+                            -
+                                email: api@example.com
+                                username: api
+                                password: sylius-api
+                                enabled: true
+                                locale_code: '%locale%'
+                                first_name: Luke
+                                last_name: Brushwood
+                                api: true
+                                avatar: '@SyliusCoreBundle/Resources/fixtures/adminAvatars/luke.webp'
+                locale:
+                    options:
+                        locales:
+                            - pl_PL
+                currency:
+                    options:
+                        currencies:
+                            - PLN
+                geographical:
+                    options:
+                        countries:
+                            - PL
+                        zones:
+                            WORLD:
+                                name: 'World zone'
+                                countries:
+                                    - PL
+                menu_taxon:
+                    name: taxon
+                    options:
+                        custom:
+                            category:
+                                code: MENU_CATEGORY
+                                name: Kategoria
+                                translations:
+                                    pl_PL: { name: Kategoria }
+                channel:
+                    options:
+                        custom:
+                            default:
+                                name: 'Default Channel'
+                                code: default
+                                locales:
+                                    - pl_PL
+                                currencies:
+                                    - PLN
+                                enabled: true
+                                menu_taxon: MENU_CATEGORY
+                                hostname: localhost
+                                theme_name: '%env(resolve:SYLIUS_FIXTURES_THEME_NAME)%'
+                payment_method:
+                    options:
+                        custom:
+                            payment_card:
+                                code: payment_card
+                                name: 'Karta płatnicza'
+                shipping_method:
+                    options:
+                        custom:
+                            shipping_courier:
+                                code: shipping_courier
+                                name: Kurier
+                tax_category:
+                    options:
+                        custom:
+                            basic:
+                                code: basic
+                                name: Podstawowa
+                tax_rate:
+                    options:
+                        custom:
+                            basic_rate:
+                                name: 'Standardowa stawka VAT'
+                                zone: WORLD
+                                category: basic
+                                amount: 0.23
+                taxon_siewniki:
+                    name: taxon
+                    options:
+                        custom:
+                            slug:
+                                code: siewniki
+                                name: Siewniki
+                                slug: siewniki
+                                translations:
+                                    pl_PL: { name: Siewniki }
+                taxon_czesci-zamienne:
+                    name: taxon
+                    options:
+                        custom:
+                            slug:
+                                code: czesci-zamienne
+                                name: 'Czesci zamienne'
+                                slug: czesci-zamienne
+                                translations:
+                                    pl_PL: { name: 'Czesci zamienne' }
+                taxon_akcesoria:
+                    name: taxon
+                    options:
+                        custom:
+                            slug:
+                                code: akcesoria
+                                name: Akcesoria
+                                slug: akcesoria
+                                translations:
+                                    pl_PL: { name: Akcesoria }
+                tshirt_product:
+                    name: product
+                    options:
+                        custom:
+                            -
+                                name: 'Precyzyjny siewnik polowy'
+                                description: 'Precyzyjny siewnik polowy zaprojektowany do efektywnego siewu zboz i roslin. Wyposażony w regulacje gleby oraz synchronizowane mechanizmy siewu, zapewnia optymalne rozmieszczenie nasion i minimalizuje straty. Konstrukcja stalowa gwarantuje wytrzymalosc nawet w trudnych warunkach polowych.'
+                                short_description: 'Precyzyjny siewnik polowy do siewu zboz i roslin.'
+                                tax_category: basic
+                                main_taxon: siewniki
+                                taxons:
+                                    - siewniki
+                                images:
+                                    - { path: '%kernel.project_dir%/store-preset/fixtures/precyzyjny_siewnik_polowy_1.png', type: main }
