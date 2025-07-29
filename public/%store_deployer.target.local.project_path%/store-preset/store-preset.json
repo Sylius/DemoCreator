@@ -1,6 +1,0 @@
-{
-    "name": null,
-    "plugins": {
-        "sylius/wishlist-plugin": "^1.0"
-    }
-}

@@ -146,13 +146,17 @@ export default function StoreSummaryStep() {
                 <h2 className="text-2xl font-bold text-center text-teal-700 mb-4">Store Summary & Generation</h2>
                 <div className="bg-white rounded-xl shadow p-6 border mb-6 mx-auto max-w-md">
                     <h3 className="font-semibold text-gray-800 text-center mb-2">Selected Plugins</h3>
-                    <ul className="list-disc list-inside text-sm text-gray-700 mx-auto max-w-xs">
-                        {Object.entries(wiz.plugins).map(([pkg, ver]) => (
-                            <li key={pkg} className="text-center">
-                                {prettify(pkg)} ({ver})
-                            </li>
-                        ))}
-                    </ul>
+                    {Object.keys(wiz.plugins).length === 0 ? (
+                        <p className="text-center">-</p>
+                    ) : (
+                        <ul className="list-disc list-inside text-sm text-gray-700 mx-auto max-w-xs">
+                            {Object.entries(wiz.plugins).map(([pkg, ver]) => (
+                                <li key={pkg} className="text-center">
+                                    {prettify(pkg)} ({ver})
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
                 {content}
                 <div className="flex justify-between mt-6">

@@ -110,21 +110,6 @@
             "config/routes.yaml"
         ]
     },
-    "symfony/stimulus-bundle": {
-        "version": "2.27",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "2.20",
-            "ref": "e058471c5502e549c1404ebdd510099107bb5549"
-        },
-        "files": [
-            "assets/bootstrap.js",
-            "assets/controllers.json",
-            "assets/controllers/csrf_protection_controller.js",
-            "assets/controllers/hello_controller.js"
-        ]
-    },
     "symfony/twig-bundle": {
         "version": "7.2",
         "recipe": {
@@ -146,30 +131,6 @@
             "version": "7.0",
             "ref": "0df5844274d871b37fc3816c57a768ffc60a43a5"
         }
-    },
-    "symfony/ux-react": {
-        "version": "2.27",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "2.9",
-            "ref": "e970076b31d602ae6e2106cf91a82c7e1f7ddff2"
-        },
-        "files": [
-            "assets/react/controllers/Hello.jsx"
-        ]
-    },
-    "symfony/ux-turbo": {
-        "version": "2.27",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "2.20",
-            "ref": "287f7c6eb6e9b65e422d34c00795b360a787380b"
-        },
-        "files": [
-            "config/packages/ux_turbo.yaml"
-        ]
     },
     "symfony/validator": {
         "version": "7.2",
