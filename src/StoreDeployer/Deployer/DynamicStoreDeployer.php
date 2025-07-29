@@ -11,6 +11,7 @@
 
 namespace App\StoreDeployer\Deployer;
 
+use App\StoreDeployer\Exception\InvalidDeployTargetException;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 final readonly class DynamicStoreDeployer implements StoreDeployerInterface
@@ -24,8 +25,8 @@ final readonly class DynamicStoreDeployer implements StoreDeployerInterface
     public function deploy(string $storePresetId): StoreDeploymentStatus
     {
         if (!$this->locator->has($this->target)) {
-            throw new \InvalidArgumentException(
-                sprintf('Unknown deploy target "%s".', $this->target)
+            throw new InvalidDeployTargetException(
+                sprintf('The deploy target "%s" is not registered in the service locator.', $this->target)
             );
         }
 

@@ -47,8 +47,8 @@ class StorePresetController extends AbstractController
         string $storePresetId,
         #[ValueResolver(StoreDetailsDtoResolver::class)] StoreDetailsDto $storeDetailsDto,
     ): JsonResponse {
-        set_time_limit(600);
-        ini_set('max_execution_time', '600');
+        set_time_limit(1800);
+        ini_set('max_execution_time', '1800');
 
         $this->storeGenerationOrchestrator->orchestrate($storePresetId, $storeDetailsDto);
 

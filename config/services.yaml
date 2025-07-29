@@ -1,6 +1,5 @@
 parameters:
     store_deployer.target: '%env(STORE_DEPLOYER_TARGET)%'
-    store_deployer.target.platformsh.project_id: '%env(PLATFORMSH_PROJECT_ID)%'
 
 services:
     _defaults:
