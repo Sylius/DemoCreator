@@ -32,7 +32,7 @@ final readonly class StoreDefinitionGenerator implements StoreDefinitionGenerato
                 ],
             ],
             model: 'gpt-4.1-mini',
-            maxCompletionTokens: 8192,
+            maxCompletionTokens: 16384,
             functions: [
                 [
                     'name' => 'generateFixtures',

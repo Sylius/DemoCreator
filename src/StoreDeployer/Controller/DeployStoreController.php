@@ -24,8 +24,8 @@ final class DeployStoreController extends AbstractController
         set_time_limit(1800);
         ini_set('max_execution_time', '1800');
 
-        $this->storeDeployer->deploy($storePresetId);
+        $status = $this->storeDeployer->deploy($storePresetId);
 
-        return $this->json(data: [], status: Response::HTTP_ACCEPTED);
+        return $this->json(data: $status, status: Response::HTTP_ACCEPTED);
     }
 }

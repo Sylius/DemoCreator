@@ -11,6 +11,7 @@
 
 namespace App\StoreDeployer\Deployer;
 
+use App\StoreDeployer\Dto\StoreDeploymentResult;
 use App\StoreDeployer\Exception\InvalidDeployTargetException;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
@@ -22,7 +23,7 @@ final readonly class DynamicStoreDeployer implements StoreDeployerInterface
     ) {
     }
 
-    public function deploy(string $storePresetId): StoreDeploymentStatus
+    public function deploy(string $storePresetId): StoreDeploymentResult
     {
         if (!$this->locator->has($this->target)) {
             throw new InvalidDeployTargetException(

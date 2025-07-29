@@ -10,6 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 final readonly class ApiExceptionSubscriber implements EventSubscriberInterface
 {
@@ -36,6 +37,15 @@ final readonly class ApiExceptionSubscriber implements EventSubscriberInterface
         if ($exception instanceof DemoDeploymentException) {
             $event->setResponse(new JsonResponse([
                 'error' => 'Demo deployment error',
+                'details' => $exception->getMessage(),
+            ], 500));
+
+            return;
+        }
+
+        if ($exception instanceof ProcessFailedException) {
+            $event->setResponse(new JsonResponse([
+                'error' => 'Deployment process failed',
                 'details' => $exception->getMessage(),
             ], 500));
 

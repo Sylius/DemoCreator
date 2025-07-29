@@ -23,9 +23,14 @@ final readonly class PathResolver
     private const STORE_DEFINITION_FILENAME = 'store-definition.json';
 
     public function __construct(
-        #[Autowire('%kernel.project_dir%/var/store-presets')]
-        private string $storePresetsDir,
+        #[Autowire('%kernel.project_dir%')] private string $projectDir,
+        #[Autowire('%kernel.project_dir%/var/store-presets')] private string $storePresetsDir,
     ) {
+    }
+
+    public function getProjectDirectory(): string
+    {
+        return $this->projectDir;
     }
 
     public function getStorePresetsDirectory(): string

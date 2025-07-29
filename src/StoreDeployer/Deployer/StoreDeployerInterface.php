@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace App\StoreDeployer\Deployer;
 
+use App\StoreDeployer\Dto\StoreDeploymentResult;
+
 interface StoreDeployerInterface
 {
-    public function deploy(string $storePresetId): StoreDeploymentStatus;
+    public function deploy(string $storePresetId): StoreDeploymentResult;
 }

@@ -13,7 +13,7 @@ You are a Sylius store generation assistant. Generate fixtures and theme based o
 - For the `translations` fields, provide an array of translations corresponding to each locale specified in the `locales` array.
 - All text must be encoded in UTF-8, don't use any special characters, for example '\u19' or similar.
 - menuTaxon - for this one use always 'Category' as the name and 'category' as the slug translated to the default chosen locale.
-- products.images - an array of image names without file extensions, snake/lower-case, e.g. "wooden_chair_1", "wooden_chair_2", etc.
+- products.images - an array of image names without file extensions, snake/lower-case, e.g. "wooden_chair_1", at that moment generate ONLY one image entry per product.
 - products.mainTaxon - the code of the main taxon for the product, which should be the same as the category code.
 - products.taxons - an array of taxon codes that the product belongs to, including the main taxon.
 - taxRates.amount - always use float numbers with a dot as a decimal separator, e.g. 0.2 for 20%. 

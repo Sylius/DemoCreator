@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\StoreDeployer\Deployer;
 
-use App\StoreDesigner\Exception\StorePresetNotFoundException;
+use App\StoreDeployer\Dto\StoreDeploymentResult;
+use App\StoreDeployer\ValueObject\StoreDeploymentStatus;
 use App\StoreDesigner\Util\PathResolver;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 final readonly class LocalhostDeployer implements StoreDeployerInterface
 {
+    use StorePresetCopierTrait;
+
     public function __construct(
         #[Autowire(env: 'STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH')]
         private string $syliusProjectPath,
@@ -21,37 +23,12 @@ final readonly class LocalhostDeployer implements StoreDeployerInterface
     ) {
     }
 
-    public function deploy(string $storePresetId): StoreDeploymentStatus
+    public function deploy(string $storePresetId): StoreDeploymentResult
     {
-        $this->copyPresetToProject($storePresetId);
+        $this->copyPresetToProject($storePresetId, $this->syliusProjectPath);
         $this->runStoreAssembler();
 
-        return StoreDeploymentStatus::COMPLETED;
-    }
-
-    private function copyPresetToProject(string $storePresetId): void
-    {
-        $sourcePath = $this->pathResolver->getStorePresetRootDirectory($storePresetId);
-        $destinationPath = Path::join($this->syliusProjectPath, 'store-preset');
-
-        if (!is_dir($sourcePath)) {
-            throw new StorePresetNotFoundException(
-                sprintf('Store preset "%s" not found in "%s".', $storePresetId, $sourcePath)
-            );
-        }
-
-        if (!is_dir($destinationPath)) {
-            mkdir($destinationPath, 0755, true);
-        }
-
-        $this->filesystem->mirror(
-            originDir: $sourcePath,
-            targetDir: $destinationPath,
-            options: [
-                'override' => true,
-                'delete' => true,
-            ]
-        );
+        return new StoreDeploymentResult(status: StoreDeploymentStatus::COMPLETED);
     }
 
     private function runStoreAssembler(): void
