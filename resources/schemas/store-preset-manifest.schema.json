@@ -1,0 +1,115 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Sylius Store Preset Manifest",
+    "type": "object",
+    "required": [
+        "name",
+        "plugins",
+        "themes",
+        "fixtures"
+    ],
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Unique name of the store preset"
+        },
+        "plugins": {
+            "type": "object",
+            "description": "List of plugins to install (composer package => version)",
+            "patternProperties": {
+                "^[a-z0-9-/]+$": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "themes": {
+            "type": "object",
+            "description": "Theme configuration for different areas (e.g. shop, admin)",
+            "minProperties": 1,
+            "properties": {
+                "shop": {
+                    "$ref": "#/definitions/theme"
+                },
+                "admin": {
+                    "$ref": "#/definitions/theme"
+                }
+            },
+            "additionalProperties": {
+                "$ref": "#/definitions/theme"
+            }
+        },
+        "fixtures": {
+            "type": "object",
+            "description": "Fixtures configuration (e.g. suite name)",
+            "properties": {
+                "suite": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "suite"
+            ],
+            "additionalProperties": true
+        }
+    },
+    "definitions": {
+        "theme": {
+            "type": "object",
+            "required": [
+                "cssVariables",
+                "assets"
+            ],
+            "properties": {
+                "cssVariables": {
+                    "type": "object",
+                    "description": "CSS variables for the theme",
+                    "patternProperties": {
+                        "^--[a-zA-Z0-9-]+$": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "assets": {
+                    "type": "object",
+                    "description": "Graphic assets for the theme (logo, banner, favicon, ...)",
+                    "properties": {
+                        "logo": {
+                            "$ref": "#/definitions/asset"
+                        },
+                        "banner": {
+                            "$ref": "#/definitions/asset"
+                        }
+                    },
+                    "additionalProperties": {
+                        "$ref": "#/definitions/asset"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "asset": {
+            "type": "object",
+            "required": [
+                "file"
+            ],
+            "properties": {
+                "file": {
+                    "type": "string",
+                    "description": "Asset file name (e.g. logo.png)"
+                },
+                "alt": {
+                    "type": "string",
+                    "description": "Alternative text (alt) for the image"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "MIME type (optional)"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

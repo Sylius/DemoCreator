@@ -1,0 +1,532 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+        "storePresetName": {
+            "type": "string"
+        },
+        "locales": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "currencies": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "countries": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "menuTaxon": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "translations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "translations"
+            ],
+            "additionalProperties": false
+        },
+        "channel": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "locales": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "currencies": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "themeName": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "code",
+                "name",
+                "locales",
+                "currencies",
+                "hostname",
+                "themeName"
+            ],
+            "additionalProperties": false
+        },
+        "categories": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "slug",
+                    "translations"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "paymentMethods": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "shippingMethods": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "taxCategories": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "taxons": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "translations"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "taxRates": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "zone": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "zone",
+                    "category",
+                    "amount"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "products": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "shortDescription": {
+                        "type": "string"
+                    },
+                    "imgPrompt": {
+                        "type": "string"
+                    },
+                    "taxCategory": {
+                        "type": "string"
+                    },
+                    "mainTaxon": {
+                        "type": "string"
+                    },
+                    "taxons": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "productAttributes": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "productOptions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "description",
+                    "shortDescription",
+                    "imgPrompt",
+                    "taxCategory",
+                    "mainTaxon",
+                    "taxons",
+                    "productAttributes",
+                    "images"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "themes": {
+            "type": "object",
+            "description": "Themes for the shop and admin interfaces.",
+            "properties": {
+                "shop": {
+                    "type": "object",
+                    "properties": {
+                        "cssVariables": {
+                            "type": "object",
+                            "description": "CSS variables for the shop theme.",
+                            "properties": {
+                                "--bs-btn-bg": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-hover-bg": {
+                                    "type": "string"
+                                },
+                                "--bs-body-bg": {
+                                    "type": "string"
+                                },
+                                "--bs-text-color": {
+                                    "type": "string"
+                                },
+                                "--bs-link-color": {
+                                    "type": "string"
+                                },
+                                "--bs-link-hover-color": {
+                                    "type": "string"
+                                },
+                                "--bs-link-color-rgb": {
+                                    "type": "string"
+                                },
+                                "--bs-link-hover-color-rgb": {
+                                    "type": "string"
+                                },
+                                "--bs-primary": {
+                                    "type": "string"
+                                },
+                                "--bs-primary-rgb": {
+                                    "type": "string"
+                                },
+                                "--bs-bg-opacity": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-color": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-border-color": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-hover-border-color": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-focus-shadow-rgb": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-active-color": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-active-bg": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-active-border-color": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-active-shadow": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-disabled-color": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-disabled-bg": {
+                                    "type": "string"
+                                },
+                                "--bs-btn-disabled-border-color": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "--bs-btn-bg",
+                                "--bs-btn-hover-bg",
+                                "--bs-body-bg",
+                                "--bs-text-color",
+                                "--bs-link-color",
+                                "--bs-link-hover-color",
+                                "--bs-link-color-rgb",
+                                "--bs-link-hover-color-rgb",
+                                "--bs-primary",
+                                "--bs-primary-rgb",
+                                "--bs-bg-opacity",
+                                "--bs-btn-color",
+                                "--bs-btn-border-color",
+                                "--bs-btn-hover-border-color",
+                                "--bs-btn-focus-shadow-rgb",
+                                "--bs-btn-active-color",
+                                "--bs-btn-active-bg",
+                                "--bs-btn-active-border-color",
+                                "--bs-btn-active-shadow",
+                                "--bs-btn-disabled-color",
+                                "--bs-btn-disabled-bg",
+                                "--bs-btn-disabled-border-color"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "assets": {
+                            "type": "array",
+                            "description": "Assets for the shop theme.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string"
+                                    },
+                                    "prompt": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "key",
+                                    "prompt"
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    },
+                    "required": [
+                        "cssVariables",
+                        "assets"
+                    ],
+                    "additionalProperties": false
+                },
+                "admin": {
+                    "type": "object",
+                    "properties": {
+                        "cssVariables": {
+                            "type": "object",
+                            "description": "CSS variables for the admin theme.",
+                            "properties": {
+                                "--tblr-btn-border-color": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-hover-border-color": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-active-border-color": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-color": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-bg": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-hover-color": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-hover-bg": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-active-color": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-active-bg": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-disabled-bg": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-disabled-color": {
+                                    "type": "string"
+                                },
+                                "--tblr-btn-box-shadow": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "--tblr-btn-border-color",
+                                "--tblr-btn-hover-border-color",
+                                "--tblr-btn-active-border-color",
+                                "--tblr-btn-color",
+                                "--tblr-btn-bg",
+                                "--tblr-btn-hover-color",
+                                "--tblr-btn-hover-bg",
+                                "--tblr-btn-active-color",
+                                "--tblr-btn-active-bg",
+                                "--tblr-btn-disabled-bg",
+                                "--tblr-btn-disabled-color",
+                                "--tblr-btn-box-shadow"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "assets": {
+                            "type": "array",
+                            "description": "Assets for the admin theme.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string"
+                                    },
+                                    "prompt": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "key",
+                                    "prompt"
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    },
+                    "required": [
+                        "cssVariables",
+                        "assets"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "shop",
+                "admin"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "storePresetName",
+        "locales",
+        "currencies",
+        "countries",
+        "menuTaxon",
+        "channel",
+        "categories",
+        "paymentMethods",
+        "shippingMethods",
+        "taxCategories",
+        "taxons",
+        "taxRates",
+        "products",
+        "themes"
+    ],
+    "additionalProperties": false
+}

@@ -1,0 +1,648 @@
+{
+    "name": "uzywane_maszyny_rolnicze",
+    "plugins": [],
+    "themes": [],
+    "fixtures": {
+        "sylius_fixtures": {
+            "suites": {
+                "uzywane_maszyny_rolnicze": {
+                    "listeners": {
+                        "orm_purger": null,
+                        "images_purger": null,
+                        "logger": null
+                    },
+                    "fixtures": {
+                        "locale": {
+                            "options": {
+                                "locales": [
+                                    "pl_PL"
+                                ]
+                            }
+                        },
+                        "currency": {
+                            "options": {
+                                "currencies": [
+                                    "PLN"
+                                ]
+                            }
+                        },
+                        "geographical": {
+                            "options": {
+                                "countries": [
+                                    "PL"
+                                ],
+                                "zones": {
+                                    "WORLD": {
+                                        "name": "World zone",
+                                        "countries": [
+                                            "PL"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "menu_taxon": {
+                            "name": "taxon",
+                            "options": {
+                                "custom": {
+                                    "category": {
+                                        "code": "used_farm_machinery",
+                                        "name": "Used Farm Machinery",
+                                        "translations": {
+                                            "pl_PL": {
+                                                "name": "U\u017cywane maszyny rolnicze"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "channel": {
+                            "options": {
+                                "custom": {
+                                    "USED_FARM_MACHINERY": {
+                                        "name": "Used Farm Machinery Channel",
+                                        "code": "USED_FARM_MACHINERY",
+                                        "locales": [
+                                            "pl_PL"
+                                        ],
+                                        "currencies": [
+                                            "PLN"
+                                        ],
+                                        "enabled": true,
+                                        "hostname": "used-machine.example.pl",
+                                        "theme_name": "agriculture_theme"
+                                    }
+                                }
+                            }
+                        },
+                        "payment_method": {
+                            "options": {
+                                "custom": {
+                                    "online_payment": {
+                                        "code": "online_payment",
+                                        "name": "P\u0142atno\u015b\u0107 online"
+                                    }
+                                }
+                            }
+                        },
+                        "shipping_method": {
+                            "options": {
+                                "custom": {
+                                    "ground_shipping": {
+                                        "code": "ground_shipping",
+                                        "name": "Transport naziemny"
+                                    }
+                                }
+                            }
+                        },
+                        "tax_category": {
+                            "options": {
+                                "custom": {
+                                    "default_tax_category": {
+                                        "code": "default_tax_category",
+                                        "name": "Domy\u015blna kategoria podatkowa"
+                                    }
+                                }
+                            }
+                        },
+                        "tax_rate": {
+                            "options": {
+                                "custom": {
+                                    "standard_rate_pl": {
+                                        "name": "Standardowy podatek PL",
+                                        "zone": "WORLD",
+                                        "category": "default_tax_category",
+                                        "amount": 0.23
+                                    }
+                                }
+                            }
+                        },
+                        "taxon-traktory": {
+                            "options": {
+                                "custom": {
+                                    "slug": {
+                                        "code": "tractors",
+                                        "name": "Traktory",
+                                        "slug": "traktory",
+                                        "translations": [
+                                            "Traktory"
+                                        ]
+                                    }
+                                }
+                            },
+                            "name": "taxon"
+                        },
+                        "taxon-kombajny": {
+                            "options": {
+                                "custom": {
+                                    "slug": {
+                                        "code": "harvesters",
+                                        "name": "Kombajny",
+                                        "slug": "kombajny",
+                                        "translations": [
+                                            "Kombajny"
+                                        ]
+                                    }
+                                }
+                            },
+                            "name": "taxon"
+                        },
+                        "taxon-plugi": {
+                            "options": {
+                                "custom": {
+                                    "slug": {
+                                        "code": "plows",
+                                        "name": "P\u0142ugi",
+                                        "slug": "plugi",
+                                        "translations": [
+                                            "P\u0142ugi"
+                                        ]
+                                    }
+                                }
+                            },
+                            "name": "taxon"
+                        },
+                        "taxon-siewniki": {
+                            "options": {
+                                "custom": {
+                                    "slug": {
+                                        "code": "seeders",
+                                        "name": "Siewniki",
+                                        "slug": "siewniki",
+                                        "translations": [
+                                            "Siewniki"
+                                        ]
+                                    }
+                                }
+                            },
+                            "name": "taxon"
+                        },
+                        "taxon-przyczepy": {
+                            "options": {
+                                "custom": {
+                                    "slug": {
+                                        "code": "trailers",
+                                        "name": "Przyczepy",
+                                        "slug": "przyczepy",
+                                        "translations": [
+                                            "Przyczepy"
+                                        ]
+                                    }
+                                }
+                            },
+                            "name": "taxon"
+                        },
+                        "product_attribute": {
+                            "name": "product_attribute",
+                            "options": {
+                                "custom": [
+                                    {
+                                        "code": "material",
+                                        "name": "Material",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "code": "horsepower",
+                                        "name": "Horsepower",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "code": "harvesting_capacity",
+                                        "name": "Harvesting_capacity",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "code": "furrow_width",
+                                        "name": "Furrow_width",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "code": "seeding_width",
+                                        "name": "Seeding_width",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "code": "load_capacity",
+                                        "name": "Load_capacity",
+                                        "type": "text"
+                                    }
+                                ]
+                            }
+                        },
+                        "tshirt_product": {
+                            "name": "product",
+                            "options": {
+                                "custom": [
+                                    {
+                                        "name": "Traktor Massey Ferguson",
+                                        "description": "Dok\u0142adny opis techniczny traktora Massey Ferguson z wszystkimi specyfikacjami.",
+                                        "short_description": "Mocny traktor Massey Ferguson.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz traktora Massey Ferguson",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "tractors",
+                                        "taxons": [
+                                            "tractors"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal",
+                                            "horsepower": "150 HP"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/tractors/massey_ferguson.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Kombajn John Deere",
+                                        "description": "Dok\u0142adny opis kombajnu John Deere ze szczeg\u00f3\u0142ami technicznymi i danymi.",
+                                        "short_description": "Wydajny kombajn John Deere.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz kombajnu John Deere",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "harvesters",
+                                        "taxons": [
+                                            "harvesters"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal",
+                                            "harvesting_capacity": "10 tons/hour"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/harvesters/john_deere.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "P\u0142ug Lemken Opal",
+                                        "description": "P\u0142ug Lemken Opal z detaliami na temat wytrzyma\u0142o\u015bci i efektywno\u015bci pracy.",
+                                        "short_description": "Wytrzyma\u0142y p\u0142ug Lemken Opal.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz p\u0142uga Lemken Opal",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "plows",
+                                        "taxons": [
+                                            "plows"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Steel",
+                                            "furrow_width": "16 inches"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/plows/lemken_opal.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Siewnik Kuhn",
+                                        "description": "Siewnik Kuhn z dok\u0142adnymi danymi technicznymi dotycz\u0105cymi wysiewu.",
+                                        "short_description": "Precyzyjny siewnik Kuhn.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz siewnika Kuhn",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "seeders",
+                                        "taxons": [
+                                            "seeders"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal and Plastic",
+                                            "seeding_width": "3 meters"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/seeders/kuhn.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Przyczepa Fliegl",
+                                        "description": "Szczeg\u00f3\u0142owy opis przyczepy Fliegl z danymi dotycz\u0105cymi \u0142adowno\u015bci i budowy.",
+                                        "short_description": "Solidna przyczepa Fliegl.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz przyczepy Fliegl",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "trailers",
+                                        "taxons": [
+                                            "trailers"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Steel",
+                                            "load_capacity": "15 tons"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/trailers/fliegl.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Traktor John Deere",
+                                        "description": "Dok\u0142adny opis techniczny traktora John Deere z wszystkimi specyfikacjami.",
+                                        "short_description": "Mocny traktor John Deere.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz traktora John Deere",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "tractors",
+                                        "taxons": [
+                                            "tractors"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal",
+                                            "horsepower": "180 HP"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/tractors/john_deere.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Kombajn Claas",
+                                        "description": "Dok\u0142adny opis kombajnu Claas ze szczeg\u00f3\u0142ami technicznymi i danymi.",
+                                        "short_description": "Wydajny kombajn Claas.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz kombajnu Claas",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "harvesters",
+                                        "taxons": [
+                                            "harvesters"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal",
+                                            "harvesting_capacity": "8 tons/hour"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/harvesters/claas.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "P\u0142ug Vogel & Noot",
+                                        "description": "P\u0142ug Vogel & Noot z detaliami na temat wytrzyma\u0142o\u015bci i efektywno\u015bci pracy.",
+                                        "short_description": "Wytrzyma\u0142y p\u0142ug Vogel & Noot.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz p\u0142uga Vogel & Noot",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "plows",
+                                        "taxons": [
+                                            "plows"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Steel",
+                                            "furrow_width": "18 inches"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/plows/vogel_noot.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Siewnik Amazone",
+                                        "description": "Siewnik Amazone z dok\u0142adnymi danymi technicznymi dotycz\u0105cymi wysiewu.",
+                                        "short_description": "Precyzyjny siewnik Amazone.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz siewnika Amazone",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "seeders",
+                                        "taxons": [
+                                            "seeders"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal and Plastic",
+                                            "seeding_width": "4 meters"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/seeders/amazone.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Przyczepa Wielton",
+                                        "description": "Szczeg\u00f3\u0142owy opis przyczepy Wielton z danymi dotycz\u0105cymi \u0142adowno\u015bci i budowy.",
+                                        "short_description": "Solidna przyczepa Wielton.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz przyczepy Wielton",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "trailers",
+                                        "taxons": [
+                                            "trailers"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Steel",
+                                            "load_capacity": "20 tons"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/trailers/wielton.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Traktor New Holland",
+                                        "description": "Dok\u0142adny opis techniczny traktora New Holland z wszystkimi specyfikacjami.",
+                                        "short_description": "Mocny traktor New Holland.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz traktora New Holland",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "tractors",
+                                        "taxons": [
+                                            "tractors"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal",
+                                            "horsepower": "160 HP"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/tractors/new_holland.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Kombajn New Holland",
+                                        "description": "Dok\u0142adny opis kombajnu New Holland ze szczeg\u00f3\u0142ami technicznymi i danymi.",
+                                        "short_description": "Wydajny kombajn New Holland.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz kombajnu New Holland",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "harvesters",
+                                        "taxons": [
+                                            "harvesters"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal",
+                                            "harvesting_capacity": "9 tons/hour"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/harvesters/new_holland.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "P\u0142ug Grimme",
+                                        "description": "P\u0142ug Grimme z detaliami na temat wytrzyma\u0142o\u015bci i efektywno\u015bci pracy.",
+                                        "short_description": "Wytrzyma\u0142y p\u0142ug Grimme.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz p\u0142uga Grimme",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "plows",
+                                        "taxons": [
+                                            "plows"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Steel",
+                                            "furrow_width": "14 inches"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/plows/grimme.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Siewnik V\u00e4derstad",
+                                        "description": "Siewnik V\u00e4derstad z dok\u0142adnymi danymi technicznymi dotycz\u0105cymi wysiewu.",
+                                        "short_description": "Precyzyjny siewnik V\u00e4derstad.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz siewnika V\u00e4derstad",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "seeders",
+                                        "taxons": [
+                                            "seeders"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal and Plastic",
+                                            "seeding_width": "4.5 meters"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/seeders/vaderstad.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Przyczepa Zas\u0142aw",
+                                        "description": "Szczeg\u00f3\u0142owy opis przyczepy Zas\u0142aw z danymi dotycz\u0105cymi \u0142adowno\u015bci i budowy.",
+                                        "short_description": "Solidna przyczepa Zas\u0142aw.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz przyczepy Zas\u0142aw",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "trailers",
+                                        "taxons": [
+                                            "trailers"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Steel",
+                                            "load_capacity": "18 tons"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/trailers/zaslaw.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Traktor Kubota",
+                                        "description": "Dok\u0142adny opis techniczny traktora Kubota z wszystkimi specyfikacjami.",
+                                        "short_description": "Mocny traktor Kubota.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz traktora Kubota",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "tractors",
+                                        "taxons": [
+                                            "tractors"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal",
+                                            "horsepower": "140 HP"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/tractors/kubota.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Kombajn Massey Ferguson",
+                                        "description": "Dok\u0142adny opis kombajnu Massey Ferguson ze szczeg\u00f3\u0142ami technicznymi i danymi.",
+                                        "short_description": "Wydajny kombajn Massey Ferguson.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz kombajnu Massey Ferguson",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "harvesters",
+                                        "taxons": [
+                                            "harvesters"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal",
+                                            "harvesting_capacity": "7 tons/hour"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/harvesters/massey_ferguson.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "P\u0142ug Kverneland",
+                                        "description": "P\u0142ug Kverneland z detaliami na temat wytrzyma\u0142o\u015bci i efektywno\u015bci pracy.",
+                                        "short_description": "Wytrzyma\u0142y p\u0142ug Kverneland.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz p\u0142uga Kverneland",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "plows",
+                                        "taxons": [
+                                            "plows"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Steel",
+                                            "furrow_width": "17 inches"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/plows/kverneland.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Siewnik Horsch",
+                                        "description": "Siewnik Horsch z dok\u0142adnymi danymi technicznymi dotycz\u0105cymi wysiewu.",
+                                        "short_description": "Precyzyjny siewnik Horsch.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz siewnika Horsch",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "seeders",
+                                        "taxons": [
+                                            "seeders"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Metal and Plastic",
+                                            "seeding_width": "3.5 meters"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/seeders/horsch.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Przyczepa BSS",
+                                        "description": "Szczeg\u00f3\u0142owy opis przyczepy BSS z danymi dotycz\u0105cymi \u0142adowno\u015bci i budowy.",
+                                        "short_description": "Solidna przyczepa BSS.",
+                                        "img_prompt": "realistyczny i szczeg\u00f3\u0142owy obraz przyczepy BSS",
+                                        "tax_category": "default_tax_category",
+                                        "main_taxon": "trailers",
+                                        "taxons": [
+                                            "trailers"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Steel",
+                                            "load_capacity": "12 tons"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://images.example.com/trailers/bss.jpg"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "readyToUse": false,
+    "createdAt": "2025-06-27T16:28:42+00:00",
+    "updatedAt": "2025-06-27T16:28:42+00:00"
+}

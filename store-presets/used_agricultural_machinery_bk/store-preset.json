@@ -1,0 +1,350 @@
+{
+    "name": "used_agricultural_machinery",
+    "plugins": [],
+    "themes": [],
+    "fixtures": {
+        "sylius_fixtures": {
+            "suites": {
+                "used_agricultural_machinery": {
+                    "listeners": {
+                        "orm_purger": null,
+                        "images_purger": null,
+                        "logger": null
+                    },
+                    "fixtures": {
+                        "locale": {
+                            "options": {
+                                "locales": [
+                                    "pl_PL",
+                                    "en_US",
+                                    "cs_CZ"
+                                ]
+                            }
+                        },
+                        "currency": {
+                            "options": {
+                                "currencies": [
+                                    "PLN",
+                                    "EUR",
+                                    "CZK"
+                                ]
+                            }
+                        },
+                        "geographical": {
+                            "options": {
+                                "countries": [
+                                    "PL",
+                                    "CZ"
+                                ],
+                                "zones": {
+                                    "WORLD": {
+                                        "name": "World zone",
+                                        "countries": [
+                                            "PL",
+                                            "CZ"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "menu_taxon": {
+                            "name": "taxon",
+                            "options": {
+                                "custom": {
+                                    "category": {
+                                        "code": "agri_mach",
+                                        "name": "Agricultural Machinery",
+                                        "translations": {
+                                            "pl_PL": {
+                                                "name": "Maszyny Rolnicze"
+                                            },
+                                            "en_US": {
+                                                "name": "Zem\u011bd\u011blsk\u00e9 Stroje"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "channel": {
+                            "options": {
+                                "custom": {
+                                    "UAM_STORE": {
+                                        "name": "Used Agricultural Machinery Store",
+                                        "code": "UAM_STORE",
+                                        "locales": [
+                                            "pl_PL",
+                                            "en_US",
+                                            "cs_CZ"
+                                        ],
+                                        "currencies": [
+                                            "PLN",
+                                            "EUR",
+                                            "CZK"
+                                        ],
+                                        "enabled": true,
+                                        "hostname": "usedagri.local",
+                                        "theme_name": "agri_theme"
+                                    }
+                                }
+                            }
+                        },
+                        "payment_method": {
+                            "options": {
+                                "custom": {
+                                    "cash_on_delivery": {
+                                        "code": "cash_on_delivery",
+                                        "name": "Cash on Delivery"
+                                    },
+                                    "bank_transfer": {
+                                        "code": "bank_transfer",
+                                        "name": "Bank Transfer"
+                                    }
+                                }
+                            }
+                        },
+                        "shipping_method": {
+                            "options": {
+                                "custom": {
+                                    "standard_shipping": {
+                                        "code": "standard_shipping",
+                                        "name": "Standard Shipping"
+                                    }
+                                }
+                            }
+                        },
+                        "tax_category": {
+                            "options": {
+                                "custom": {
+                                    "standard_tax": {
+                                        "code": "standard_tax",
+                                        "name": "Standard Tax"
+                                    }
+                                }
+                            }
+                        },
+                        "tax_rate": {
+                            "options": {
+                                "custom": {
+                                    "standard_tax_rate": {
+                                        "name": "Standard Tax Rate",
+                                        "zone": "WORLD",
+                                        "category": "standard_tax",
+                                        "amount": 0.23
+                                    }
+                                }
+                            }
+                        },
+                        "taxon-traktory": {
+                            "options": {
+                                "custom": {
+                                    "slug": {
+                                        "code": "tractors",
+                                        "name": "Traktory",
+                                        "slug": "traktory",
+                                        "translations": [
+                                            "Tractors",
+                                            "Traktory"
+                                        ]
+                                    }
+                                }
+                            },
+                            "name": "taxon"
+                        },
+                        "taxon-kombajny": {
+                            "options": {
+                                "custom": {
+                                    "slug": {
+                                        "code": "combines",
+                                        "name": "Kombajny",
+                                        "slug": "kombajny",
+                                        "translations": [
+                                            "Combines",
+                                            "Kombajny"
+                                        ]
+                                    }
+                                }
+                            },
+                            "name": "taxon"
+                        },
+                        "taxon-plugi": {
+                            "options": {
+                                "custom": {
+                                    "slug": {
+                                        "code": "plows",
+                                        "name": "P\u0142ugi",
+                                        "slug": "plugi",
+                                        "translations": [
+                                            "Plows",
+                                            "P\u016fdy"
+                                        ]
+                                    }
+                                }
+                            },
+                            "name": "taxon"
+                        },
+                        "taxon-brony": {
+                            "options": {
+                                "custom": {
+                                    "slug": {
+                                        "code": "harrows",
+                                        "name": "Brony",
+                                        "slug": "brony",
+                                        "translations": [
+                                            "Harrows",
+                                            "Br\u00e1ny"
+                                        ]
+                                    }
+                                }
+                            },
+                            "name": "taxon"
+                        },
+                        "taxon-prasy-do-bel": {
+                            "options": {
+                                "custom": {
+                                    "slug": {
+                                        "code": "balers",
+                                        "name": "Prasy do bel",
+                                        "slug": "prasy-do-bel",
+                                        "translations": [
+                                            "Balers",
+                                            "Lisova\u010de"
+                                        ]
+                                    }
+                                }
+                            },
+                            "name": "taxon"
+                        },
+                        "product_attribute": {
+                            "name": "product_attribute",
+                            "options": {
+                                "custom": [
+                                    {
+                                        "code": "material",
+                                        "name": "Material",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "code": "weight_kg",
+                                        "name": "Weight_kg",
+                                        "type": "text"
+                                    }
+                                ]
+                            }
+                        },
+                        "tshirt_product": {
+                            "name": "product",
+                            "options": {
+                                "custom": [
+                                    {
+                                        "name": "Vintage Tractor Model A",
+                                        "description": "An enduring power machine perfect for historic fields, providing both performance and nostalgia.",
+                                        "short_description": "A reliable vintage tractor ideal for any farming history aficionado.",
+                                        "img_prompt": "A classic vintage tractor against a scenic farm background.",
+                                        "tax_category": "standard_tax",
+                                        "main_taxon": "tractors",
+                                        "taxons": [
+                                            "agri_mach_all"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Iron",
+                                            "weight_kg": "1500"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://example.com/images/tractor1.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Modern Hydraulic Combine",
+                                        "description": "Efficient and robust, this combine harvester offers advanced features for modern agriculture.",
+                                        "short_description": "Modern technology in harvest, combined in a single machine.",
+                                        "img_prompt": "A state-of-the-art combine harvester working in a golden wheat field.",
+                                        "tax_category": "standard_tax",
+                                        "main_taxon": "combines",
+                                        "taxons": [
+                                            "agri_mach_all"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Aluminum",
+                                            "weight_kg": "4000"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://example.com/images/combine1.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Heavy Duty Plow",
+                                        "description": "A must-have plow for tougher grounds, ensuring smooth and deep cuts for better soil preparation.",
+                                        "short_description": "Durable plow for the toughest soils.",
+                                        "img_prompt": "A robust plow cutting through rich soil, showcasing its strength.",
+                                        "tax_category": "standard_tax",
+                                        "main_taxon": "plows",
+                                        "taxons": [
+                                            "agri_mach_all"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Steel",
+                                            "weight_kg": "600"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://example.com/images/plow1.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Double Row Harrow",
+                                        "description": "Perfect for leveling and smoothing the soil, this harrow is efficient and enduring for all farm sizes.",
+                                        "short_description": "Fine-tune your soil with this double-row harrow.",
+                                        "img_prompt": "A double row harrow in action across a fertile land.",
+                                        "tax_category": "standard_tax",
+                                        "main_taxon": "harrows",
+                                        "taxons": [
+                                            "agri_mach_all"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Steel",
+                                            "weight_kg": "350"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://example.com/images/harrow1.jpg"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Efficient Round Baler",
+                                        "description": "Quick and reliable, this baler creates perfectly sized bales for transport and storage.",
+                                        "short_description": "The baler that always delivers perfectly formed bales.",
+                                        "img_prompt": "A round baler in motion creating uniform bales in a field.",
+                                        "tax_category": "standard_tax",
+                                        "main_taxon": "balers",
+                                        "taxons": [
+                                            "agri_mach_all"
+                                        ],
+                                        "product_attributes": {
+                                            "material": "Iron",
+                                            "weight_kg": "1200"
+                                        },
+                                        "images": [
+                                            {
+                                                "path": "https://example.com/images/baler1.jpg"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "readyToUse": false,
+    "createdAt": "2025-06-27T07:14:40+00:00",
+    "updatedAt": "2025-06-27T07:14:40+00:00"
+}

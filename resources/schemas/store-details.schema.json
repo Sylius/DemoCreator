@@ -1,0 +1,109 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Update Store Details Parameters",
+    "type": "object",
+    "properties": {
+        "industry": {
+            "type": "string"
+        },
+        "locales": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "currencies": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "countries": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "categories": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ]
+            }
+        },
+        "productsPerCat": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "descriptionStyle": {
+            "type": "string"
+        },
+        "imageStyle": {
+            "type": "string"
+        },
+        "themePreferences": {
+            "type": "object",
+            "description": "Preferencje dotyczące wyglądu sklepu, theme, branding, logo, banner, kolory, styl.",
+            "properties": {
+                "style": {
+                    "type": "string",
+                    "description": "Nazwa stylu, np. modern, minimalist, classic"
+                },
+                "primaryColor": {
+                    "type": "string",
+                    "description": "Główny kolor (hex)"
+                },
+                "secondaryColor": {
+                    "type": "string",
+                    "description": "Kolor dodatkowy (hex)"
+                },
+                "logoPrompt": {
+                    "type": "string",
+                    "description": "Prompt do wygenerowania logo"
+                },
+                "bannerPrompt": {
+                    "type": "string",
+                    "description": "Prompt do wygenerowania baneru"
+                },
+                "referenceBrandUrl": {
+                    "type": "string",
+                    "description": "URL do brandu referencyjnego (np. Einhell.de)"
+                }
+            },
+            "additionalProperties": true
+        }
+    },
+    "required": [
+        "industry",
+        "locales",
+        "currencies",
+        "countries",
+        "categories",
+        "productsPerCat",
+        "descriptionStyle",
+        "imageStyle"
+    ]
+}

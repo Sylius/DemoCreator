@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO="Sylius/StorePreset"
+BRANCH="main"
+TARGET_DIR="store-presets"
+ZIP_URL="https://github.com/$REPO/archive/refs/heads/$BRANCH.zip"
+
+TMP_DIR=$(mktemp -d)
+ZIP_FILE="$TMP_DIR/archive.zip"
+
+echo "Downloading $REPO#$BRANCH → $TARGET_DIR/"
+curl -L "$ZIP_URL" -o "$ZIP_FILE"
+
+echo "Extracting archive..."
+unzip -q "$ZIP_FILE" -d "$TMP_DIR"
+
+EXTRACTED_DIR="$TMP_DIR/$(basename "$REPO")-$BRANCH"
+
+echo "Cleaning any existing $TARGET_DIR directory..."
+rm -rf "$TARGET_DIR"
+
+echo "Moving presets folder..."
+mv "$EXTRACTED_DIR/$TARGET_DIR" "$TARGET_DIR"
+
+echo "Removing temporary files..."
+rm -rf "$TMP_DIR"
+
+echo "Done!"

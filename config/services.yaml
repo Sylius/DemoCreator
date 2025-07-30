@@ -1,7 +1,5 @@
 parameters:
-    platform.project_id: '%env(PLATFORM_PROJECT_ID)%'
-    platform.sylius_branch: '%env(SYLIUS_BRANCH)%'
-    platform.cli_token:   '%env(PLATFORMSH_CLI_TOKEN)%'
+    store_deployer.target: '%env(STORE_DEPLOY_TARGET)%'
 
 services:
     _defaults:
@@ -12,25 +10,31 @@ services:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
-            - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/StoreDesigner/Dto/'
+            - '../src/StoreDesigner/Message/'
 
 
-    Platformsh\Client\Connection\Connector:
+    App\StoreDeployer\Controller\:
+        resource: '../src/StoreDeployer/Controller'
+        tags: ['controller.service_arguments']
+    App\StoreDesigner\Controller\:
+        resource: '../src/StoreDesigner/Controller'
+        tags: ['controller.service_arguments']
+
+    App\StoreDeployer\Deployer\DynamicStoreDeployer:
         arguments:
-            $config:
-                api_url: 'https://api.platform.sh'
-                accounts: 'https://api.platform.sh/'
-                centralized_permissions_enabled: true
+            $locator: !tagged_locator
+                tag: 'store_deployer.deployer'
+                index_by: 'index'
+            $target:  '%store_deployer.target%'
 
-    Platformsh\Client\PlatformClient:
-        arguments:
-            $connector: '@Platformsh\Client\Connection\Connector'
+    App\StoreDeployer\Deployer\StoreDeployerInterface: '@App\StoreDeployer\Deployer\DynamicStoreDeployer'
 
-    App\Service\DemoDeployer\PlatformShDeployer:
-        arguments:
-            $projectId:    '%platform.project_id%'
-            $platformCliToken:   '%platform.cli_token%'
-            $projectDir: '%kernel.project_dir%'
+    App\StoreDeployer\Deployer\LocalDeployer:
         tags:
-            - { name: 'app.demo_deployer', alias: 'platformsh' }
+            - { name: 'store_deployer.deployer', index: 'local' }
+
+    App\StoreDeployer\Deployer\PlatformShDeployer:
+        tags:
+            - { name: 'store_deployer.deployer', index: 'platformsh' }

@@ -1,7 +1,0 @@
-framework:
-    messenger:
-        default_bus: messenger.bus.default
-        transports:
-            async: '%env(MESSENGER_TRANSPORT_DSN)%'
-            sync: 'null://'
-        routing: ~
