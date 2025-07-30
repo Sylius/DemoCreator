@@ -2,11 +2,12 @@
 set -euo pipefail
 
 # 1. Repository setup
-APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Use current working directory instead of BASH_SOURCE (supports one-liner execution)
+APP_DIR="$(pwd)"
 REPO_URL="https://github.com/Sylius/DemoCreator.git"
 BRANCH="main-v4"
 
-echo -e "\n🔍 1. Cloning the repository and switching to branch '$BRANCH'..."
+echo -e "\n🔍 1. Cloning the repository into '$APP_DIR' and switching to branch '$BRANCH'..."
 if [ ! -d "$APP_DIR/.git" ]; then
   git clone --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
 else
@@ -36,7 +37,7 @@ fi
 
 # 2.2 Ask for specific values based on target
 if [ "$DEPLOY_TARGET" = "local" ]; then
-  read -r -p "Enter the ABSOLUTE path to your local project (leave empty to skip): " LOCAL_PROJECT_PATH
+  read -r -p "Enter the ABSOLUTE path to your local project (edit if different, leave empty to skip): " LOCAL_PROJECT_PATH
   # must be an absolute path, e.g. /Users/yourname/sylius-standard_my_project
   LOCAL_PROJECT_PATH=${LOCAL_PROJECT_PATH:-}
   PLATFORMSH_CLI_TOKEN=""
@@ -70,7 +71,7 @@ npm install
 echo -e "\n🚧 5. Building frontend assets..."
 npm run build
 
-# 6. Start server and open browser dynamically based on actual URL
+# 6. Start server and open browser dynamically
 echo -e "\n🚀 6. Starting development server..."
 if command -v symfony >/dev/null 2>&1; then
   symfony serve --allow-http --dir=public --daemon
