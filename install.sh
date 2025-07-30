@@ -4,8 +4,8 @@ set -euo pipefail
 # ----------------------------------------------------------------------------
 # 0. Project directory setup
 # ----------------------------------------------------------------------------
-read -r -p "Enter project directory name [DemoCreator]: " PROJECT_DIR
-PROJECT_DIR=${PROJECT_DIR:-DemoCreator}
+read -r -p "Enter project directory name [StoreWizard]: " PROJECT_DIR
+PROJECT_DIR=${PROJECT_DIR:-StoreWizard}
 ROOT_DIR="$(pwd)"
 APP_DIR="$ROOT_DIR/$PROJECT_DIR"
 
