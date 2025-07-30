@@ -93,7 +93,7 @@ final readonly class PlatformShDeployer implements StoreDeployerInterface
     private function cloneSyliusRepository(): void
     {
         $cmd = sprintf(
-            'git clone --branch %s --depth 1 %s %s',
+            'git clone --branch %s %s %s',
             escapeshellarg(self::SYLIUS_BRANCH),
             escapeshellarg(self::SYLIUS_REPOSITORY),
             escapeshellarg($this->getSyliusProjectDirectory())
@@ -108,7 +108,7 @@ final readonly class PlatformShDeployer implements StoreDeployerInterface
         $dir = $this->getSyliusProjectDirectory();
         $cmds = [
             sprintf('cd %s', escapeshellarg($dir)),
-            'git fetch --depth 1 origin ' . self::SYLIUS_BRANCH,
+            'git fetch origin ' . self::SYLIUS_BRANCH,
             'git checkout ' . self::SYLIUS_BRANCH,
             'git reset --hard origin/' . self::SYLIUS_BRANCH,
             'git clean -fd',
