@@ -21,7 +21,7 @@ final readonly class PlatformShDeployer implements StoreDeployerInterface
 //    private const SYLIUS_REPOSITORY = 'https://github.com/Sylius/Sylius-Standard.git';
     private const SYLIUS_REPOSITORY = 'git@github.com:Sylius/Sylius-Standard.git';
 
-    private const SYLIUS_BRANCH = '2.0';
+    private const SYLIUS_BRANCH = '2.1';
 
     private const STORE_ASSEMBLER_PACKAGE = 'sylius/store-assembler:dev-main-v4';
 
@@ -42,6 +42,7 @@ final readonly class PlatformShDeployer implements StoreDeployerInterface
         $this->copyPresetToProject($storePresetId, $this->getSyliusProjectDirectory());
         $this->updatePlatformAppYaml();
         $this->requireStoreAssemblerPackage();
+        $this->conflictSymfonyUxVersion();
         $this->commitStore($storePresetId);
         $this->pushSylius();
 
@@ -241,5 +242,25 @@ final readonly class PlatformShDeployer implements StoreDeployerInterface
             ->setTimeout(0)
             ->mustRun()
         ;
+    }
+
+    private function conflictSymfonyUxVersion(): void
+    {
+        $dir = $this->getSyliusProjectDirectory();
+        $composerJsonPath = Path::join($dir, 'composer.json');
+        if (!file_exists($composerJsonPath)) {
+            throw new DemoDeploymentException(sprintf(
+                'Composer configuration not found at %s',
+                $composerJsonPath
+            ));
+        }
+
+        $composerJson = json_decode(file_get_contents($composerJsonPath), true);
+        if (isset($composerJson['conflict']['symfony/ux-twig-component'])) {
+            return;
+        }
+
+        $composerJson['conflict']['symfony/ux-twig-component'] = '>=2.28.0';
+        file_put_contents($composerJsonPath, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 }

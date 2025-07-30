@@ -1,4 +1,4 @@
-import {useState, useCallback, useContext} from 'react';
+import {useState, useEffect, useCallback, useContext} from 'react';
 import {WizardContext} from "../../hooks/WizardProvider";
 import {motion} from 'framer-motion';
 import wizardStepVariants from './wizardStepVariants';
@@ -13,6 +13,29 @@ export default function StoreSummaryStep() {
         deployStore,
     } = useStorePreset();
     const [localError, setLocalError] = useState(null);
+
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+    useEffect(() => {
+        let timer;
+        if (wiz.state === 'generating' || wiz.state === 'deploying') {
+            setElapsedSeconds(0);
+            timer = setInterval(() => {
+                setElapsedSeconds((s) => s + 1);
+            }, 1000);
+        }
+        return () => {
+            if (timer) clearInterval(timer);
+        };
+    }, [wiz.state]);
+
+    const formatElapsed = (secs) => {
+        const minutes = Math.floor(secs / 60);
+        const seconds = secs % 60;
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+const expectedTimeMinutes = Math.ceil(3 + ((wiz.storeDetails?.categories?.length || 0) * (wiz.storeDetails?.productsPerCat || 0) / 5));
 
     const prettify = (name) =>
         name
@@ -77,7 +100,9 @@ export default function StoreSummaryStep() {
             content = (
                 <div className="flex flex-col items-center py-6">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-teal-600 mb-4" />
-                    <p className="text-gray-700 font-semibold">Generating store and images…</p>
+                    <p className="text-gray-700 font-semibold mb-2">Generating store and images…</p>
+                    <p className="text-gray-700 font-semibold mb-1">Elapsed time: {formatElapsed(elapsedSeconds)}</p>
+                    <p className="text-gray-700 font-semibold">Expected time: {expectedTimeMinutes} min</p>
                 </div>
             );
             break;
@@ -97,8 +122,9 @@ export default function StoreSummaryStep() {
         case 'deploying':
             content = (
                 <div className="flex flex-col items-center py-6">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-teal-600 mb-4" />
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-teal-600 mb-4"/>
                     <p className="text-gray-700 font-semibold">Deploying store…</p>
+                    <p className="text-gray-700 font-semibold mb-1">Elapsed time: {formatElapsed(elapsedSeconds)}</p>
                 </div>
             );
             break;

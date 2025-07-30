@@ -64,7 +64,7 @@ final class FixtureParser
         }
 
         if (!empty($inputData['menuTaxon'])) {
-            $fixtures += $this->buildMenuTaxonFixture($inputData['menuTaxon'], $inputData['locales']);
+            $fixtures += $this->buildMenuTaxonFixture($inputData['menuTaxon'], $inputData['categories'], $inputData['locales']);
         }
 
         if (!empty($inputData['channel'])) {
@@ -149,7 +149,7 @@ final class FixtureParser
         ];
     }
 
-    private function buildMenuTaxonFixture(array $menuTaxon, array $locales): array
+    private function buildMenuTaxonFixture(array $menuTaxon, $categories, array $locales): array
     {
         return [
             'menu_taxon' => [
@@ -160,6 +160,10 @@ final class FixtureParser
                             'code' => 'MENU_CATEGORY',
                             'name' => $menuTaxon['name'],
                             'translations' => $this->mapTranslations($menuTaxon['translations'], $locales),
+                            'children' => array_map(
+                                fn(array $category) => ['code' => $category['code']],
+                                $categories,
+                            ),
                         ],
                     ],
                 ],
