@@ -94,7 +94,7 @@ export function useConversation() {
             if (Array.isArray(data.messages)) {
                 setMessages(data.messages);
             } else {
-                setError("Missing 'messages' in API response");
+                setError(data.details);
             }
         } catch (err) {
             setError(err.message || "Unknown error");

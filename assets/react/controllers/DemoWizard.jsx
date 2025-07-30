@@ -33,7 +33,7 @@ const stepDescriptions = [
     'Plugins are optional. You can select any to include, or proceed without plugins.',
     'Provide a description of your store and its details.',
     'Summary of your store interview and configuration.',
-    'Review and confirm your settings before launching your demo store.'
+    'Confirm your store and proceed to generation.',
 ];
 
 export default function DemoWizard() {

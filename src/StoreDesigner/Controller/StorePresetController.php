@@ -13,10 +13,10 @@ use App\StoreDesigner\Parser\FixtureParser;
 use App\StoreDesigner\Resolver\StoreDetailsDtoResolver;
 use App\StoreDesigner\Service\StorePresetManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StorePresetController extends AbstractController
@@ -25,13 +25,17 @@ class StorePresetController extends AbstractController
         private readonly StorePresetManager $storePresetManager,
         private readonly StoreGenerationOrchestrator $storeGenerationOrchestrator,
         private readonly StorePresetFactory $storePresetFactory,
+        #[Autowire(env: 'STORE_DEPLOY_TARGET')] private readonly string $deployTarget,
     ) {
     }
 
     #[Route('/api/store-presets', name: 'create_store_preset', methods: ['POST'])]
     public function createPreset(): JsonResponse
     {
-        return $this->json(['storePresetId' => $this->storePresetFactory->create()]);
+        return $this->json([
+            'storePresetId' => $this->storePresetFactory->create(),
+            'deployTarget' => $this->deployTarget,
+            ]);
     }
 
     #[Route('/api/store-presets/{presetId}', name: 'update_store_preset', methods: ['PATCH'])]
@@ -69,41 +73,5 @@ class StorePresetController extends AbstractController
         $storeFilesystemPersister->saveFixtures($presetId, $fixtures);
 
         return $this->json(['status' => 'ok']);
-    }
-
-    #[Route('/api/store-presets/{id}/generate-images', name: 'generate_store_preset_images', methods: ['POST'])]
-    public function generateImages(string $id, MessageBusInterface $messageBus): JsonResponse
-    {
-        set_time_limit(600);
-        ini_set('max_execution_time', '600');
-
-        $messageBus->dispatch(new GenerateProductImagesMessage($id));
-
-        return $this->json([
-            'status' => 'accepted',
-            'presetId' => $id,
-        ], 202);
-    }
-
-    #[Route('/api/store-presets/{id}/generate-banner', name: 'generate_store_preset_banner', methods: ['POST'])]
-    public function generateBanner(string $id, MessageBusInterface $messageBus): JsonResponse
-    {
-        $messageBus->dispatch(new GenerateBannerImageMessage($id));
-
-        return $this->json([
-            'status' => 'accepted',
-            'presetId' => $id,
-        ], 202);
-    }
-
-    #[Route('/api/store-presets/{id}/generate-logo', name: 'generate_store_preset_logo', methods: ['POST'])]
-    public function generateLogo(string $id, MessageBusInterface $messageBus): JsonResponse
-    {
-        $messageBus->dispatch(new GenerateLogoImageMessage($id));
-
-        return $this->json([
-            'status' => 'accepted',
-            'presetId' => $id,
-        ], 202);
     }
 }

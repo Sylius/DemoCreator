@@ -11,7 +11,6 @@ use App\StoreDesigner\Dto\StoreDetailsDto;
 use App\StoreDesigner\Util\FileResourceLoader;
 use App\StoreDesigner\Util\PromptPath;
 use App\StoreDesigner\Util\SchemaPath;
-use Random\RandomException;
 
 final readonly class ChatConversationService
 {
@@ -21,17 +20,12 @@ final readonly class ChatConversationService
     ) {
     }
 
-    /**
-     * @throws RandomException
-     * @throws \JsonException
-     */
     public function processConversation(ChatConversationDto $data): ChatConversationDto
     {
         $conversationId = $data->conversationId ?? bin2hex(random_bytes(16));
         $messages = $data->messages ?? [];
         $storeDetails = $data->storeDetails;
         $state = $data->state ?? ChatConversationState::Collecting;
-        $error = $data->error;
 
         if (empty($messages) || ($messages[0]['role'] ?? '') !== 'system') {
             array_unshift($messages, [
@@ -93,7 +87,7 @@ final readonly class ChatConversationService
             messages: $messages,
             storeDetails: $storeDetails,
             state: $state,
-            error: $error,
+            error: $error ?? null,
         );
     }
 

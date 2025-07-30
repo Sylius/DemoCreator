@@ -91,7 +91,7 @@ const expectedTimeMinutes = Math.ceil(3 + ((wiz.storeDetails?.categories?.length
                     disabled={presetLoading}
                     className="w-full py-2 rounded-lg font-medium bg-teal-600 hover:bg-teal-700 text-white disabled:opacity-50"
                 >
-                    {presetLoading ? 'Initializing...' : 'Begin Store Generation'}
+                    {presetLoading ? 'Initializing...' : 'Begin'}
                 </button>
             );
             break;
@@ -114,7 +114,7 @@ const expectedTimeMinutes = Math.ceil(3 + ((wiz.storeDetails?.categories?.length
                     disabled={presetLoading}
                     className="w-full py-2 rounded-lg font-medium bg-teal-600 hover:bg-teal-700 text-white disabled:opacity-50"
                 >
-                    {presetLoading ? 'Initializing...' : 'Begin Store Deployment'}
+                    {presetLoading ? 'Initializing...' : 'Deploy'}
                 </button>
             );
             break;
@@ -131,10 +131,18 @@ const expectedTimeMinutes = Math.ceil(3 + ((wiz.storeDetails?.categories?.length
 
         case 'complete':
             content = (
+                <>
                 <div className="flex flex-col items-center py-6">
                     <div className="text-green-600 text-3xl mb-2">🚀</div>
                     <p className="text-green-700 font-semibold">Store successfully deployed!</p>
                 </div>
+                <button
+                  onClick={() => window.open('http://localhost:8000', '_blank')}
+                  className="w-full py-2 rounded-lg font-medium bg-teal-600 hover:bg-teal-700 text-white mt-4"
+                >
+                  Open Project
+                </button>
+                </>
             );
             break;
 
@@ -169,27 +177,32 @@ const expectedTimeMinutes = Math.ceil(3 + ((wiz.storeDetails?.categories?.length
             className="p-4"
         >
             <div className="sticky top-0 mx-auto mb-4 bg-white shadow-md px-6 py-4 rounded-lg max-w-lg">
-                <h2 className="text-2xl font-bold text-center text-teal-700 mb-4">Store Summary & Generation</h2>
-                <div className="bg-white rounded-xl shadow p-6 border mb-6 mx-auto max-w-md">
+                <div className="bg-white mb-12 mx-auto max-w-md">
                     <h3 className="font-semibold text-gray-800 text-center mb-2">Selected Plugins</h3>
                     {Object.keys(wiz.plugins).length === 0 ? (
-                        <p className="text-center">-</p>
+                        <p className="text-center">None</p>
                     ) : (
-                        <ul className="list-disc list-inside text-sm text-gray-700 mx-auto max-w-xs">
+                        <ul className="list-disc list-inside text-sm text-gray-700 pl-4 max-w-xs">
                             {Object.entries(wiz.plugins).map(([pkg, ver]) => (
-                                <li key={pkg} className="text-center">
+                                <li key={pkg} className="text-left mb-1">
                                     {prettify(pkg)} ({ver})
                                 </li>
                             ))}
                         </ul>
                     )}
+                    <h3 className="font-semibold text-gray-800 text-center mb-2 mt-8">Deploy Target</h3>
+                    <p className="text-center text-sm text-gray-600">
+                        {wiz.storeDetails?.target || 'Local'}
+                    </p>
                 </div>
                 {content}
-                <div className="flex justify-between mt-6">
-                    <button onClick={back} className="text-teal-600 hover:underline text-sm">
-                        ← Back
-                    </button>
-                </div>
+                {wiz.state === 'ready' && (
+                    <div className="flex justify-between mt-6">
+                        <button onClick={back} className="text-teal-600 hover:underline text-sm">
+                            ← Back
+                        </button>
+                    </div>
+                )}
             </div>
         </motion.div>
     );

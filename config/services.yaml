@@ -1,5 +1,5 @@
 parameters:
-    store_deployer.target: '%env(STORE_DEPLOYER_TARGET)%'
+    store_deployer.target: '%env(STORE_DEPLOY_TARGET)%'
 
 services:
     _defaults:

@@ -16,7 +16,7 @@ final readonly class LocalDeployer implements StoreDeployerInterface
     use StorePresetCopierTrait;
 
     public function __construct(
-        #[Autowire(env: 'STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH')]
+        #[Autowire(env: 'STORE_DEPLOY_TARGET_LOCAL_PROJECT_PATH')]
         private string $syliusProjectPath,
         private PathResolver $pathResolver,
         private Filesystem $filesystem,

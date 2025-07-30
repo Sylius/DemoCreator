@@ -3,6 +3,7 @@ import {WizardContext} from "./WizardProvider";
 
 export function useStorePreset() {
     const [presetId, setPresetId] = useState(() => localStorage.getItem('presetId') || null);
+    const [deployTarget, setDeployTarget] = useState(() => localStorage.getItem('deployTarget') || null);
     const [preset, setPreset] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -16,7 +17,9 @@ export function useStorePreset() {
                 .then(res => res.json())
                 .then(data => {
                     setPresetId(data.storePresetId);
+                    setDeployTarget(data.deployTarget || 'local');
                     localStorage.setItem('presetId', data.storePresetId);
+                    localStorage.setItem('deployTarget', data.deployTarget || 'local');
                 })
                 .catch(e => setError(e.message))
                 .finally(() => setLoading(false));
@@ -32,20 +35,6 @@ export function useStorePreset() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         })
-            .finally(() => setLoading(false));
-    }, [presetId]);
-
-    // Delete preset
-    const deletePreset = useCallback(() => {
-        if (!presetId) return;
-        setLoading(true);
-        fetch(`/api/store-presets/${presetId}`, { method: 'DELETE' })
-            .then(() => {
-                setPresetId(null);
-                setPreset(null);
-                localStorage.removeItem('presetId');
-            })
-            .catch(e => setError(e.message))
             .finally(() => setLoading(false));
     }, [presetId]);
 
@@ -107,8 +96,6 @@ export function useStorePreset() {
         loading,
         error,
         updatePreset,
-        deletePreset,
-        setPresetId,
         generateStore,
         deployStore,
     };
