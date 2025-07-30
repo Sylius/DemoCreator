@@ -18,7 +18,6 @@ final readonly class PlatformShDeployer implements StoreDeployerInterface
 {
     use StorePresetCopierTrait;
 
-//    private const SYLIUS_REPOSITORY = 'https://github.com/Sylius/Sylius-Standard.git';
     private const SYLIUS_REPOSITORY = 'git@github.com:Sylius/Sylius-Standard.git';
 
     private const SYLIUS_BRANCH = '2.1';
