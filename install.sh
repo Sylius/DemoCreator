@@ -43,11 +43,15 @@ cp .env .env.local
 
 echo -e "\n📝 2. Configuring sylius/store-creator settings..."
 
+# Color definitions for smoke test output
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+RESET=$'\033[0m'
+
 # 2.1 Choose deploy target (local/platformsh)
 read -r -p "Select deploy target (local/platformsh) [local]: " DEPLOY_TARGET
 DEPLOY_TARGET="$(printf '%s' "$DEPLOY_TARGET" | tr '[:upper:]' '[:lower:]')"
 DEPLOY_TARGET="${DEPLOY_TARGET:-local}"
-
 if [[ "$DEPLOY_TARGET" != "local" && "$DEPLOY_TARGET" != "platformsh" ]]; then
   echo "Invalid option, defaulting to 'local'."
   DEPLOY_TARGET="local"
@@ -67,8 +71,30 @@ else
   LOCAL_PROJECT_PATH=""
 fi
 
-# 2.3 Update .env.local with provided values (portable sed)
+# 2.3 Require OpenAI API key
+echo -e "\n💡 2.3 Configuring OpenAI API key (required)..."
+while true; do
+  read -r -p "Enter your OpenAI API key: " OPENAI_API_KEY
+  if [ -n "$OPENAI_API_KEY" ]; then
+    break
+  fi
+  echo "OpenAI API key is required."
+done
+
+# 2.3.1 Smoke test OpenAI key
+echo -e "\n🔎 2.3.1 Validating OpenAI API key against models endpoint..."
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" https://api.openai.com/v1/models)
+if [[ "$HTTP_STATUS" != "200" ]]; then
+  echo -e "${RED}Error:${RESET} OpenAI API key validation failed (HTTP status $HTTP_STATUS)."
+  exit 1
+fi
+echo -e "${GREEN}OpenAI API key validated successfully!${RESET}"
+
+# 2.4 Update .env.local with provided values
+
 echo -e "\nUpdating .env.local with your inputs..."
+# Deployer and Platform.sh
 if sed --version >/dev/null 2>&1; then
   # GNU sed
   sed -i -e "s|^STORE_DEPLOYER_TARGET=.*|STORE_DEPLOYER_TARGET=$DEPLOY_TARGET|" \
@@ -81,8 +107,14 @@ else
   sed -i '' -e "s|^STORE_DEPLOYER_TARGET=.*|STORE_DEPLOYER_TARGET=$DEPLOY_TARGET|" \
             -e "s|^STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=.*|STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=$LOCAL_PROJECT_PATH|" \
             -e "s|^PLATFORMSH_CLI_TOKEN=.*|PLATFORMSH_CLI_TOKEN=$PLATFORMSH_CLI_TOKEN|" \
-            -e "s|^PLATFORMSH_PROJECT_ID=.*|PLATFORMSH_PROJECT_ID=$PLATFORMSH_PROJECT_ID|" \
+            -e "s|^PLATFORMSH_PROJECT_ID=.*|STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=$PLATFORMSH_PROJECT_ID|" \
             .env.local
+fi
+# OpenAI key: replace or append
+if grep -q '^OPENAI_API_KEY=' .env.local; then
+  sed -i'' -e "s|^OPENAI_API_KEY=.*|OPENAI_API_KEY=$OPENAI_API_KEY|" .env.local
+else
+  echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env.local
 fi
 
 echo ".env.local is ready!"
@@ -113,7 +145,7 @@ if command -v symfony >/dev/null 2>&1; then
   symfony serve --allow-http --dir=public --daemon
   sleep 2
   URL=$(symfony server:list --no-ansi | grep -oE 'https?://[0-9\.]+:[0-9]+' | head -n1)
-  if [ -z "$URL" ]; then
+  if [[ -z "$URL" ]]; then
     echo "Could not detect server URL, defaulting to http://127.0.0.1:8000"
     URL="http://127.0.0.1:8000"
   fi
