@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
-final readonly class LocalhostDeployer implements StoreDeployerInterface
+final readonly class LocalDeployer implements StoreDeployerInterface
 {
     use StorePresetCopierTrait;
 

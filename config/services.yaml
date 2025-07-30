@@ -31,9 +31,9 @@ services:
 
     App\StoreDeployer\Deployer\StoreDeployerInterface: '@App\StoreDeployer\Deployer\DynamicStoreDeployer'
 
-    App\StoreDeployer\Deployer\LocalhostDeployer:
+    App\StoreDeployer\Deployer\LocalDeployer:
         tags:
-            - { name: 'store_deployer.deployer', index: 'localhost' }
+            - { name: 'store_deployer.deployer', index: 'local' }
 
     App\StoreDeployer\Deployer\PlatformShDeployer:
         tags:
