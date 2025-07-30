@@ -25,7 +25,7 @@ BRANCH="main-v4"
 
 echo -e "\n🔍 1. Cloning the repository into '$APP_DIR' and switching to branch '$BRANCH'..."
 if [ ! -d ".git" ]; then
-  git clone --branch "$BRANCH" "$REPO_URL" .
+  git clone --depth 1 --branch "$BRANCH" "$REPO_URL" .
 else
   git fetch origin
   git checkout "$BRANCH"
