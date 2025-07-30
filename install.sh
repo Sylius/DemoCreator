@@ -67,12 +67,23 @@ else
   LOCAL_PROJECT_PATH=""
 fi
 
-# 2.3 Update .env.local with provided values
-sed -i -e "s|^STORE_DEPLOYER_TARGET=.*|STORE_DEPLOYER_TARGET=$DEPLOY_TARGET|" \
-       -e "s|^STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=.*|STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=$LOCAL_PROJECT_PATH|" \
-       -e "s|^PLATFORMSH_CLI_TOKEN=.*|PLATFORMSH_CLI_TOKEN=$PLATFORMSH_CLI_TOKEN|" \
-       -e "s|^PLATFORMSH_PROJECT_ID=.*|PLATFORMSH_PROJECT_ID=$PLATFORMSH_PROJECT_ID|" \
-       .env.local
+# 2.3 Update .env.local with provided values (portable sed)
+echo -e "\nUpdating .env.local with your inputs..."
+if sed --version >/dev/null 2>&1; then
+  # GNU sed
+  sed -i -e "s|^STORE_DEPLOYER_TARGET=.*|STORE_DEPLOYER_TARGET=$DEPLOY_TARGET|" \
+         -e "s|^STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=.*|STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=$LOCAL_PROJECT_PATH|" \
+         -e "s|^PLATFORMSH_CLI_TOKEN=.*|PLATFORMSH_CLI_TOKEN=$PLATFORMSH_CLI_TOKEN|" \
+         -e "s|^PLATFORMSH_PROJECT_ID=.*|PLATFORMSH_PROJECT_ID=$PLATFORMSH_PROJECT_ID|" \
+         .env.local
+else
+  # BSD sed (macOS)
+  sed -i '' -e "s|^STORE_DEPLOYER_TARGET=.*|STORE_DEPLOYER_TARGET=$DEPLOY_TARGET|" \
+            -e "s|^STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=.*|STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=$LOCAL_PROJECT_PATH|" \
+            -e "s|^PLATFORMSH_CLI_TOKEN=.*|PLATFORMSH_CLI_TOKEN=$PLATFORMSH_CLI_TOKEN|" \
+            -e "s|^PLATFORMSH_PROJECT_ID=.*|PLATFORMSH_PROJECT_ID=$PLATFORMSH_PROJECT_ID|" \
+            .env.local
+fi
 
 echo ".env.local is ready!"
 
