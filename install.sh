@@ -64,17 +64,18 @@ if [ "$DEPLOY_TARGET" = "local" ]; then
   PLATFORMSH_CLI_TOKEN=""
   PLATFORMSH_PROJECT_ID=""
 else
-  read -r -p "Enter your Platform.sh API token (press Enter to skip): " PLATFORMSH_CLI_TOKEN
+  read -rs -p "Enter your Platform.sh API token (press Enter to skip, input hidden): " PLATFORMSH_CLI_TOKEN
   PLATFORMSH_CLI_TOKEN="${PLATFORMSH_CLI_TOKEN:-}"
-  read -r -p "Enter your Platform.sh Project ID (press Enter to skip): " PLATFORMSH_PROJECT_ID
+  read -rs -p "Enter your Platform.sh Project ID (press Enter to skip, input hidden): " PLATFORMSH_PROJECT_ID
   PLATFORMSH_PROJECT_ID="${PLATFORMSH_PROJECT_ID:-}"
   LOCAL_PROJECT_PATH=""
 fi
 
-# 2.3 Require OpenAI API key
-echo -e "\n💡 2.3 Configuring OpenAI API key (required)..."
+# 2.3 Require OpenAI API key (hidden input)
+echo -e "\n💡 2.3 Configuring OpenAI API key (required, input hidden)..."
 while true; do
-  read -r -p "Enter your OpenAI API key: " OPENAI_API_KEY
+  read -rs -p "Enter your OpenAI API key: " OPENAI_API_KEY
+  echo
   if [ -n "$OPENAI_API_KEY" ]; then
     break
   fi
@@ -107,7 +108,7 @@ else
   sed -i '' -e "s|^STORE_DEPLOYER_TARGET=.*|STORE_DEPLOYER_TARGET=$DEPLOY_TARGET|" \
             -e "s|^STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=.*|STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=$LOCAL_PROJECT_PATH|" \
             -e "s|^PLATFORMSH_CLI_TOKEN=.*|PLATFORMSH_CLI_TOKEN=$PLATFORMSH_CLI_TOKEN|" \
-            -e "s|^PLATFORMSH_PROJECT_ID=.*|STORE_DEPLOYER_TARGET_LOCAL_PROJECT_PATH=$PLATFORMSH_PROJECT_ID|" \
+            -e "s|^PLATFORMSH_PROJECT_ID=.*|PLATFORMSH_PROJECT_ID=$PLATFORMSH_PROJECT_ID|" \
             .env.local
 fi
 # OpenAI key: replace or append
