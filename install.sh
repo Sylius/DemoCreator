@@ -41,7 +41,7 @@ if [ -f .env.local ]; then
 fi
 cp .env .env.local
 
-echo -e "\n📝 2. Configuring sylius/store-creator settings..."
+echo -e "\n📝 2. Configuring sylius/store-wizard settings..."
 
 # Color definitions for smoke test output
 RED=$'\033[0;31m'

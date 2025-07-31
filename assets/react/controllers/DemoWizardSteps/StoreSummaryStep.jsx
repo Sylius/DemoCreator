@@ -8,11 +8,10 @@ export default function StoreSummaryStep() {
     const { wiz, dispatch } = useContext(WizardContext);
     const {
         loading: presetLoading,
-        error: presetError,
+        error,
         generateStore,
         deployStore,
     } = useStorePreset();
-    const [localError, setLocalError] = useState(null);
 
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
@@ -50,35 +49,33 @@ const expectedTimeMinutes = Math.ceil(3 + ((wiz.storeDetails?.categories?.length
 
     const handleGenerate = async () => {
         dispatch({ type: 'BEGIN_GENERATION' });
-        setLocalError(null);
         try {
             await generateStore(wiz.storeDetails);
             dispatch({ type: 'READY_TO_DEPLOY' });
         } catch (e) {
             const errMsg =
+                e?.response?.data?.details ||
                 e?.response?.data?.error ||
                 e?.message ||
-                presetError ||
+                error ||
                 'Unknown error';
             dispatch({ type: 'ERROR', error: errMsg });
-            setLocalError(errMsg);
         }
     };
 
     const handleDeploy = async () => {
         dispatch({ type: 'BEGIN_DEPLOY' });
-        setLocalError(null);
         try {
             await deployStore();
             dispatch({ type: 'COMPLETE' });
         } catch (e) {
             const errMsg =
+                e?.response?.data?.details ||
                 e?.response?.data?.error ||
                 e?.message ||
-                presetError ||
+                error ||
                 'Unknown error';
             dispatch({ type: 'ERROR', error: errMsg });
-            setLocalError(errMsg);
         }
     }
 
@@ -148,14 +145,12 @@ const expectedTimeMinutes = Math.ceil(3 + ((wiz.storeDetails?.categories?.length
 
         case 'error':
             content = (
-                <div className="flex flex-col items-center py-6">
-                    <div className="text-red-600 text-3xl mb-2">✖</div>
-                    <p className="text-red-700 font-semibold mb-4">{localError || presetError}</p>
+                <div className="flex flex-col items-center">
                     <button
-                        onClick={handleGenerateAndDeploy}
+                        onClick={handleGenerate}
                         className="w-full py-2 rounded-lg font-medium bg-teal-600 hover:bg-teal-700 text-white"
                     >
-                        Retry
+                        Retry generation
                     </button>
                 </div>
             );

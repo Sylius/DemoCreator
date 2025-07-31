@@ -19,9 +19,15 @@ use App\StoreDesigner\Util\ImageBackground;
 use App\StoreDesigner\Util\ImageQuality;
 use App\StoreDesigner\Util\ImageResolution;
 use App\StoreDesigner\Util\StoreSection;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final class ImageRequestCollectionFactory implements ImageRequestCollectionFactoryInterface
+final readonly class ImageRequestCollectionFactory implements ImageRequestCollectionFactoryInterface
 {
+    public function __construct(
+        #[Autowire(env: 'WIZARD_IMAGE_QUALITY')] private string $imageQuality,
+    ) {
+    }
+
     private const MODEL = 'gpt-image-1';
 
     public function createFromStoreDefinition(array $storeDefinition): array
@@ -34,7 +40,7 @@ final class ImageRequestCollectionFactory implements ImageRequestCollectionFacto
                 prompt: $product['imgPrompt'],
                 model: self::MODEL,
                 imageResolution: ImageResolution::Landscape,
-                imageQuality: ImageQuality::High,
+                imageQuality: ImageQuality::from($this->imageQuality),
                 n: 1,
             );
         }
@@ -47,7 +53,7 @@ final class ImageRequestCollectionFactory implements ImageRequestCollectionFacto
                     prompt: $asset['prompt'],
                     model: self::MODEL,
                     imageResolution: ImageResolution::Landscape,
-                    imageQuality: ImageQuality::High,
+                    imageQuality: ImageQuality::from($this->imageQuality),
                     imageBackground: $asset['key'] === 'logo' ? ImageBackground::Transparent : ImageBackground::Opaque,
                     n: 1,
                 );
