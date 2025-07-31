@@ -34,7 +34,7 @@ final class ImageRequestCollectionFactory implements ImageRequestCollectionFacto
                 prompt: $product['imgPrompt'],
                 model: self::MODEL,
                 imageResolution: ImageResolution::Landscape,
-                imageQuality: ImageQuality::Low,
+                imageQuality: ImageQuality::High,
                 n: 1,
             );
         }
@@ -47,7 +47,7 @@ final class ImageRequestCollectionFactory implements ImageRequestCollectionFacto
                     prompt: $asset['prompt'],
                     model: self::MODEL,
                     imageResolution: ImageResolution::Landscape,
-                    imageQuality: ImageQuality::Low,
+                    imageQuality: ImageQuality::High,
                     imageBackground: $asset['key'] === 'logo' ? ImageBackground::Transparent : ImageBackground::Opaque,
                     n: 1,
                 );
