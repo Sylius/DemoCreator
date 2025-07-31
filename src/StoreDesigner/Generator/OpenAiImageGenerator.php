@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the Sylius package.
- *
- * (c) Sylius Sp. z o.o.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\StoreDesigner\Generator;
@@ -16,10 +7,16 @@ namespace App\StoreDesigner\Generator;
 use App\StoreDesigner\Dto\ImageResponseDto;
 use App\StoreDesigner\Dto\ProductImageRequestDto;
 use App\StoreDesigner\Exception\ImageGenerationException;
+use App\StoreDesigner\Exception\OpenAiApiException;
 use App\StoreDesigner\Util\ImageType;
 use SensitiveParameter;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 
 final readonly class OpenAiImageGenerator implements ImageGeneratorInterface
 {
@@ -58,15 +55,27 @@ final readonly class OpenAiImageGenerator implements ImageGeneratorInterface
             }
 
             foreach ($promises as $item) {
-                $data = $item['promise']->toArray(false);
-                $b64 = $data['data'][0]['b64_json'] ?? throw new ImageGenerationException('No image data');
-                $binary = base64_decode($b64, true) ?? throw new ImageGenerationException('Invalid base64');
+                try {
+                    $response = $item['promise'];
+                    $status = $response->getStatusCode();
+                    $body = $response->getContent(false);
 
-                $results[] = new ImageResponseDto(
-                    filename: $item['filename'],
-                    imageType: $item['type'],
-                    binary: $binary,
-                );
+                    if ($status !== 200) {
+                        throw new OpenAiApiException(message: $body, httpStatus: $status);
+                    }
+
+                    $data = $response->toArray(false);
+                    $b64 = $data['data'][0]['b64_json'] ?? throw new ImageGenerationException('No image data', previous: null);
+                    $binary = base64_decode($b64, true) ?? throw new ImageGenerationException('Invalid base64', previous: null);
+
+                    $results[] = new ImageResponseDto(
+                        filename: $item['filename'],
+                        imageType: $item['type'],
+                        binary: $binary,
+                    );
+                } catch (TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface | DecodingExceptionInterface $e) {
+                    throw new OpenAiApiException('Failed to call OpenAI API: ' . $e->getMessage(), previous: $e);
+                }
             }
 
             if ($batchIndex < $totalBatches - 1) {

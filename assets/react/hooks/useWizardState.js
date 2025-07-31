@@ -45,6 +45,7 @@ function reducer(state, action) {
             return {...state, state: 'complete', error: null};
 
         case 'ERROR':
+            console.log(`Error in wizard: ${JSON.stringify(action)}`);
             return {...state, state: 'error', error: action.error};
 
         case 'RESET_WIZARD':
