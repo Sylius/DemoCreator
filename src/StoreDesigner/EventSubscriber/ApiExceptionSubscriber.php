@@ -65,7 +65,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
 
         if ($exception instanceof OpenAiApiException) {
             $event->setResponse(new JsonResponse([
-                'error' => 'OpenAI API error',
+                'error' => 'OpenAI API error: ' . $exception->getMessage(),
                 'details' => $exception->getMessage(),
             ], $exception->getHttpStatus() ?: 500));
 

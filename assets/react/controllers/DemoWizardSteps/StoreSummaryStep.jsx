@@ -145,9 +145,7 @@ const expectedTimeMinutes = Math.ceil(3 + ((wiz.storeDetails?.categories?.length
 
         case 'error':
             content = (
-                <div className="flex flex-col items-center py-6">
-                    <div className="text-red-600 text-3xl mb-2">✖</div>
-                    <p className="text-red-700 font-semibold mb-4">{error}</p>
+                <div className="flex flex-col items-center">
                     <button
                         onClick={handleGenerate}
                         className="w-full py-2 rounded-lg font-medium bg-teal-600 hover:bg-teal-700 text-white"

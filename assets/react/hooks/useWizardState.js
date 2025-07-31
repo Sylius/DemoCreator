@@ -48,6 +48,9 @@ function reducer(state, action) {
             console.log(`Error in wizard: ${JSON.stringify(action)}`);
             return {...state, state: 'error', error: action.error};
 
+        case 'SET_ERROR':
+            return {...state, error: action.error};
+
         case 'RESET_WIZARD':
             localStorage.clear();
             return initialState;
