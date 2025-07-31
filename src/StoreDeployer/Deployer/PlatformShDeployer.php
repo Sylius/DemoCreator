@@ -22,7 +22,7 @@ final readonly class PlatformShDeployer implements StoreDeployerInterface
 
     private const SYLIUS_BRANCH = '2.1';
 
-    private const STORE_ASSEMBLER_PACKAGE = 'sylius/store-assembler:dev-main-v4';
+    private const STORE_ASSEMBLER_PACKAGE = 'sylius/store-assembler:dev-main';
 
     private const PLATFORMSH_ENVIRONMENT_NAME = 'main';
 
@@ -229,14 +229,6 @@ final readonly class PlatformShDeployer implements StoreDeployerInterface
             'cd %s && composer require %s --no-scripts --no-interaction',
             escapeshellarg($dir),
             escapeshellarg(self::STORE_ASSEMBLER_PACKAGE),
-        ))
-            ->setTimeout(0)
-            ->mustRun()
-        ;
-
-        Process::fromShellCommandline(sprintf(
-            'cd %s && yarn add --dev @symfony/webpack-encore webpack webpack-cli',
-            escapeshellarg($dir)
         ))
             ->setTimeout(0)
             ->mustRun()

@@ -21,7 +21,7 @@ cd "$APP_DIR"
 # 1. Repository setup
 # ----------------------------------------------------------------------------
 REPO_URL="https://github.com/Sylius/DemoCreator.git"
-BRANCH="main-v4"
+BRANCH="main"
 
 echo -e "\n🔍 1. Cloning the repository into '$APP_DIR' and switching to branch '$BRANCH'..."
 if [ ! -d ".git" ]; then
