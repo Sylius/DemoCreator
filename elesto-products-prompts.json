@@ -1,0 +1,332 @@
+[
+    {
+        "name": "Monexel True Wireless Wireless Headphones - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Monexel True Wireless Wireless Headphones', a product in the 'audio-multimedia' category, for an electronics store. The image should clearly represent only the 'Monexel True Wireless Wireless Headphones' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["monexel_true_wireless_wireless_headphones_model_11226622e7e73b_01"]
+    },
+    {
+        "name": "Monexel True Wireless Wireless Headphones - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Monexel True Wireless Wireless Headphones', a product in the 'audio-multimedia' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["monexel_true_wireless_wireless_headphones_model_11226622e7e73b_02"]
+    },
+    {
+        "name": "Monexel True Wireless Wireless Headphones - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Monexel True Wireless Wireless Headphones', a product in the 'audio-multimedia' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["monexel_true_wireless_wireless_headphones_model_11226622e7e73b_03"]
+    },
+    {
+        "name": "Monexel Over-Ear Wireless Headphones - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Monexel Over-Ear Wireless Headphones', a product in the 'audio-multimedia' category, for an electronics store. The image should clearly represent only the 'Monexel Over-Ear Wireless Headphones' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["monexel_over_ear_wireless_headphones_model_112269958bb77a_01"]
+    },
+    {
+        "name": "Monexel Over-Ear Wireless Headphones - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Monexel Over-Ear Wireless Headphones', a product in the 'audio-multimedia' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["monexel_over_ear_wireless_headphones_model_112269958bb77a_02"]
+    },
+    {
+        "name": "Monexel Over-Ear Wireless Headphones - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Monexel Over-Ear Wireless Headphones', a product in the 'audio-multimedia' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["monexel_over_ear_wireless_headphones_model_112269958bb77a_03"]
+    },
+    {
+        "name": "Monexel Wireless Speaker - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Monexel Wireless Speaker', a product in the 'audio-multimedia' category, for an electronics store. The image should clearly represent only the 'Monexel Wireless Speaker' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["monexel_wireless_speaker_model_112275023c4d35_01"]
+    },
+    {
+        "name": "Monexel Wireless Speaker - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Monexel Wireless Speaker', a product in the 'audio-multimedia' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["monexel_wireless_speaker_model_112275023c4d35_02"]
+    },
+    {
+        "name": "Monexel Wireless Speaker - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Monexel Wireless Speaker', a product in the 'audio-multimedia' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["monexel_wireless_speaker_model_112275023c4d35_03"]
+    },
+    {
+        "name": "Vortexa AudioBuzz - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Vortexa AudioBuzz', a product in the 'audio-multimedia' category, for an electronics store. The image should clearly represent only the 'Vortexa AudioBuzz' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["vortexa_audiobuzz_2v3w4x_01"]
+    },
+    {
+        "name": "Vortexa AudioBuzz - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Vortexa AudioBuzz', a product in the 'audio-multimedia' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["vortexa_audiobuzz_2v3w4x_02"]
+    },
+    {
+        "name": "Vortexa AudioBuzz - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Vortexa AudioBuzz', a product in the 'audio-multimedia' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["vortexa_audiobuzz_2v3w4x_03"]
+    },
+    {
+        "name": "Proxima Circuits Pro Quadcopter - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Proxima Circuits Pro Quadcopter', a product in the 'drones-uav-systems' category, for an electronics store. The image should clearly represent only the 'Proxima Circuits Pro Quadcopter' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["proxima_circuits_pro_quadcopter_model_a288c1_01"]
+    },
+    {
+        "name": "Proxima Circuits Pro Quadcopter - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Proxima Circuits Pro Quadcopter', a product in the 'drones-uav-systems' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["proxima_circuits_pro_quadcopter_model_a288c1_02"]
+    },
+    {
+        "name": "Proxima Circuits Pro Quadcopter - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Proxima Circuits Pro Quadcopter', a product in the 'drones-uav-systems' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["proxima_circuits_pro_quadcopter_model_a288c1_03"]
+    },
+    {
+        "name": "MagnaVolt Photodiode - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'MagnaVolt Photodiode', a product in the 'lighting-optoelectronics' category, for an electronics store. The image should clearly represent only the 'MagnaVolt Photodiode' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["magnavolt_photodiode_model_2f87b6_01"]
+    },
+    {
+        "name": "MagnaVolt Photodiode - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'MagnaVolt Photodiode', a product in the 'lighting-optoelectronics' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["magnavolt_photodiode_model_2f87b6_02"]
+    },
+    {
+        "name": "MagnaVolt Photodiode - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'MagnaVolt Photodiode', a product in the 'lighting-optoelectronics' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["magnavolt_photodiode_model_2f87b6_03"]
+    },
+    {
+        "name": "Ferrotronics Explorer Robot - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Ferrotronics Explorer Robot', a product in the 'robotics-mechatronics' category, for an electronics store. The image should clearly represent only the 'Ferrotronics Explorer Robot' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["ferrotronics_explorer_robot_model_a55ec0_01"]
+    },
+    {
+        "name": "Ferrotronics Explorer Robot - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Ferrotronics Explorer Robot', a product in the 'robotics-mechatronics' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["ferrotronics_explorer_robot_model_a55ec0_02"]
+    },
+    {
+        "name": "Ferrotronics Explorer Robot - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Ferrotronics Explorer Robot', a product in the 'robotics-mechatronics' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["ferrotronics_explorer_robot_model_a55ec0_03"]
+    },
+    {
+        "name": "Vortexa Beginner Robot Kit - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Vortexa Beginner Robot Kit', a product in the 'stem-prototyping-kits' category, for an electronics store. The image should clearly represent only the 'Vortexa Beginner Robot Kit' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["vortexa_beginner_robot_kit_model_067fcf_01"]
+    },
+    {
+        "name": "Vortexa Beginner Robot Kit - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Vortexa Beginner Robot Kit', a product in the 'stem-prototyping-kits' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["vortexa_beginner_robot_kit_model_067fcf_02"]
+    },
+    {
+        "name": "Vortexa Beginner Robot Kit - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Vortexa Beginner Robot Kit', a product in the 'stem-prototyping-kits' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["vortexa_beginner_robot_kit_model_067fcf_03"]
+    },
+    {
+        "name": "Matsuro Electronics 4WD Robot - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Matsuro Electronics 4WD Robot', a product in the 'robotics-mechatronics' category, for an electronics store. The image should clearly represent only the 'Matsuro Electronics 4WD Robot' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["matsuro_electronics_4wd_robot_model_0423a8_01"]
+    },
+    {
+        "name": "Matsuro Electronics 4WD Robot - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Matsuro Electronics 4WD Robot', a product in the 'robotics-mechatronics' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["matsuro_electronics_4wd_robot_model_0423a8_02"]
+    },
+    {
+        "name": "Matsuro Electronics 4WD Robot - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Matsuro Electronics 4WD Robot', a product in the 'robotics-mechatronics' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["matsuro_electronics_4wd_robot_model_0423a8_03"]
+    },
+    {
+        "name": "Veyra Digital 20A Mechanical Relay - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Veyra Digital 20A Mechanical Relay', a product in the 'control-automation' category, for an electronics store. The image should clearly represent only the 'Veyra Digital 20A Mechanical Relay' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["veyra_digital_20a_mechanical_relay_model_03942d_01"]
+    },
+    {
+        "name": "Veyra Digital 20A Mechanical Relay - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Veyra Digital 20A Mechanical Relay', a product in the 'control-automation' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["veyra_digital_20a_mechanical_relay_model_03942d_02"]
+    },
+    {
+        "name": "Veyra Digital 20A Mechanical Relay - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Veyra Digital 20A Mechanical Relay', a product in the 'control-automation' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["veyra_digital_20a_mechanical_relay_model_03942d_03"]
+    },
+    {
+        "name": "ZNR Bluetooth BLE Module - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'ZNR Bluetooth BLE Module', a product in the 'communication-connectivity' category, for an electronics store. The image should clearly represent only the 'ZNR Bluetooth BLE Module' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["znr_bluetooth_ble_module_model_00b169_01"]
+    },
+    {
+        "name": "ZNR Bluetooth BLE Module - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'ZNR Bluetooth BLE Module', a product in the 'communication-connectivity' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["znr_bluetooth_ble_module_model_00b169_02"]
+    },
+    {
+        "name": "ZNR Bluetooth BLE Module - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'ZNR Bluetooth BLE Module', a product in the 'communication-connectivity' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["znr_bluetooth_ble_module_model_00b169_03"]
+    },
+    {
+        "name": "MagnaVolt 12V DC Motor - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'MagnaVolt 12V DC Motor', a product in the 'robot-building-components' category, for an electronics store. The image should clearly represent only the 'MagnaVolt 12V DC Motor' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["magnavolt_12v_dc_motor_model_05ff1e_01"]
+    },
+    {
+        "name": "MagnaVolt 12V DC Motor - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'MagnaVolt 12V DC Motor', a product in the 'robot-building-components' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["magnavolt_12v_dc_motor_model_05ff1e_02"]
+    },
+    {
+        "name": "MagnaVolt 12V DC Motor - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'MagnaVolt 12V DC Motor', a product in the 'robot-building-components' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["magnavolt_12v_dc_motor_model_05ff1e_03"]
+    },
+    {
+        "name": "Kyoden Advanced Robot Kit - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Kyoden Advanced Robot Kit', a product in the 'stem-prototyping-kits' category, for an electronics store. The image should clearly represent only the 'Kyoden Advanced Robot Kit' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["kyoden_advanced_robot_kit_model_0627ef_01"]
+    },
+    {
+        "name": "Kyoden Advanced Robot Kit - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Kyoden Advanced Robot Kit', a product in the 'stem-prototyping-kits' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["kyoden_advanced_robot_kit_model_0627ef_02"]
+    },
+    {
+        "name": "Kyoden Advanced Robot Kit - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Kyoden Advanced Robot Kit', a product in the 'stem-prototyping-kits' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["kyoden_advanced_robot_kit_model_0627ef_03"]
+    },
+    {
+        "name": "LNX PIR Motion Sensor - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'LNX PIR Motion Sensor', a product in the 'lighting-optoelectronics' category, for an electronics store. The image should clearly represent only the 'LNX PIR Motion Sensor' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["lnx_pir_motion_sensor_model_8a6b6d_01"]
+    },
+    {
+        "name": "LNX PIR Motion Sensor - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'LNX PIR Motion Sensor', a product in the 'lighting-optoelectronics' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["lnx_pir_motion_sensor_model_8a6b6d_02"]
+    },
+    {
+        "name": "LNX PIR Motion Sensor - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'LNX PIR Motion Sensor', a product in the 'lighting-optoelectronics' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["lnx_pir_motion_sensor_model_8a6b6d_03"]
+    },
+    {
+        "name": "ResiTek Basic Humidity Sensor - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'ResiTek Basic Humidity Sensor', a product in the 'smart-agriculture' category, for an electronics store. The image should clearly represent only the 'ResiTek Basic Humidity Sensor' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["resitek_basic_humidity_sensor_model_472631_01"]
+    },
+    {
+        "name": "ResiTek Basic Humidity Sensor - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'ResiTek Basic Humidity Sensor', a product in the 'smart-agriculture' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["resitek_basic_humidity_sensor_model_472631_02"]
+    },
+    {
+        "name": "ResiTek Basic Humidity Sensor - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'ResiTek Basic Humidity Sensor', a product in the 'smart-agriculture' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["resitek_basic_humidity_sensor_model_472631_03"]
+    },
+    {
+        "name": "Proxima Circuits Basic Quadcopter - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Proxima Circuits Basic Quadcopter', a product in the 'drones-uav-systems' category, for an electronics store. The image should clearly represent only the 'Proxima Circuits Basic Quadcopter' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["proxima_circuits_basic_quadcopter_model_0e2a08_01"]
+    },
+    {
+        "name": "Proxima Circuits Basic Quadcopter - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Proxima Circuits Basic Quadcopter', a product in the 'drones-uav-systems' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["proxima_circuits_basic_quadcopter_model_0e2a08_02"]
+    },
+    {
+        "name": "Proxima Circuits Basic Quadcopter - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Proxima Circuits Basic Quadcopter', a product in the 'drones-uav-systems' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["proxima_circuits_basic_quadcopter_model_0e2a08_03"]
+    },
+    {
+        "name": "Takamura Electric Works 6DOF Robotic Arm - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Takamura Electric Works 6DOF Robotic Arm', a product in the 'robotics-mechatronics' category, for an electronics store. The image should clearly represent only the 'Takamura Electric Works 6DOF Robotic Arm' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["takamura_electric_works_6dof_robotic_arm_model_0a6fc5_01"]
+    },
+    {
+        "name": "Takamura Electric Works 6DOF Robotic Arm - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Takamura Electric Works 6DOF Robotic Arm', a product in the 'robotics-mechatronics' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["takamura_electric_works_6dof_robotic_arm_model_0a6fc5_02"]
+    },
+    {
+        "name": "Takamura Electric Works 6DOF Robotic Arm - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Takamura Electric Works 6DOF Robotic Arm', a product in the 'robotics-mechatronics' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["takamura_electric_works_6dof_robotic_arm_model_0a6fc5_03"]
+    },
+    {
+        "name": "ElektraNova Basic Extruder - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'ElektraNova Basic Extruder', a product in the '3d-printer-parts-upgrades' category, for an electronics store. The image should clearly represent only the 'ElektraNova Basic Extruder' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["elektranova_basic_extruder_model_a549ad_01"]
+    },
+    {
+        "name": "ElektraNova Basic Extruder - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'ElektraNova Basic Extruder', a product in the '3d-printer-parts-upgrades' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["elektranova_basic_extruder_model_a549ad_02"]
+    },
+    {
+        "name": "ElektraNova Basic Extruder - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'ElektraNova Basic Extruder', a product in the '3d-printer-parts-upgrades' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["elektranova_basic_extruder_model_a549ad_03"]
+    },
+    {
+        "name": "Euronix SA IoT Kit - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Euronix SA IoT Kit', a product in the 'stem-prototyping-kits' category, for an electronics store. The image should clearly represent only the 'Euronix SA IoT Kit' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["euronix_sa_iot_kit_model_1efb05_01"]
+    },
+    {
+        "name": "Euronix SA IoT Kit - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Euronix SA IoT Kit', a product in the 'stem-prototyping-kits' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["euronix_sa_iot_kit_model_1efb05_02"]
+    },
+    {
+        "name": "Euronix SA IoT Kit - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Euronix SA IoT Kit', a product in the 'stem-prototyping-kits' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["euronix_sa_iot_kit_model_1efb05_03"]
+    },
+    {
+        "name": "Euronix SA IoT Gateway (0287F3) - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Euronix SA IoT Gateway', a product in the 'iot-smart-devices' category, for an electronics store. The image should clearly represent only the 'Euronix SA IoT Gateway' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["euronix_sa_iot_gateway_model_0287f3_01"]
+    },
+    {
+        "name": "Euronix SA IoT Gateway (0287F3) - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Euronix SA IoT Gateway', a product in the 'iot-smart-devices' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["euronix_sa_iot_gateway_model_0287f3_02"]
+    },
+    {
+        "name": "Euronix SA IoT Gateway (0287F3) - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Euronix SA IoT Gateway', a product in the 'iot-smart-devices' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["euronix_sa_iot_gateway_model_0287f3_03"]
+    },
+    {
+        "name": "Euronix SA IoT Gateway (117A8A) - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Euronix SA IoT Gateway', a product in the 'iot-smart-devices' category, for an electronics store. The image should clearly represent only the 'Euronix SA IoT Gateway' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["euronix_sa_iot_gateway_model_117a8a_01"]
+    },
+    {
+        "name": "Euronix SA IoT Gateway (117A8A) - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Euronix SA IoT Gateway', a product in the 'iot-smart-devices' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["euronix_sa_iot_gateway_model_117a8a_02"]
+    },
+    {
+        "name": "Euronix SA IoT Gateway (117A8A) - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Euronix SA IoT Gateway', a product in the 'iot-smart-devices' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["euronix_sa_iot_gateway_model_117a8a_03"]
+    },
+    {
+        "name": "Nordelec AC 230V Cable - main",
+        "imgPrompt": "Generate a high-quality, realistic product photo of 'Nordelec AC 230V Cable', a product in the 'cables-wiring' category, for an electronics store. The image should clearly represent only the 'Nordelec AC 230V Cable' product as it would appear in a professional online store catalog. Show the product in isolation on a neutral background, with proper lighting and clean presentation typical of e-commerce product listings.",
+        "images": ["nordelec_ac_230v_cable_model_0179f7_01"]
+    },
+    {
+        "name": "Nordelec AC 230V Cable - variant",
+        "imgPrompt": "Generate a high-quality, realistic alternative product photo of 'Nordelec AC 230V Cable', a product in the 'cables-wiring' category. Show the product from a different angle or in a lifestyle context, maintaining professional e-commerce photography standards with good lighting and clear product visibility.",
+        "images": ["nordelec_ac_230v_cable_model_0179f7_02"]
+    },
+    {
+        "name": "Nordelec AC 230V Cable - detail",
+        "imgPrompt": "Generate a high-quality, realistic detail or technical photo of 'Nordelec AC 230V Cable', a product in the 'cables-wiring' category. If applicable for this product type, show a technical diagram or blueprint-style illustration with labeled components; otherwise show a detailed close-up highlighting key features and build quality.",
+        "images": ["nordelec_ac_230v_cable_model_0179f7_03"]
+    }
+]

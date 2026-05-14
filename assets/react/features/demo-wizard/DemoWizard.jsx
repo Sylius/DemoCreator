@@ -1,12 +1,12 @@
-import InterviewStep from './DemoWizardSteps/InterviewStep';
-import InterviewSummaryStep from './DemoWizardSteps/InterviewSummaryStep';
-import PluginsStep from './DemoWizardSteps/PluginsStep';
+import InterviewStep from './steps/InterviewStep';
+import InterviewSummaryStep from './steps/InterviewSummaryStep';
+import PluginsStep from './steps/PluginsStep';
 import React, {useContext} from 'react';
-import StoreSummaryStep from './DemoWizardSteps/StoreSummaryStep';
+import StoreSummaryStep from './steps/StoreSummaryStep';
 import {motion} from 'framer-motion';
 import {useNavigate, useParams} from 'react-router-dom';
-import {useStorePreset} from '../hooks/useStorePreset';
-import {WizardContext} from '../hooks/WizardProvider';
+import {useStorePreset} from './hooks/useStorePreset';
+import {WizardContext} from './context/WizardProvider';
 
 const steps = [
     'Plugins',

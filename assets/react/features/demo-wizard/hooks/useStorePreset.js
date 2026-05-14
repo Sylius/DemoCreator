@@ -1,5 +1,5 @@
 import {useState, useEffect, useCallback, useContext} from 'react';
-import {WizardContext} from "./WizardProvider";
+import {WizardContext} from '@features/demo-wizard/context/WizardProvider';
 
 export function useStorePreset() {
     const [presetId, setPresetId] = useState(() => localStorage.getItem('presetId') || null);

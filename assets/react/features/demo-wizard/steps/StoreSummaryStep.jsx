@@ -1,8 +1,8 @@
 import {useState, useEffect, useCallback, useContext} from 'react';
-import {WizardContext} from "../../hooks/WizardProvider";
+import {WizardContext} from '@features/demo-wizard/context/WizardProvider';
 import {motion} from 'framer-motion';
 import wizardStepVariants from './wizardStepVariants';
-import {useStorePreset} from "../../hooks/useStorePreset";
+import {useStorePreset} from '@features/demo-wizard/hooks/useStorePreset';
 
 export default function StoreSummaryStep() {
     const { wiz, dispatch } = useContext(WizardContext);

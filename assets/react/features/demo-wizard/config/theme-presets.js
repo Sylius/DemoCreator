@@ -1,4 +1,4 @@
-// assets/theme-presets.js
+// assets/react/features/demo-wizard/config/theme-presets.js
 // Tailwind-inspired CSS variable presets for Theme Creator
 
 const presets = {

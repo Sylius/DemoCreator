@@ -1,4 +1,4 @@
-// assets/react/controllers/Dashboard.jsx
+// assets/react/features/dashboard/Dashboard.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
 

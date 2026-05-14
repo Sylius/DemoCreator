@@ -1,8 +1,8 @@
 import React, {useContext} from 'react';
-import {WizardContext, StorePresetContext} from '../../hooks/WizardProvider';
+import {WizardContext, StorePresetContext} from '@features/demo-wizard/context/WizardProvider';
 import {motion} from 'framer-motion';
 import wizardStepVariants from './wizardStepVariants';
-import {useSupportedPlugins} from "../../hooks/useSupportedPlugins";
+import {useSupportedPlugins} from '@features/demo-wizard/hooks/useSupportedPlugins';
 
 export default function PluginsStep() {
     const {wiz, dispatch} = useContext(WizardContext);

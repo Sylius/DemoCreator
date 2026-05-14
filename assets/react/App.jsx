@@ -1,7 +1,6 @@
 import React from 'react';
 import {BrowserRouter, Routes, Route, Link, useLocation} from 'react-router-dom';
-import DemoWizard from './controllers/DemoWizard';
-import {WizardProvider} from "./hooks/WizardProvider";
+import DemoWizard, {WizardProvider} from '@features/demo-wizard';
 
 function Layout({children}) {
     const location = useLocation();
@@ -25,9 +24,6 @@ function Layout({children}) {
             <main className="flex-1 flex flex-col items-center px-4 py-8">
                 <div className="w-full max-w-4xl">{children}</div>
             </main>
-            {/*<footer className="border-t border-gray-200 text-center text-sm text-gray-500 py-6 bg-white/70">*/}
-            {/*    &copy; {new Date().getFullYear()} Sylius Demo Creator. All rights reserved.*/}
-            {/*</footer>*/}
         </div>
     );
 }
@@ -52,10 +48,10 @@ function HomeHero() {
     return (
         <section className="flex flex-col items-center justify-center py-24 gap-6 text-center">
             <h1 className="text-2xl md:text-5xl font-extrabold tracking-tight mb-2 bg-gradient-to-r from-teal-600 to-cyan-500 bg-clip-text">
-                Sylius Demo Creator
+                Store Wizard
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mb-6">
-                Craft your Sylius store in seconds with our intuitive demo creator.
+                Craft your Sylius store in seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/wizard"
@@ -70,6 +66,23 @@ function HomeHero() {
     );
 }
 
+function NotFound() {
+    return (
+        <section className="flex flex-col items-center justify-center py-24 gap-6 text-center">
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-2 text-red-600">
+                404 - Page Not Found
+            </h1>
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mb-6">
+                Oops! The page you're looking for doesn't exist.
+            </p>
+            <Link to="/"
+                  className="px-6 py-3 rounded-xl bg-teal-600 text-white font-semibold shadow hover:bg-teal-700 transition text-lg no-underline hover:underline">
+                Go to Home
+            </Link>
+        </section>
+    );
+}
+
 export default function App() {
     return (
         <BrowserRouter>
@@ -78,6 +91,7 @@ export default function App() {
                     <Routes>
                         <Route path="/wizard/:step?" element={<DemoWizard/>}/>
                         <Route path="/" element={<HomeHero/>}/>
+                        <Route path="*" element={<NotFound/>}/>
                     </Routes>
                 </Layout>
             </WizardProvider>

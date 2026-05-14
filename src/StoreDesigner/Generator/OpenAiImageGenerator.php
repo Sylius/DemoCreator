@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\StoreDesigner\Generator;
 
+use App\StoreDesigner\Dto\AssetImageRequestDto;
 use App\StoreDesigner\Dto\ImageResponseDto;
 use App\StoreDesigner\Dto\ProductImageRequestDto;
 use App\StoreDesigner\Exception\ImageGenerationException;
@@ -29,15 +30,46 @@ final readonly class OpenAiImageGenerator implements ImageGeneratorInterface
     public function generateAll(array $imageRequests): array
     {
         $results = [];
-        $batches = array_chunk($imageRequests, 5);
+
+        // Smart batching: limit total images per batch to 5 (OpenAI rate limit)
+        $batches = [];
+        $currentBatch = [];
+        $currentBatchImageCount = 0;
+        $maxImagesPerBatch = 5;
+
+        foreach ($imageRequests as $request) {
+            $requestImageCount = $request->n;
+
+            // If adding this request would exceed the limit, start a new batch
+            if ($currentBatchImageCount + $requestImageCount > $maxImagesPerBatch && !empty($currentBatch)) {
+                $batches[] = $currentBatch;
+                $currentBatch = [];
+                $currentBatchImageCount = 0;
+            }
+
+            $currentBatch[] = $request;
+            $currentBatchImageCount += $requestImageCount;
+        }
+
+        // Add the last batch if not empty
+        if (!empty($currentBatch)) {
+            $batches[] = $currentBatch;
+        }
+
         $totalBatches = count($batches);
 
         foreach ($batches as $batchIndex => $batch) {
             $promises = [];
             foreach ($batch as $image) {
+                $type = match (true) {
+                    $image instanceof ProductImageRequestDto => ImageType::Product,
+                    $image instanceof AssetImageRequestDto => ImageType::Asset,
+                    default => ImageType::Custom,
+                };
+
                 $promises[] = [
                     'filename' => $image->filename,
-                    'type' => $image instanceof ProductImageRequestDto ? ImageType::Product : ImageType::Asset,
+                    'type' => $type,
                     'promise' => $this->httpClient->request('POST', 'https://api.openai.com/v1/images/generations', [
                         'headers' => [
                             'Authorization' => 'Bearer ' . $this->openaiApiKey,
@@ -65,14 +97,25 @@ final readonly class OpenAiImageGenerator implements ImageGeneratorInterface
                     }
 
                     $data = $response->toArray(false);
-                    $b64 = $data['data'][0]['b64_json'] ?? throw new ImageGenerationException('No image data', previous: null);
-                    $binary = base64_decode($b64, true) ?? throw new ImageGenerationException('Invalid base64', previous: null);
 
-                    $results[] = new ImageResponseDto(
-                        filename: $item['filename'],
-                        imageType: $item['type'],
-                        binary: $binary,
-                    );
+                    if (empty($data['data'])) {
+                        throw new ImageGenerationException('No image data', previous: null);
+                    }
+
+                    foreach ($data['data'] as $index => $imageData) {
+                        $b64 = $imageData['b64_json'] ?? throw new ImageGenerationException('No image data at index ' . $index, previous: null);
+                        $binary = base64_decode($b64, true) ?? throw new ImageGenerationException('Invalid base64', previous: null);
+
+                        $filename = count($data['data']) > 1
+                            ? $item['filename'] . '_' . str_pad((string)($index + 1), 2, '0', STR_PAD_LEFT)
+                            : $item['filename'];
+
+                        $results[] = new ImageResponseDto(
+                            filename: $filename,
+                            imageType: $item['type'],
+                            binary: $binary,
+                        );
+                    }
                 } catch (TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface | DecodingExceptionInterface $e) {
                     throw new OpenAiApiException('Failed to call OpenAI API: ' . $e->getMessage(), previous: $e);
                 }

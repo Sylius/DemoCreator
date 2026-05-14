@@ -8,4 +8,6 @@ enum ImageType: string
 {
     case Asset = 'asset';
     case Product = 'product';
+
+    case Custom = 'custom';
 }

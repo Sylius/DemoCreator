@@ -39,6 +39,10 @@ final readonly class ImagePersister implements ImagePersisterInterface
                     StoreSection::Shop,
                     $image->filename,
                 ),
+                ImageType::Custom => $this->pathResolver->getCustomImageFilePath(
+                    $storePresetId,
+                    $image->filename,
+                ),
             };
 
             $this->filesystem->dumpFile($path, $image->binary);

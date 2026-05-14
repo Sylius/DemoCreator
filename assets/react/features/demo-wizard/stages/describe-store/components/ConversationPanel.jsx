@@ -1,7 +1,7 @@
 import {useState, useContext, useEffect} from 'react';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
-import {WizardContext} from '../../../hooks/WizardProvider';
+import {WizardContext} from '@features/demo-wizard/context/WizardProvider';
 
 const ConversationPanel = ({
                                messages,

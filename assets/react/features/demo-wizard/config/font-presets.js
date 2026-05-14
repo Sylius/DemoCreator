@@ -1,4 +1,4 @@
-// assets/font-presets.js
+// assets/react/features/demo-wizard/config/font-presets.js
 
 const fontPresets = {
     sans: {

@@ -1,8 +1,8 @@
-// assets/react/controllers/ThemePanel.jsx
+// assets/react/features/demo-wizard/components/ThemePanel.jsx
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import presets from '../theme-presets';
-import fontPresets from '../font-presets';
+import presets from '@features/demo-wizard/config/theme-presets';
+import fontPresets from '@features/demo-wizard/config/font-presets';
 
 // helper to convert hex to "r, g, b"
 function hexToRgb(hex) {

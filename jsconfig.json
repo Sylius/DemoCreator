@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@features/*": ["assets/react/features/*"]
+    },
+    "jsx": "react-jsx",
+    "moduleResolution": "node"
+  },
+  "include": [
+    "assets/react/**/*",
+    "assets/app.js"
+  ]
+}

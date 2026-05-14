@@ -1,5 +1,5 @@
 import React, {useCallback, useContext} from 'react';
-import {WizardContext} from '../../hooks/WizardProvider';
+import {WizardContext} from '@features/demo-wizard/context/WizardProvider';
 import {motion} from 'framer-motion';
 import wizardStepVariants from './wizardStepVariants';
 

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useContext } from 'react';
-import { WizardContext } from '../../../hooks/WizardProvider';
+import { WizardContext } from '@features/demo-wizard/context/WizardProvider';
 
 export function useConversation() {
     const { wiz, dispatch } = useContext(WizardContext);

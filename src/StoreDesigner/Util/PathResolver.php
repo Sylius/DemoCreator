@@ -87,4 +87,9 @@ final readonly class PathResolver
     {
         return Path::join($this->getFixturesDirectory($storePresetId), $imageName . '.png');
     }
+
+    public function getCustomImageFilePath(string $storePresetId, string $filename): string
+    {
+        return Path::join($this->storePresetsDir, $storePresetId, 'custom', 'images', $filename . '.png');
+    }
 }

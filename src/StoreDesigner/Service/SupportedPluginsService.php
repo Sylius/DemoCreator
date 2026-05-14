@@ -82,177 +82,66 @@ readonly class SupportedPluginsService
     private function getStaticPlugins(): array
     {
         // Static fallback based on Sylius StoreAssembler structure
+        $plugins = [
+            [
+                'name' => 'sylius/cms-plugin',
+                'versions' => ['1.0'],
+            ],
+            [
+                'name' => 'sylius/customer-service-plugin',
+                'versions' => ['2.0'],
+            ],
+            [
+                'name' => 'sylius/invoicing-plugin',
+                'versions' => ['2.0'],
+            ],
+            [
+                'name' => 'sylius/loyalty-plugin',
+                'versions' => ['2.0'],
+            ],
+            [
+                'name' => 'sylius/refund-plugin',
+                'versions' => ['2.0'],
+            ],
+            [
+                'name' => 'sylius/return-plugin',
+                'versions' => ['2.0'],
+            ],
+            [
+                'name' => 'sylius/rfq-plugin',
+                'versions' => ['2.0'],
+            ],
+            [
+                'name' => 'sylius/wishlist-plugin',
+                'versions' => ['1.0'],
+            ],
+        ];
+
+        // Ensure unique plugins by name (in case duplicates existed)
+        $uniquePlugins = [];
+        foreach ($plugins as $plugin) {
+            $name = $plugin['name'];
+            if (!isset($uniquePlugins[$name])) {
+                // Remove duplicate versions and sort ascending
+                $versions = array_unique($plugin['versions']);
+                sort($versions, SORT_STRING);
+                $uniquePlugins[$name] = [
+                    'name' => $name,
+                    'versions' => $versions,
+                ];
+            } else {
+                // Merge versions if duplicate plugin found
+                $mergedVersions = array_unique(array_merge($uniquePlugins[$name]['versions'], $plugin['versions']));
+                sort($mergedVersions, SORT_STRING);
+                $uniquePlugins[$name]['versions'] = $mergedVersions;
+            }
+        }
+
+        // Sort plugins alphabetically by name
+        usort($uniquePlugins, static fn($a, $b) => strcmp($a['name'], $b['name']));
+
         return [
-            'plugins' => [
-                [
-                    'name' => 'sylius/refund-plugin',
-                    'versions' => ['1.0', '1.1', '1.2', '1.3']
-                ],
-                [
-                    'name' => 'sylius/inventory-plugin',
-                    'versions' => ['1.0', '1.1', '1.2']
-                ],
-                [
-                    'name' => 'sylius/customer-reorder-plugin',
-                    'versions' => ['1.0', '1.1', '1.2']
-                ],
-                [
-                    'name' => 'sylius/plus',
-                    'versions' => ['1.0', '1.1', '1.2', '1.3']
-                ],
-                [
-                    'name' => 'sylius/admin-order-creation-plugin',
-                    'versions' => ['1.0', '1.1', '1.2']
-                ],
-                [
-                    'name' => 'sylius/attribute-plugin',
-                    'versions' => ['1.0', '1.1', '1.2']
-                ],
-                [
-                    'name' => 'sylius/availability-notifier-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/calendar-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/customer-order-cancellation-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/exchange-rate-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/order-export-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/payment-sg-checkout-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/product-reviews-plugin',
-                    'versions' => ['1.0', '1.1', '1.2']
-                ],
-                [
-                    'name' => 'sylius/shipping-export-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/shop-api-plugin',
-                    'versions' => ['1.0', '1.1', '1.2', '1.3', '1.4']
-                ],
-                [
-                    'name' => 'sylius/taxonomy-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/ups-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/warehouse-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/wishlist-plugin',
-                    'versions' => ['1.0', '1.1', '1.2']
-                ],
-                [
-                    'name' => 'sylius/notification-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/multi-source-inventory-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/elasticsearch-plugin',
-                    'versions' => ['1.0', '1.1', '1.2']
-                ],
-                [
-                    'name' => 'sylius/analytics-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/abandoned-cart-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/return-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/stock-alerts-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-inventory-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-order-management-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-pricing-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-shipping-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-tax-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-user-management-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-catalog-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-customer-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-payment-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-fulfillment-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-reporting-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-marketing-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-seo-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-security-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-performance-plugin',
-                    'versions' => ['1.0', '1.1']
-                ],
-                [
-                    'name' => 'sylius/advanced-integration-plugin',
-                    'versions' => ['1.0', '1.1']
-                ]
-            ]
+            'plugins' => $uniquePlugins,
         ];
     }
 } 

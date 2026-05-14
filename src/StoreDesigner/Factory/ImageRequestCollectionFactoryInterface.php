@@ -20,4 +20,16 @@ interface ImageRequestCollectionFactoryInterface
 {
     /** @return ImageRequestInterface[] An array of ImageRequestDto objects. */
     public function createFromStoreDefinition(array $storeDefinition): array;
+
+    /**
+     * Creates an array of ImageRequestDto objects from an array of objects that contain image prompts.
+     *
+     * @param array{
+     *     name: string,
+     *     imgPrompt: string,
+     *     images: string[],
+     * } $prompts An array of prompts to create image requests from.
+     * @return ImageRequestInterface[] An array of ImageRequestDto objects.
+     */
+    public function createFromPromptArray(array $prompts): array;
 }

@@ -1,9 +1,9 @@
 import React, {useCallback, useContext} from 'react';
-import {WizardContext} from '../../hooks/WizardProvider';
+import {WizardContext} from '@features/demo-wizard/context/WizardProvider';
 import {motion} from 'framer-motion';
 import wizardStepVariants from './wizardStepVariants';
-import ConversationPanel from "../DescribeStoreStage/ConversationPanel";
-import {useConversation} from "../DescribeStoreStage/hooks/useConversation";
+import ConversationPanel from '@features/demo-wizard/stages/describe-store/components/ConversationPanel';
+import {useConversation} from '@features/demo-wizard/stages/describe-store/hooks/useConversation';
 
 export default function InterviewStep() {
     const {wiz, dispatch} = useContext(WizardContext);

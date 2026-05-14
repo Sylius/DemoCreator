@@ -1,6 +1,6 @@
 import React, { createContext } from 'react';
-import {useWizardState} from "./useWizardState";
-import {useStorePreset} from "./useStorePreset";
+import {useWizardState} from '@features/demo-wizard/hooks/useWizardState';
+import {useStorePreset} from '@features/demo-wizard/hooks/useStorePreset';
 
 export const WizardContext = createContext(null);
 export const StorePresetContext = createContext(null);

@@ -1,3 +1,4 @@
+const path = require('path');
 const Encore = require('@symfony/webpack-encore');
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
@@ -28,6 +29,9 @@ Encore
     // will require an extra script tag for runtime.js
     // but, you probably want this, unless you're building a single-page app
     .enableSingleRuntimeChunk()
+    .addAliases({
+        '@features': path.resolve(__dirname, 'assets/react/features'),
+    })
 
     /*
      * FEATURE CONFIG
